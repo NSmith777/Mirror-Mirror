@@ -11,12 +11,17 @@
 
 using namespace DirectX;
 
-struct Constants
-{
+typedef struct {
     XMMATRIX Transform;
     XMMATRIX Projection;
     XMFLOAT3 LightVector;
-};
+} Constants;
+
+typedef struct {
+    XMFLOAT3 position;
+    XMFLOAT2 texcoord;
+    XMFLOAT3 normal;
+} Vertex;
 
 class Renderer {
 public:
@@ -31,6 +36,9 @@ public:
 
 private:
     GfxDevice* m_GfxDevice;
+
+    Vertex* VertexData;
+    unsigned int VertexCount;
 
     ID3D11Buffer* vertexBuffer;
 
@@ -53,8 +61,27 @@ Renderer::~Renderer() {
 }
 
 void Renderer::InitVertexBuffer() {
+    FILE* mdl_file = fopen("../resources/models/test.mdl", "rb");
+
+    if (!mdl_file)
+        assert(false);
+
+    unsigned int magic;
+    fread(&magic, sizeof(unsigned int), 1, mdl_file);
+
+    if (magic != 0x004C444D)
+        assert(false);
+
+    fread(&VertexCount, sizeof(unsigned int), 1, mdl_file);
+
+    unsigned int VertexDataSize = VertexCount * sizeof(Vertex);
+    VertexData = (Vertex*)malloc(VertexDataSize);
+    fread(VertexData, VertexDataSize, 1, mdl_file);
+
+    fclose(mdl_file);
+
     D3D11_BUFFER_DESC vertexBufferDesc = {};
-    vertexBufferDesc.ByteWidth = sizeof(VertexData);
+    vertexBufferDesc.ByteWidth = VertexDataSize;
     vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
@@ -171,7 +198,7 @@ void Renderer::Update(XMMATRIX compositeMtx) {
     m_GfxDevice->GetDeviceContext()->OMSetDepthStencilState(depthStencilState, 0);
     m_GfxDevice->GetDeviceContext()->OMSetBlendState(nullptr, nullptr, 0xffffffff); // use default blend mode (i.e. disable)
 
-    m_GfxDevice->GetDeviceContext()->Draw(sizeof(VertexData) / sizeof(VertexData[0]), 0);
+    m_GfxDevice->GetDeviceContext()->Draw(VertexCount, 0);
 }
 
 #define TITLE "Mirror, Mirror"
