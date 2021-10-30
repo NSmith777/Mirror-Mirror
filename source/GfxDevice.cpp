@@ -2,13 +2,12 @@
 
 GfxDevice::GfxDevice(HWND window) {
     m_Window = window;
-}
 
-GfxDevice::~GfxDevice() {
+    backBufferView = NULL;
+    depthBufferView = NULL;
 
-}
+    ////////// Init D3D //////////
 
-void GfxDevice::InitD3DDevice() {
     DXGI_SWAP_CHAIN_DESC scd;
     ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
     scd.BufferCount = 1;                                    // one back buffer
@@ -22,9 +21,9 @@ void GfxDevice::InitD3DDevice() {
     scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;     // allow full-screen switching
 
     D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL, D3D11_SDK_VERSION, &scd, &swapChain, &device, NULL, &deviceContext);
-}
 
-void GfxDevice::InitFrameBuffers() {
+    ////////// Init Framebuffers //////////
+
     swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBuffer);
 
     device->CreateRenderTargetView(backBuffer, nullptr, &backBufferView);
@@ -39,15 +38,15 @@ void GfxDevice::InitFrameBuffers() {
     device->CreateTexture2D(&depthBufferDesc, nullptr, &depthBuffer);
 
     device->CreateDepthStencilView(depthBuffer, nullptr, &depthBufferView);
-}
 
-void GfxDevice::InitViewport() {
+    ////////// Init Viewport //////////
+
     D3D11_VIEWPORT viewport = { 0, 0, 1280, 720, 0, 1 };
 
     deviceContext->RSSetViewports(1, &viewport);
-}
 
-void GfxDevice::InitRenderStates() {
+    ////////// Init Render States //////////
+
     D3D11_RASTERIZER_DESC rasterizerDesc = {};
     rasterizerDesc.FillMode = D3D11_FILL_SOLID;
     rasterizerDesc.CullMode = D3D11_CULL_BACK;
@@ -73,4 +72,8 @@ void GfxDevice::InitRenderStates() {
 
 void GfxDevice::Present() {
     swapChain->Present(1, 0);
+}
+
+GfxDevice::~GfxDevice() {
+
 }

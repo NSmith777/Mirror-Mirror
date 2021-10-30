@@ -13,6 +13,10 @@
   <ItemGroup>
     <ClCompile Include="source\GfxDevice.cpp" />
     <ClCompile Include="source\Main.cpp" />
+    <ClCompile Include="source\Model.cpp" />
+    <ClCompile Include="source\Object.cpp" />
+    <ClCompile Include="source\Shader.cpp" />
+    <ClCompile Include="source\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="source\shaders\default_ps.hlsl">
@@ -32,8 +36,11 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\Cube.h" />
     <ClInclude Include="source\GfxDevice.h" />
+    <ClInclude Include="source\Model.h" />
+    <ClInclude Include="source\Object.h" />
+    <ClInclude Include="source\Shader.h" />
+    <ClInclude Include="source\Texture.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

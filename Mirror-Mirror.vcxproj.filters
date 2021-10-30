@@ -24,6 +24,18 @@
     <ClCompile Include="source\GfxDevice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="source\shaders\default_vs.hlsl">
@@ -34,10 +46,19 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\Cube.h">
+    <ClInclude Include="source\GfxDevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\GfxDevice.h">
+    <ClInclude Include="source\Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -18,11 +18,6 @@ public:
     ID3D11SamplerState* GetSamplerState() { return samplerState; }
     ID3D11DepthStencilState* GetDepthStencilState() { return depthStencilState; }
 
-    void InitD3DDevice();
-    void InitFrameBuffers();
-    void InitViewport();
-    void InitRenderStates();
-
     void Present();
 
 private:
