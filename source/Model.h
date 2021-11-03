@@ -29,4 +29,5 @@ private:
 	unsigned int VertexCount;
 
 	ID3D11Buffer* vertexBuffer;
+	ID3D11RasterizerState* rasterizerState;
 };

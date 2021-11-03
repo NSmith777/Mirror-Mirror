@@ -3,22 +3,19 @@
 #include <windows.h>
 #include <d3d11.h>
 
+#include "Camera.h"
+
+class Camera;
+
 class GfxDevice {
 public:
-    GfxDevice(HWND window);
+    GfxDevice();
     ~GfxDevice();
 
     ID3D11Device* GetDevice() { return device; }
     ID3D11DeviceContext* GetDeviceContext() { return deviceContext; }
 
-    ID3D11RenderTargetView* GetRenderTarget() { return backBufferView; }
-    ID3D11DepthStencilView* GetDepthStencil() { return depthBufferView; }
-
-    ID3D11RasterizerState* GetRasterizerState() { return rasterizerState; }
-    ID3D11SamplerState* GetSamplerState() { return samplerState; }
-    ID3D11DepthStencilState* GetDepthStencilState() { return depthStencilState; }
-
-    void Present();
+    void Present(Camera *pCameras, unsigned int numCameras);
 
 private:
     HWND m_Window;
@@ -33,7 +30,8 @@ private:
     ID3D11Texture2D* depthBuffer;
     ID3D11DepthStencilView* depthBufferView;
 
-    ID3D11RasterizerState* rasterizerState;
-    ID3D11SamplerState* samplerState;
     ID3D11DepthStencilState* depthStencilState;
+
+    ID3D11SamplerState* samplerState;
+    ID3D11Buffer* quadBuffer;
 };

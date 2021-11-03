@@ -1,13 +1,30 @@
 #include "GfxDevice.h"
+#include "Model.h"
 
-GfxDevice::GfxDevice(HWND window) {
-    m_Window = window;
+#define TITLE "Mirror, Mirror"
 
-    backBufferView = NULL;
-    depthBufferView = NULL;
+static const Vertex quadVerts[] = {
+    { { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
+    { { -1.0f,  1.0f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
+    { {  1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
+    { {  1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
+};
+
+GfxDevice::GfxDevice() {
+    ////////// Init Window //////////
+
+    WNDCLASSEXA wndClassEx = { sizeof(wndClassEx) };
+    wndClassEx.lpfnWndProc = DefWindowProcA;
+    wndClassEx.lpszClassName = TITLE;
+
+    RegisterClassExA(&wndClassEx);
+
+    m_Window = CreateWindowExA(NULL, TITLE, TITLE, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, NULL, NULL, GetModuleHandle(NULL), NULL);
+
+    ShowWindow(m_Window, SW_SHOWDEFAULT);
 
     ////////// Init D3D //////////
-
+    
     DXGI_SWAP_CHAIN_DESC scd;
     ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
     scd.BufferCount = 1;                                    // one back buffer
@@ -24,6 +41,9 @@ GfxDevice::GfxDevice(HWND window) {
 
     ////////// Init Framebuffers //////////
 
+    backBufferView = NULL;
+    depthBufferView = NULL;
+
     swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBuffer);
 
     device->CreateRenderTargetView(backBuffer, nullptr, &backBufferView);
@@ -39,38 +59,68 @@ GfxDevice::GfxDevice(HWND window) {
 
     device->CreateDepthStencilView(depthBuffer, nullptr, &depthBufferView);
 
-    ////////// Init Viewport //////////
-
-    D3D11_VIEWPORT viewport = { 0, 0, 1280, 720, 0, 1 };
-
-    deviceContext->RSSetViewports(1, &viewport);
-
-    ////////// Init Render States //////////
-
-    D3D11_RASTERIZER_DESC rasterizerDesc = {};
-    rasterizerDesc.FillMode = D3D11_FILL_SOLID;
-    rasterizerDesc.CullMode = D3D11_CULL_BACK;
-
-    device->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
-
-    D3D11_SAMPLER_DESC samplerDesc = {};
-    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-
-    device->CreateSamplerState(&samplerDesc, &samplerState);
-
     D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
     depthStencilDesc.DepthEnable = TRUE;
     depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
     depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
     device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
+
+    // For drawing the camera render textures
+    D3D11_SAMPLER_DESC samplerDesc = {};
+    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+
+    device->CreateSamplerState(&samplerDesc, &samplerState);
+
+    ////////// Init Viewport //////////
+
+    D3D11_VIEWPORT viewport = { 0, 0, 1280, 720, 0, 1 };
+
+    deviceContext->RSSetViewports(1, &viewport);
+
+    ////////// Init Quad Buffer //////////
+
+    D3D11_BUFFER_DESC vertexBufferDesc = {};
+    vertexBufferDesc.ByteWidth = sizeof(quadVerts);
+    vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA vertexData = { quadVerts };
+
+    device->CreateBuffer(&vertexBufferDesc, &vertexData, &quadBuffer);
 }
 
-void GfxDevice::Present() {
+void GfxDevice::Present(Camera* pCameras, unsigned int numCameras) {
+    FLOAT clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+    deviceContext->ClearRenderTargetView(backBufferView, clearColor);
+    deviceContext->ClearDepthStencilView(depthBufferView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    deviceContext->OMSetRenderTargets(1, &backBufferView, depthBufferView);
+    deviceContext->OMSetDepthStencilState(depthStencilState, 0);
+    deviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff); // use default blend mode (i.e. disable)
+
+    for (unsigned int i = 0; i < numCameras; i++) {
+        pCameras[i].GetShader()->Use();
+
+        ID3D11ShaderResourceView* renderTargetTex = pCameras[i].GetRenderTargetTex();
+
+        deviceContext->PSSetShaderResources(0, 1, &renderTargetTex);
+        deviceContext->PSSetSamplers(0, 1, &samplerState);
+
+        UINT stride = sizeof(Vertex);
+        UINT offset = 0;
+
+        deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        deviceContext->IASetVertexBuffers(0, 1, &quadBuffer, &stride, &offset);
+
+        deviceContext->Draw(4, 0);
+    }
+
     swapChain->Present(1, 0);
 }
 

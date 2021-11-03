@@ -6,6 +6,8 @@
 
 #include "GfxDevice.h"
 
+class GfxDevice;
+
 class Shader {
 public:
     Shader(GfxDevice* gfxDevice, const char* vs_path, const char* ps_path, unsigned int constantsSize);

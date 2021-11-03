@@ -19,6 +19,8 @@ Texture::Texture(GfxDevice *gfxDevice) {
     m_GfxDevice = gfxDevice;
     textureView = NULL;
 
+    ////////// Texture data //////////
+
     D3D11_TEXTURE2D_DESC textureDesc = {};
     textureDesc.Width = TEXTURE_WIDTH;
     textureDesc.Height = TEXTURE_HEIGHT;
@@ -36,10 +38,22 @@ Texture::Texture(GfxDevice *gfxDevice) {
     m_GfxDevice->GetDevice()->CreateTexture2D(&textureDesc, &textureData, &texture);
 
     m_GfxDevice->GetDevice()->CreateShaderResourceView(texture, nullptr, &textureView);
+
+    ////////// Sampler //////////
+
+    D3D11_SAMPLER_DESC samplerDesc = {};
+    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+
+    m_GfxDevice->GetDevice()->CreateSamplerState(&samplerDesc, &samplerState);
 }
 
 void Texture::Use() {
     m_GfxDevice->GetDeviceContext()->PSSetShaderResources(0, 1, &textureView);
+    m_GfxDevice->GetDeviceContext()->PSSetSamplers(0, 1, &samplerState);
 }
 
 Texture::~Texture() {

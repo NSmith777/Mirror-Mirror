@@ -2,7 +2,6 @@
 
 #include <windows.h>
 #include <d3d11.h>
-#include <DirectXMath.h>
 
 #include "GfxDevice.h"
 
@@ -18,4 +17,6 @@ private:
 
 	ID3D11Texture2D* texture;
 	ID3D11ShaderResourceView* textureView;
+
+	ID3D11SamplerState* samplerState;
 };

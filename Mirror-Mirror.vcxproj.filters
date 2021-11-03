@@ -27,13 +27,16 @@
     <ClCompile Include="source\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,6 +47,12 @@
     <FxCompile Include="source\shaders\default_ps.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
+    <FxCompile Include="source\shaders\screen_vs.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="source\shaders\screen_ps.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\GfxDevice.h">
@@ -52,13 +61,16 @@
     <ClInclude Include="source\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

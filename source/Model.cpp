@@ -30,6 +30,14 @@ Model::Model(GfxDevice* gfxDevice, const char* filepath) {
     D3D11_SUBRESOURCE_DATA vertexData = { VertexData };
 
     m_GfxDevice->GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexData, &vertexBuffer);
+
+    ////////// Model rasterizer state //////////
+
+    D3D11_RASTERIZER_DESC rasterizerDesc = {};
+    rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+    rasterizerDesc.CullMode = D3D11_CULL_BACK;
+
+    m_GfxDevice->GetDevice()->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
 }
 
 void Model::Draw() {
@@ -38,6 +46,8 @@ void Model::Draw() {
 
     m_GfxDevice->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_GfxDevice->GetDeviceContext()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+
+    m_GfxDevice->GetDeviceContext()->RSSetState(rasterizerState);
 
     m_GfxDevice->GetDeviceContext()->Draw(VertexCount, 0);
 }
