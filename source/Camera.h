@@ -29,6 +29,7 @@ public:
 	D3D11_VIEWPORT* GetViewport() { return &viewport; }
 	ID3D11ShaderResourceView* GetRenderTargetTex() { return backBufferTexView; }
 
+	void SetClearColor(float r, float g, float b);
 	void SetProjMatrix(float fov, float aspect, float zNear, float zFar);
 
 private:
@@ -38,6 +39,7 @@ private:
 	XMMATRIX projMtx;
 	Transform transform;
 
+	FLOAT clearColor[4];
 	D3D11_VIEWPORT viewport;
 
 	// Camera framebuffer

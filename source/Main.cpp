@@ -18,6 +18,8 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     Shader myScreenShader(&myGfxDevice, "../resources/shaders/screen_vs.cso", "../resources/shaders/screen_ps.cso", sizeof(Constants));
 
     Camera myCamera(&myGfxDevice, &myScreenShader);
+    myCamera.SetClearColor(0.0f, 0.0f, 1.0f);
+
     myCamera.GetTransform()->Translate(0.0f, 10.0f, -10.0f);
     myCamera.GetTransform()->Rotate(XMConvertToRadians(45.0f), 0.0f, 0.0f);
 

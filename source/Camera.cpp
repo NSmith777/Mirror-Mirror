@@ -8,10 +8,17 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
 	backBufferTexView = NULL;
 	depthBufferView = NULL;
 
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.Width = 1;
-	viewport.Height = 1;
+	// Set clear colour to black
+	clearColor[0] = 0.0f;
+	clearColor[1] = 0.0f;
+	clearColor[2] = 0.0f;
+	clearColor[3] = 1.0f;
+
+	// Set viewport to fit the entire screen
+	viewport.TopLeftX = 0.0f;
+	viewport.TopLeftY = 0.0f;
+	viewport.Width = 1.0f;
+	viewport.Height = 1.0f;
 
 	// Set up a default projection matrix
 	projMtx = XMMatrixPerspectiveFovLH(XMConvertToRadians(60.0f), 16.0f / 9, 0.1f, 1000.0f);
@@ -59,8 +66,6 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
 }
 
 void Camera::Use() {
-	FLOAT clearColor[4] = { 0.25f, 0.25f, 0.25f, 1.0f };
-
 	m_GfxDevice->GetDeviceContext()->ClearRenderTargetView(backBufferView, clearColor);
 	m_GfxDevice->GetDeviceContext()->ClearDepthStencilView(depthBufferView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
@@ -79,6 +84,12 @@ XMMATRIX Camera::GetViewMatrix() {
 	XMMATRIX rotateXMtx = XMMatrixRotationNormal({ 1, 0, 0 }, -rotation.x);
 
 	return translateMtx * rotateZMtx * rotateYMtx * rotateXMtx;
+}
+
+void Camera::SetClearColor(float r, float g, float b) {
+	clearColor[0] = r;
+	clearColor[1] = g;
+	clearColor[2] = b;
 }
 
 void Camera::SetProjMatrix(float fov, float aspect, float zNear, float zFar) {
