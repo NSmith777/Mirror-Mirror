@@ -18,6 +18,12 @@ void Transform::Rotate(float x, float y, float z) {
 	rotation.z += z;
 }
 
+void Transform::SetScale(float x, float y, float z) {
+	scale.x = x;
+	scale.y = y;
+	scale.z = z;
+}
+
 XMMATRIX Transform::GetModelMatrix() {
 	XMMATRIX scaleMtx = XMMatrixScaling(scale.x, scale.y, scale.z);
 	XMMATRIX rotateXMtx = XMMatrixRotationNormal({ 1, 0, 0 }, rotation.x);

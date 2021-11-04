@@ -1,3 +1,8 @@
+cbuffer constants : register(b0)
+{
+    row_major float4x4 MVP;
+}
+
 struct vs_in
 {
     float3 position : POS;
@@ -15,7 +20,7 @@ vs_out main(vs_in input)
 {
     vs_out output;
 
-    output.position = float4(input.position, 1.0f);
+    output.position = mul(float4(input.position, 1.0f), MVP);
     output.texcoord = input.texcoord;
 
     return output;

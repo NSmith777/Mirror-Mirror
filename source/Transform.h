@@ -14,6 +14,8 @@ public:
 	void Translate(float x, float y, float z);
 	void Rotate(float x, float y, float z);
 
+	void SetScale(float x, float y, float z);
+
 	XMFLOAT3 GetPosition() { return position; }
 	XMFLOAT3 GetRotation() { return rotation; }
 

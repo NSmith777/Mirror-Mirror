@@ -22,9 +22,11 @@ public:
 
 	XMMATRIX GetViewMatrix();
 	XMMATRIX GetProjMatrix() { return projMtx; }
+
 	Shader* GetShader() { return m_ScreenShader; }
 	Transform* GetTransform() { return &transform; }
 
+	D3D11_VIEWPORT* GetViewport() { return &viewport; }
 	ID3D11ShaderResourceView* GetRenderTargetTex() { return backBufferTexView; }
 
 	void SetProjMatrix(float fov, float aspect, float zNear, float zFar);
@@ -35,6 +37,8 @@ private:
 
 	XMMATRIX projMtx;
 	Transform transform;
+
+	D3D11_VIEWPORT viewport;
 
 	// Camera framebuffer
 	ID3D11Texture2D* backBuffer;

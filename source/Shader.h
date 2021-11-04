@@ -3,8 +3,15 @@
 #include <windows.h>
 #include <d3d11.h>
 #include <vector>
+#include <DirectXMath.h>
 
 #include "GfxDevice.h"
+
+using namespace DirectX;
+
+typedef struct {
+    XMMATRIX MVP;
+} Constants;
 
 class GfxDevice;
 

@@ -4,10 +4,10 @@
 #define TITLE "Mirror, Mirror"
 
 static const Vertex quadVerts[] = {
-    { { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
-    { { -1.0f,  1.0f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
-    { {  1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
-    { {  1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
+    { { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
+    { { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
+    { { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
+    { { 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
 };
 
 GfxDevice::GfxDevice() {
@@ -29,8 +29,8 @@ GfxDevice::GfxDevice() {
     ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
     scd.BufferCount = 1;                                    // one back buffer
     scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;     // use 32-bit color
-    scd.BufferDesc.Width = 1280;                            // use window width
-    scd.BufferDesc.Height = 720;                            // use window height
+    scd.BufferDesc.Width = 0;                               // use window width
+    scd.BufferDesc.Height = 0;                              // use window height
     scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;      // how swap chain is to be used
     scd.OutputWindow = m_Window;                            // the window to be used
     scd.SampleDesc.Count = 4;                               // how many multisamples
@@ -105,7 +105,19 @@ void GfxDevice::Present(Camera* pCameras, unsigned int numCameras) {
     deviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff); // use default blend mode (i.e. disable)
 
     for (unsigned int i = 0; i < numCameras; i++) {
-        pCameras[i].GetShader()->Use();
+        D3D11_VIEWPORT* camViewport = pCameras[i].GetViewport();
+        
+        Transform scrTransform;
+        scrTransform.Translate(camViewport->TopLeftX - 1.0f, camViewport->TopLeftY - 1.0f, 0.0f);
+        scrTransform.SetScale(camViewport->Width * 2.0f, camViewport->Height * 2.0f, 1.0f);
+
+        Constants scrConstants;
+        scrConstants.MVP = scrTransform.GetModelMatrix();
+
+        Shader* camShader = pCameras[i].GetShader();
+
+        camShader->SetConstants(&scrConstants);
+        camShader->Use();
 
         ID3D11ShaderResourceView* renderTargetTex = pCameras[i].GetRenderTargetTex();
 

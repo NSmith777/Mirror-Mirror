@@ -8,6 +8,11 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
 	backBufferTexView = NULL;
 	depthBufferView = NULL;
 
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.Width = 1;
+	viewport.Height = 1;
+
 	// Set up a default projection matrix
 	projMtx = XMMatrixPerspectiveFovLH(XMConvertToRadians(60.0f), 16.0f / 9, 0.1f, 1000.0f);
 

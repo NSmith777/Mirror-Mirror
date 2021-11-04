@@ -12,28 +12,25 @@
 
 using namespace DirectX;
 
-typedef struct {
-    XMMATRIX MVP;
-} Constants;
-
 int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
     GfxDevice myGfxDevice;
 
-    Shader myScreenShader(&myGfxDevice, "../resources/shaders/screen_vs.cso", "../resources/shaders/screen_ps.cso", 0);
+    Shader myScreenShader(&myGfxDevice, "../resources/shaders/screen_vs.cso", "../resources/shaders/screen_ps.cso", sizeof(Constants));
 
     Camera myCamera(&myGfxDevice, &myScreenShader);
-    myCamera.GetTransform()->Translate(0.0f, 0.0f, -4.0f);
+    myCamera.GetTransform()->Translate(0.0f, 10.0f, -10.0f);
+    myCamera.GetTransform()->Rotate(XMConvertToRadians(45.0f), 0.0f, 0.0f);
 
     Shader myShader(&myGfxDevice, "../resources/shaders/default_vs.cso", "../resources/shaders/default_ps.cso", sizeof(Constants));
     Texture myTexture(&myGfxDevice);
 
-    Model myModel1(&myGfxDevice, "../resources/models/test.mdl");
+    Model myModel1(&myGfxDevice, "../resources/models/TestPlayer.mdl");
     Transform myTransform1;
-    myTransform1.Translate(-2.0f, 0.0f, 0.0f);
+    myTransform1.Translate(0.0f, 0.0f, 0.0f);
 
-    Model myModel2(&myGfxDevice, "../resources/models/test.mdl");
+    Model myModel2(&myGfxDevice, "../resources/models/TestPlatform.mdl");
     Transform myTransform2;
-    myTransform2.Translate(2.0f, 0.0f, 0.0f);
+    myTransform2.Translate(0.0f, 0.0f, 0.0f);
 
     while (true) {
         MSG msg;
@@ -46,8 +43,6 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
             }
             DispatchMessageA(&msg);
         }
-
-        myTransform1.Rotate(0.005f, 0.009f, 0.001f);
 
         myCamera.Use();
         
