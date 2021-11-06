@@ -21,28 +21,34 @@ public:
 	void Use();
 
 	XMMATRIX GetViewMatrix();
-	XMMATRIX GetProjMatrix() { return projMtx; }
+	XMMATRIX GetProjMatrix();
 
 	Shader* GetShader() { return m_ScreenShader; }
 	Transform* GetTransform() { return &transform; }
 
-	D3D11_VIEWPORT* GetViewport() { return &viewport; }
+	D3D11_VIEWPORT GetViewport() { return viewport; }
 	ID3D11ShaderResourceView* GetRenderTargetTex() { return backBufferTexView; }
 
 	void SetClearColor(float r, float g, float b);
-	void SetProjMatrix(float fov, float aspect, float zNear, float zFar);
+
+	XMFLOAT3 ScreenToWorldPoint(XMINT2 screenPos);
 
 private:
 	GfxDevice* m_GfxDevice;
 	Shader* m_ScreenShader;
 
-	XMMATRIX projMtx;
 	Transform transform;
 
-	FLOAT clearColor[4];
+	// Projection properties
+	float clearColor[4];
+	float fieldOfView;
+	float zNear;
+	float zFar;
 	D3D11_VIEWPORT viewport;
 
 	// Camera framebuffer
+	unsigned int width, height;
+
 	ID3D11Texture2D* backBuffer;
 	ID3D11RenderTargetView* backBufferView;
 	ID3D11ShaderResourceView* backBufferTexView;

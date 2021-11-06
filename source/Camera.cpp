@@ -8,6 +8,10 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
 	backBufferTexView = NULL;
 	depthBufferView = NULL;
 
+	// Set default camera dimensions in pixels
+	width = 1280;
+	height = 720;
+
 	// Set clear colour to black
 	clearColor[0] = 0.0f;
 	clearColor[1] = 0.0f;
@@ -20,17 +24,19 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
 	viewport.Width = 1.0f;
 	viewport.Height = 1.0f;
 
-	// Set up a default projection matrix
-	projMtx = XMMatrixPerspectiveFovLH(XMConvertToRadians(60.0f), 16.0f / 9, 0.1f, 1000.0f);
+	// Set up default projection properties
+	fieldOfView = 60.0f;
+	zNear = 0.1f;
+	zFar = 1000.0f;
 
 	////////// Init Framebuffers //////////
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
-	textureDesc.Width = 1280;
-	textureDesc.Height = 720;
+	textureDesc.Width = width;
+	textureDesc.Height = height;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
@@ -92,8 +98,32 @@ void Camera::SetClearColor(float r, float g, float b) {
 	clearColor[2] = b;
 }
 
-void Camera::SetProjMatrix(float fov, float aspect, float zNear, float zFar) {
-	projMtx = XMMatrixPerspectiveFovLH(XMConvertToRadians(fov), aspect, zNear, zFar);
+XMMATRIX Camera::GetProjMatrix() {
+	return XMMatrixPerspectiveFovLH(XMConvertToRadians(fieldOfView), (float)width / height, zNear, zFar);
+}
+
+XMFLOAT3 Camera::ScreenToWorldPoint(XMINT2 screenPos) {
+	XMFLOAT3 cam_pos = transform.GetPosition();
+
+	XMFLOAT3 cam_right = transform.GetRightVec();
+	XMFLOAT3 cam_up = transform.GetUpVec();
+	XMFLOAT3 cam_forward = transform.GetForwardVec();
+
+	float Vnear = tanf(XMConvertToRadians(fieldOfView / 2));
+	float Hnear = Vnear * ((float)width / height);
+
+	XMFLOAT2 viewportPos = {
+		screenPos.x / (width / 2.0f) - 1.0f,
+		screenPos.y / (height / 2.0f) - 1.0f
+	};
+
+	XMFLOAT3 world_point = {
+		cam_pos.x + cam_forward.x + (cam_right.x * Hnear * viewportPos.x) - (cam_up.x * Vnear * viewportPos.y),
+		cam_pos.y + cam_forward.y + (cam_right.y * Hnear * viewportPos.x) - (cam_up.y * Vnear * viewportPos.y),
+		cam_pos.z + cam_forward.z + (cam_right.z * Hnear * viewportPos.x) - (cam_up.z * Vnear * viewportPos.y),
+	};
+
+	return world_point;
 }
 
 Camera::~Camera() {

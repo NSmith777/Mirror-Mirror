@@ -105,11 +105,11 @@ void GfxDevice::Present(Camera* pCameras, unsigned int numCameras) {
     deviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff); // use default blend mode (i.e. disable)
 
     for (unsigned int i = 0; i < numCameras; i++) {
-        D3D11_VIEWPORT* camViewport = pCameras[i].GetViewport();
+        D3D11_VIEWPORT camViewport = pCameras[i].GetViewport();
         
         Transform scrTransform;
-        scrTransform.Translate(camViewport->TopLeftX - 1.0f, camViewport->TopLeftY - 1.0f, 0.0f);
-        scrTransform.SetScale(camViewport->Width * 2.0f, camViewport->Height * 2.0f, 1.0f);
+        scrTransform.Translate(camViewport.TopLeftX - 1.0f, camViewport.TopLeftY - 1.0f, 0.0f);
+        scrTransform.SetScale(camViewport.Width * 2.0f, camViewport.Height * 2.0f, 1.0f);
 
         Constants scrConstants;
         scrConstants.MVP = scrTransform.GetModelMatrix();

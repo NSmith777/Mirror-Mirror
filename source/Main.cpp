@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <windowsx.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
@@ -34,6 +35,8 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     Transform myTransform2;
     myTransform2.Translate(0.0f, 0.0f, 0.0f);
 
+    XMINT2 mouse2viewport = { 0, 0 };
+
     while (true) {
         MSG msg;
 
@@ -42,6 +45,10 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
             case WM_KEYDOWN:
                 return 0;
                 break;
+            case WM_MOUSEMOVE:
+                mouse2viewport.x = GET_X_LPARAM(msg.lParam);
+                mouse2viewport.y = GET_Y_LPARAM(msg.lParam);
+                break;
             }
             DispatchMessageA(&msg);
         }
@@ -49,6 +56,14 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         myCamera.Use();
         
         ////////// Model 1 //////////
+
+        XMFLOAT3 cam_pos = myCamera.GetTransform()->GetPosition();
+        XMFLOAT3 cam_ray_origin = myCamera.ScreenToWorldPoint(mouse2viewport);
+
+        float player_x = -cam_pos.y * (cam_ray_origin.x - cam_pos.x) / (cam_ray_origin.y - cam_pos.y) + cam_pos.x;
+        float player_z = -cam_pos.y * (cam_ray_origin.z - cam_pos.z) / (cam_ray_origin.y - cam_pos.y) + cam_pos.z;
+
+        myTransform1.SetPosition(player_x, 0.0f, player_z);
 
         Constants constants1;
         constants1.MVP = myTransform1.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
