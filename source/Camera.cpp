@@ -37,20 +37,19 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
 	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Count = 4;
+	textureDesc.SampleDesc.Quality = 0;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.CPUAccessFlags = 0;
 	textureDesc.MiscFlags = 0;
 
-	m_GfxDevice->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &backBuffer);
-	m_GfxDevice->GetDevice()->CreateRenderTargetView(backBuffer, nullptr, &backBufferView);
+	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2DMS, textureDesc.Format);
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
-	shaderResourceViewDesc.Format = textureDesc.Format;
-	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+	m_GfxDevice->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &backBuffer);
+	m_GfxDevice->GetDevice()->CreateRenderTargetView(backBuffer, &renderTargetViewDesc, &backBufferView);
+
+	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2DMS, textureDesc.Format);
 
 	m_GfxDevice->GetDevice()->CreateShaderResourceView(backBuffer, &shaderResourceViewDesc, &backBufferTexView);
 
@@ -59,9 +58,13 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
 
 	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthBufferDesc.SampleDesc.Count = 4;
+	depthBufferDesc.SampleDesc.Quality = 0;
+
+	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2DMS, depthBufferDesc.Format);
 
 	m_GfxDevice->GetDevice()->CreateTexture2D(&depthBufferDesc, nullptr, &depthBuffer);
-	m_GfxDevice->GetDevice()->CreateDepthStencilView(depthBuffer, nullptr, &depthBufferView);
+	m_GfxDevice->GetDevice()->CreateDepthStencilView(depthBuffer, &depthStencilViewDesc, &depthBufferView);
 
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
 	depthStencilDesc.DepthEnable = TRUE;

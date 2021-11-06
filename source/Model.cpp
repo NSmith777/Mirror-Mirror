@@ -34,6 +34,8 @@ Model::Model(GfxDevice* gfxDevice, const char* filepath) {
     ////////// Model rasterizer state //////////
 
     D3D11_RASTERIZER_DESC rasterizerDesc = {};
+    rasterizerDesc.AntialiasedLineEnable = TRUE;
+    rasterizerDesc.MultisampleEnable = TRUE;
     rasterizerDesc.FillMode = D3D11_FILL_SOLID;
     rasterizerDesc.CullMode = D3D11_CULL_BACK;
 
