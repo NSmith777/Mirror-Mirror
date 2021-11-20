@@ -24,6 +24,12 @@ void Transform::SetPosition(float x, float y, float z) {
 	position.z = z;
 }
 
+void Transform::SetRotation(float x, float y, float z) {
+	rotation.x = x;
+	rotation.y = y;
+	rotation.z = z;
+}
+
 void Transform::SetScale(float x, float y, float z) {
 	scale.x = x;
 	scale.y = y;

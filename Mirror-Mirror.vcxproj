@@ -14,6 +14,7 @@
     <ClCompile Include="source\Camera.cpp" />
     <ClCompile Include="source\GfxDevice.cpp" />
     <ClCompile Include="source\Main.cpp" />
+    <ClCompile Include="source\Math.cpp" />
     <ClCompile Include="source\Model.cpp" />
     <ClCompile Include="source\Shader.cpp" />
     <ClCompile Include="source\Texture.cpp" />
@@ -59,6 +60,7 @@
   <ItemGroup>
     <ClInclude Include="source\Camera.h" />
     <ClInclude Include="source\GfxDevice.h" />
+    <ClInclude Include="source\Math.h" />
     <ClInclude Include="source\Model.h" />
     <ClInclude Include="source\Shader.h" />
     <ClInclude Include="source\Texture.h" />

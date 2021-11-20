@@ -39,6 +39,9 @@
     <ClCompile Include="source\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Math.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="source\shaders\default_vs.hlsl">
@@ -71,6 +74,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
