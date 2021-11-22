@@ -15,6 +15,14 @@
 using namespace DirectX;
 using namespace Math;
 
+bool ccw(XMFLOAT3 A, XMFLOAT3 B, XMFLOAT3 C) {
+    return (C.z - A.z) * (B.x - A.x) > (B.z - A.z) * (C.x - A.x);
+}
+
+bool is_xz_line_intersect(XMFLOAT3 A, XMFLOAT3 B, XMFLOAT3 C, XMFLOAT3 D) {
+    return ccw(A, C, D) != ccw(B, C, D) && ccw(A, B, C) != ccw(A, B, D);
+}
+
 int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
     GfxDevice myGfxDevice;
     
@@ -48,6 +56,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     XMFLOAT3 mirror_target = { 0, 0, 0 };
 
     bool is_mouse_held = false;
+    bool is_reflect_line_drawn = false;
 
     while (true) {
         ////////// Camera //////////
@@ -89,7 +98,8 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
                 is_mouse_held = true;
                 break;
             case WM_LBUTTONUP:
-                PlayerTransform.SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
+                if(is_reflect_line_drawn)
+                    PlayerTransform.SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
 
                 is_mouse_held = false;
                 break;
@@ -106,6 +116,12 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
             mirror_target.x = 2 * d - PlayerPos.x;
             mirror_target.z = 2 * d * m - PlayerPos.z + 2 * c;
+
+            is_reflect_line_drawn = is_xz_line_intersect(
+                MirrorLineTransform.GetPosition(),
+                cam_ray_hit,
+                ReflectLineTransform.GetPosition(),
+                mirror_target);
 
             // --------------------
 
@@ -143,14 +159,16 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
             DrawLineTex.Use();
             DrawLineMdl.Draw();
 
-            Constants constants4;
-            constants4.MVP = ReflectLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+            if (is_reflect_line_drawn) {
+                Constants constants4;
+                constants4.MVP = ReflectLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
 
-            myShader.SetConstants(&constants4);
+                myShader.SetConstants(&constants4);
 
-            myShader.Use();
-            DrawLineTex.Use();
-            DrawLineMdl.Draw();
+                myShader.Use();
+                DrawLineTex.Use();
+                DrawLineMdl.Draw();
+            }
         }
 
         Constants constants3;
