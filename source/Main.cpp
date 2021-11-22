@@ -23,32 +23,38 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     Camera myCamera(&myGfxDevice, &myScreenShader);
     myCamera.SetClearColor(0.25f, 0.25f, 0.25f);
 
-    myCamera.GetTransform()->Translate(0.0f, 10.0f, -10.0f);
+    myCamera.GetTransform()->Translate(0.0f, 20.0f, -20.0f);
     myCamera.GetTransform()->Rotate(XMConvertToRadians(45.0f), 0.0f, 0.0f);
 
     Shader myShader(&myGfxDevice, "../resources/shaders/default_vs.cso", "../resources/shaders/default_ps.cso", sizeof(Constants));
-    Texture myTexture(&myGfxDevice);
 
-    Model PlayerMdl(&myGfxDevice, "../resources/models/TestPlayer.mdl");
+    Model PlayerMdl(&myGfxDevice, "../resources/objects/Player/TestPlayer.mdl");
+    Texture PlayerTex(&myGfxDevice, "../resources/objects/Player/TestTexture.bmp");
     Transform PlayerTransform;
 
-    Model DrawLineMdl(&myGfxDevice, "../resources/models/TestDrawLine.mdl");
-    Transform DrawLineTransform;
+    Model DrawLineMdl(&myGfxDevice, "../resources/objects/DrawLine/TestDrawLine.mdl");
+    Texture DrawLineTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Dif.bmp");
 
-    Model GroundMdl(&myGfxDevice, "../resources/models/CobbleGroundNormal.mdl");
+    Transform MirrorLineTransform;
+    Transform ReflectLineTransform;
+
+    Model GroundMdl(&myGfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal.mdl");
+    Texture GroundTex(&myGfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal_Dif.bmp");
     Transform GroundTransform;
 
     XMINT2 mouse_coords = { 0, 0 };
-    XMFLOAT3 refl_point = { 0, 0, 0 };
+    XMFLOAT3 mirror_start = { 0, 0, 0 };
 
-    bool is_draw_line_visible = false;
+    XMFLOAT3 mirror_target = { 0, 0, 0 };
+
+    bool is_mouse_held = false;
 
     while (true) {
         ////////// Camera //////////
 
         myCamera.Use();
 
-        XMFLOAT3 cam_offset = { 0.0f, 10.0f, -10.0f };
+        XMFLOAT3 cam_offset = { 0.0f, 20.0f, -20.0f };
 
         XMFLOAT3 cam_lerp = XMFLOAT3_Lerp(myCamera.GetTransform()->GetPosition(), PlayerTransform.GetPosition() + cam_offset, 0.08f);
 
@@ -62,6 +68,8 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
         ////////// Input //////////
 
+        XMFLOAT3 PlayerPos = PlayerTransform.GetPosition();
+
         MSG msg;
         while (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE)) {
             switch (msg.message) {
@@ -73,28 +81,45 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
                 mouse_coords.y = GET_Y_LPARAM(msg.lParam);
                 break;
             case WM_LBUTTONDOWN:
-                DrawLineTransform.SetPosition(cam_ray_hit.x, 0.0f, cam_ray_hit.z);
+                MirrorLineTransform.SetPosition(cam_ray_hit.x, cam_ray_hit.y, cam_ray_hit.z);
+                ReflectLineTransform.SetPosition(PlayerPos.x, PlayerPos.y, PlayerPos.z);
 
-                refl_point = cam_ray_hit;
+                mirror_start = cam_ray_hit;
 
-                is_draw_line_visible = true;
+                is_mouse_held = true;
                 break;
             case WM_LBUTTONUP:
-                XMFLOAT3 PlayerPos = PlayerTransform.GetPosition();
+                PlayerTransform.SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
 
-                float m = (cam_ray_hit.z - refl_point.z) / (cam_ray_hit.x - refl_point.x);
-                float c = (cam_ray_hit.x * refl_point.z - refl_point.x * cam_ray_hit.z) / (cam_ray_hit.x - refl_point.x);
-                float d = (PlayerPos.x + (PlayerPos.z - c) * m) / (1 + (m * m));
-
-                float x4 = 2 * d - PlayerPos.x;
-                float y4 = 2 * d * m - PlayerPos.z + 2 * c;
-
-                PlayerTransform.SetPosition(x4, 0.0f, y4);
-
-                is_draw_line_visible = false;
+                is_mouse_held = false;
                 break;
             }
             DispatchMessageA(&msg);
+        }
+
+        ////////// CALCULATE DRAW LINES //////////
+
+        if (is_mouse_held) {
+            float m = (cam_ray_hit.z - mirror_start.z) / (cam_ray_hit.x - mirror_start.x);
+            float c = (cam_ray_hit.x * mirror_start.z - mirror_start.x * cam_ray_hit.z) / (cam_ray_hit.x - mirror_start.x);
+            float d = (PlayerPos.x + (PlayerPos.z - c) * m) / (1 + (m * m));
+
+            mirror_target.x = 2 * d - PlayerPos.x;
+            mirror_target.z = 2 * d * m - PlayerPos.z + 2 * c;
+
+            // --------------------
+
+            XMFLOAT3 mirror_line_delta = cam_ray_hit - MirrorLineTransform.GetPosition();
+
+            MirrorLineTransform.SetRotation(0, atan2f(mirror_line_delta.x, mirror_line_delta.z), 0);
+            MirrorLineTransform.SetScale(0.4f, 0.4f, XMFLOAT3_Distance(MirrorLineTransform.GetPosition(), cam_ray_hit));
+
+            // --------------------
+
+            XMFLOAT3 reflect_line_delta = mirror_target - ReflectLineTransform.GetPosition();
+
+            ReflectLineTransform.SetRotation(0, atan2f(reflect_line_delta.x, reflect_line_delta.z), 0);
+            ReflectLineTransform.SetScale(0.4f, 0.4f, XMFLOAT3_Distance(ReflectLineTransform.GetPosition(), mirror_target));
         }
 
         ////////// RENDERING //////////
@@ -105,22 +130,26 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         myShader.SetConstants(&constants1);
 
         myShader.Use();
-        myTexture.Use();
+        PlayerTex.Use();
         PlayerMdl.Draw();
 
-        XMFLOAT3 draw_line_delta = cam_ray_hit - DrawLineTransform.GetPosition();
-
-        DrawLineTransform.SetRotation(0, atan2f(draw_line_delta.x, draw_line_delta.z), 0);
-        DrawLineTransform.SetScale(0.25f, 0.25f, XMFLOAT3_Distance(DrawLineTransform.GetPosition(), cam_ray_hit));
-
-        if (is_draw_line_visible) {
+        if (is_mouse_held) {
             Constants constants2;
-            constants2.MVP = DrawLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+            constants2.MVP = MirrorLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
 
             myShader.SetConstants(&constants2);
 
             myShader.Use();
-            myTexture.Use();
+            DrawLineTex.Use();
+            DrawLineMdl.Draw();
+
+            Constants constants4;
+            constants4.MVP = ReflectLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+
+            myShader.SetConstants(&constants4);
+
+            myShader.Use();
+            DrawLineTex.Use();
             DrawLineMdl.Draw();
         }
 
@@ -130,7 +159,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         myShader.SetConstants(&constants3);
 
         myShader.Use();
-        myTexture.Use();
+        GroundTex.Use();
         GroundMdl.Draw();
 
         myGfxDevice.Present(&myCamera, 1);

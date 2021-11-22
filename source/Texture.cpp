@@ -1,39 +1,50 @@
 #include "Texture.h"
 
-#define TEXTURE_WIDTH  8
-#define TEXTURE_HEIGHT 8
-
-UINT TextureData[] =
-{
-    0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f,
-    0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff,
-    0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f,
-    0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff,
-    0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f,
-    0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff,
-    0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f,
-    0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff, 0xff7f7f7f, 0xffffffff,
-};
-
-Texture::Texture(GfxDevice *gfxDevice) {
+Texture::Texture(GfxDevice *gfxDevice, const char *filepath) {
     m_GfxDevice = gfxDevice;
     textureView = NULL;
+
+    ////////// Load BMP //////////
+
+    FILE* bmp_file = fopen(filepath, "rb");
+
+    if (!bmp_file)
+        assert(false);
+
+    BITMAPFILEHEADER bmp_header;
+    fread(&bmp_header, sizeof(bmp_header), 1, bmp_file);
+
+    BITMAPINFOHEADER bmp_info_header;
+    fread(&bmp_info_header, sizeof(bmp_info_header), 1, bmp_file);
+
+    width = *((int*)&bmp_info_header.biWidth);
+    height = *((int*)&bmp_info_header.biHeight);
+    bytes_per_pixel = *((short*)&bmp_info_header.biBitCount) / 8;
+
+    pitch = width * bytes_per_pixel;
+
+    char *pixel_data = new char[height * pitch];
+
+    fseek(bmp_file, bmp_header.bfOffBits, SEEK_SET);
+    fread(pixel_data, height * pitch, 1, bmp_file);
+
+    fclose(bmp_file);
 
     ////////// Texture data //////////
 
     D3D11_TEXTURE2D_DESC textureDesc = {};
-    textureDesc.Width = TEXTURE_WIDTH;
-    textureDesc.Height = TEXTURE_HEIGHT;
+    textureDesc.Width = width;
+    textureDesc.Height = height;
     textureDesc.MipLevels = 1;
     textureDesc.ArraySize = 1;
-    textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    textureDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     textureDesc.SampleDesc.Count = 1;
     textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
     textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
     D3D11_SUBRESOURCE_DATA textureData = {};
-    textureData.pSysMem = TextureData;
-    textureData.SysMemPitch = TEXTURE_WIDTH * 4; // 4 bytes per pixel
+    textureData.pSysMem = pixel_data;
+    textureData.SysMemPitch = pitch;
 
     m_GfxDevice->GetDevice()->CreateTexture2D(&textureDesc, &textureData, &texture);
 
