@@ -13,6 +13,7 @@ namespace Math {
 	float XMFLOAT3_Distance(XMFLOAT3 a, XMFLOAT3 b);
 
 	XMFLOAT3 operator*(float l, XMFLOAT3 r);
+	XMFLOAT3 operator*(XMFLOAT3 l, float r);
 	XMFLOAT3 operator/(XMFLOAT3 l, float r);
 	XMFLOAT3 operator-(XMFLOAT3 l, XMFLOAT3 r);
 	XMFLOAT3 operator+(XMFLOAT3 l, XMFLOAT3 r);

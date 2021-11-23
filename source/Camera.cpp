@@ -1,4 +1,7 @@
 #include "Camera.h"
+#include "Math.h"
+
+using namespace Math;
 
 Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
 	m_GfxDevice = gfxDevice;
@@ -111,11 +114,7 @@ XMFLOAT3 Camera::ScreenToWorldPoint(XMINT2 screenPos) {
 		screenPos.y / (height / 2.0f) - 1.0f
 	};
 
-	XMFLOAT3 world_point = {
-		cam_pos.x + cam_forward.x + (cam_right.x * Hnear * viewportPos.x) - (cam_up.x * Vnear * viewportPos.y),
-		cam_pos.y + cam_forward.y + (cam_right.y * Hnear * viewportPos.x) - (cam_up.y * Vnear * viewportPos.y),
-		cam_pos.z + cam_forward.z + (cam_right.z * Hnear * viewportPos.x) - (cam_up.z * Vnear * viewportPos.y),
-	};
+	XMFLOAT3 world_point = cam_pos + cam_forward + (cam_right * Hnear * viewportPos.x) - (cam_up * Vnear * viewportPos.y);
 
 	return world_point;
 }

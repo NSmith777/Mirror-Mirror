@@ -25,6 +25,14 @@ namespace Math {
         return ret;
     }
 
+    XMFLOAT3 operator*(XMFLOAT3 l, float r) {
+        XMFLOAT3 ret;
+        ret.x = l.x * r;
+        ret.y = l.y * r;
+        ret.z = l.z * r;
+        return ret;
+    }
+
     XMFLOAT3 operator/(XMFLOAT3 l, float r) {
         XMFLOAT3 ret;
         ret.x = l.x / r;
