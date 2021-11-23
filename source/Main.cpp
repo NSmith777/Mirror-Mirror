@@ -49,7 +49,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     Model DrawLineTargetMdl(&myGfxDevice, "../resources/objects/DrawLine/TestDrawLine_Target.mdl");
     Texture DrawLineTargetTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Target_Dif.bmp");
     Transform DrawLineTargetTransform;
-    DrawLineTargetTransform.SetScale(1.5f, 1.5f, 1.5f);
+    DrawLineTargetTransform.SetScale(1.75f, 1.75f, 1.75f);
 
     Model GroundMdl(&myGfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal.mdl");
     Texture GroundTex(&myGfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal_Dif.bmp");
