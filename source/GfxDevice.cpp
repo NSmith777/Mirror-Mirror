@@ -15,6 +15,7 @@ GfxDevice::GfxDevice() {
 
     WNDCLASSEXA wndClassEx = { sizeof(wndClassEx) };
     wndClassEx.lpfnWndProc = DefWindowProcA;
+    wndClassEx.hCursor = LoadCursor(NULL, IDC_ARROW);
     wndClassEx.lpszClassName = TITLE;
 
     RegisterClassExA(&wndClassEx);
