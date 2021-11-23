@@ -35,16 +35,21 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     myCamera.GetTransform()->Rotate(XMConvertToRadians(45.0f), 0.0f, 0.0f);
 
     Shader myShader(&myGfxDevice, "../resources/shaders/default_vs.cso", "../resources/shaders/default_ps.cso", sizeof(Constants));
+    myShader.BlendEnable(true);
 
     Model PlayerMdl(&myGfxDevice, "../resources/objects/Player/TestPlayer.mdl");
     Texture PlayerTex(&myGfxDevice, "../resources/objects/Player/TestTexture.bmp");
     Transform PlayerTransform;
 
-    Model DrawLineMdl(&myGfxDevice, "../resources/objects/DrawLine/TestDrawLine.mdl");
-    Texture DrawLineTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Dif.bmp");
-
+    Model DrawLineGuideMdl(&myGfxDevice, "../resources/objects/DrawLine/TestDrawLine_Guide.mdl");
+    Texture DrawLineGuideTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Guide_Dif.bmp");
     Transform MirrorLineTransform;
     Transform ReflectLineTransform;
+
+    Model DrawLineTargetMdl(&myGfxDevice, "../resources/objects/DrawLine/TestDrawLine_Target.mdl");
+    Texture DrawLineTargetTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Target_Dif.bmp");
+    Transform DrawLineTargetTransform;
+    DrawLineTargetTransform.SetScale(1.5f, 1.5f, 1.5f);
 
     Model GroundMdl(&myGfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal.mdl");
     Texture GroundTex(&myGfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal_Dif.bmp");
@@ -136,6 +141,11 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
             ReflectLineTransform.SetRotation(0, atan2f(reflect_line_delta.x, reflect_line_delta.z), 0);
             ReflectLineTransform.SetScale(0.4f, 0.4f, XMFLOAT3_Distance(ReflectLineTransform.GetPosition(), mirror_target));
+
+            // --------------------
+
+            DrawLineTargetTransform.SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
+            DrawLineTargetTransform.Rotate(0.0f, XMConvertToRadians(1.5f), 0.0f);
         }
 
         ////////// RENDERING //////////
@@ -149,28 +159,6 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         PlayerTex.Use();
         PlayerMdl.Draw();
 
-        if (is_mouse_held) {
-            Constants constants2;
-            constants2.MVP = MirrorLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
-
-            myShader.SetConstants(&constants2);
-
-            myShader.Use();
-            DrawLineTex.Use();
-            DrawLineMdl.Draw();
-
-            if (is_reflect_line_drawn) {
-                Constants constants4;
-                constants4.MVP = ReflectLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
-
-                myShader.SetConstants(&constants4);
-
-                myShader.Use();
-                DrawLineTex.Use();
-                DrawLineMdl.Draw();
-            }
-        }
-
         Constants constants3;
         constants3.MVP = GroundTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
 
@@ -179,6 +167,43 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         myShader.Use();
         GroundTex.Use();
         GroundMdl.Draw();
+
+        if (is_mouse_held) {
+            // Disable depth write for all lines
+            myShader.ZWriteEnable(false);
+
+            Constants constants2;
+            constants2.MVP = MirrorLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+
+            myShader.SetConstants(&constants2);
+
+            myShader.Use();
+            DrawLineGuideTex.Use();
+            DrawLineGuideMdl.Draw();
+
+            if (is_reflect_line_drawn) {
+                Constants constants4;
+                constants4.MVP = ReflectLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+
+                myShader.SetConstants(&constants4);
+
+                myShader.Use();
+                DrawLineGuideTex.Use();
+                DrawLineGuideMdl.Draw();
+
+                Constants constants5;
+                constants5.MVP = DrawLineTargetTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+
+                myShader.SetConstants(&constants5);
+
+                myShader.Use();
+                DrawLineTargetTex.Use();
+                DrawLineTargetMdl.Draw();
+            }
+
+            // Re-enable depth write
+            myShader.ZWriteEnable(true);
+        }
 
         myGfxDevice.Present(&myCamera, 1);
     }

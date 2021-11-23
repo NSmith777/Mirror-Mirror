@@ -44,6 +44,29 @@ Shader::Shader(GfxDevice* gfxDevice, const char *vs_path, const char *ps_path, u
     constantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
     m_GfxDevice->GetDevice()->CreateBuffer(&constantBufferDesc, nullptr, &constantBuffer);
+
+    ////////// Blend State //////////
+
+    BlendStateDesc.AlphaToCoverageEnable = FALSE;
+    BlendStateDesc.IndependentBlendEnable = FALSE;
+    BlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
+    BlendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    BlendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    BlendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    BlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    BlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+    BlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    BlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+    m_GfxDevice->GetDevice()->CreateBlendState(&BlendStateDesc, &blendState);
+
+    ////////// Depth Stencil State //////////
+
+    depthStencilDesc.DepthEnable = TRUE;
+    depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+    m_GfxDevice->GetDevice()->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
 }
 
 void Shader::Use() {
@@ -52,6 +75,9 @@ void Shader::Use() {
     m_GfxDevice->GetDeviceContext()->VSSetConstantBuffers(0, 1, &constantBuffer);
 
     m_GfxDevice->GetDeviceContext()->PSSetShader(pixelShader, nullptr, 0);
+
+    m_GfxDevice->GetDeviceContext()->OMSetBlendState(blendState, nullptr, 0xffffffff);
+    m_GfxDevice->GetDeviceContext()->OMSetDepthStencilState(depthStencilState, 0);
 }
 
 void Shader::SetConstants(void *pConstantsData) {
@@ -62,6 +88,24 @@ void Shader::SetConstants(void *pConstantsData) {
     memcpy(mappedSubresource.pData, pConstantsData, m_constantsSize);
 
     m_GfxDevice->GetDeviceContext()->Unmap(constantBuffer, 0);
+}
+
+void Shader::BlendEnable(bool enable) {
+    BlendStateDesc.AlphaToCoverageEnable = enable;
+    BlendStateDesc.IndependentBlendEnable = enable;
+    BlendStateDesc.RenderTarget[0].BlendEnable = enable;
+
+    // Update blend state resource
+    blendState->Release();
+    m_GfxDevice->GetDevice()->CreateBlendState(&BlendStateDesc, &blendState);
+}
+
+void Shader::ZWriteEnable(bool enable) {
+    depthStencilDesc.DepthEnable = enable;
+
+    // Update depth-stencil state resource
+    depthStencilState->Release();
+    m_GfxDevice->GetDevice()->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
 }
 
 Shader::~Shader() {

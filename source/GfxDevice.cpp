@@ -59,6 +59,8 @@ GfxDevice::GfxDevice() {
 
     device->CreateDepthStencilView(depthBuffer, nullptr, &depthBufferView);
 
+    // The following states are for drawing the camera render targets to the screen
+
     D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
     depthStencilDesc.DepthEnable = TRUE;
     depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -66,7 +68,19 @@ GfxDevice::GfxDevice() {
 
     device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
 
-    // For drawing the camera render textures
+    D3D11_BLEND_DESC BlendStateDesc = {};
+    BlendStateDesc.AlphaToCoverageEnable = FALSE;
+    BlendStateDesc.IndependentBlendEnable = FALSE;
+    BlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
+    BlendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+    BlendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+    BlendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    BlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    BlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+    BlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    BlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    device->CreateBlendState(&BlendStateDesc, &blendState);
+
     D3D11_SAMPLER_DESC samplerDesc = {};
     samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
     samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -102,7 +116,7 @@ void GfxDevice::Present(Camera* pCameras, unsigned int numCameras) {
 
     deviceContext->OMSetRenderTargets(1, &backBufferView, depthBufferView);
     deviceContext->OMSetDepthStencilState(depthStencilState, 0);
-    deviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff); // use default blend mode (i.e. disable)
+    deviceContext->OMSetBlendState(blendState, nullptr, 0xffffffff);
 
     for (unsigned int i = 0; i < numCameras; i++) {
         D3D11_VIEWPORT camViewport = pCameras[i].GetViewport();

@@ -55,6 +55,4 @@ private:
 
 	ID3D11Texture2D* depthBuffer;
 	ID3D11DepthStencilView* depthBufferView;
-
-	ID3D11DepthStencilState* depthStencilState;
 };
