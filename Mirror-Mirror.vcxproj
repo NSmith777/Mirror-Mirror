@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Camera.cpp" />
+    <ClCompile Include="source\Collision.cpp" />
     <ClCompile Include="source\GfxDevice.cpp" />
     <ClCompile Include="source\Main.cpp" />
     <ClCompile Include="source\Math.cpp" />
@@ -59,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Camera.h" />
+    <ClInclude Include="source\Collision.h" />
     <ClInclude Include="source\GfxDevice.h" />
     <ClInclude Include="source\Math.h" />
     <ClInclude Include="source\Model.h" />

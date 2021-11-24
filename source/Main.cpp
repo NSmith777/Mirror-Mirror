@@ -10,6 +10,7 @@
 #include "Shader.h"
 #include "Transform.h"
 #include "Camera.h"
+#include "Collision.h"
 #include "Math.h"
 
 using namespace DirectX;
@@ -48,12 +49,19 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
     Model DrawLineTargetMdl(&myGfxDevice, "../resources/objects/DrawLine/TestDrawLine_Target.mdl");
     Texture DrawLineTargetTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Target_Dif.bmp");
+    Texture DrawLineTargetNGTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Target_NG_Dif.bmp");
     Transform DrawLineTargetTransform;
     DrawLineTargetTransform.SetScale(1.75f, 1.75f, 1.75f);
 
     Model GroundMdl(&myGfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal.mdl");
     Texture GroundTex(&myGfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal_Dif.bmp");
     Transform GroundTransform;
+
+    Model WallMdl(&myGfxDevice, "../resources/objects/StoneWall/StoneWall.mdl");
+    Texture WallTex(&myGfxDevice, "../resources/objects/StoneWall/StoneWall_Dif.bmp");
+    Transform WallTransform;
+    WallTransform.SetPosition(-8.0f, 0.0f, 0.0f);
+    BoxCollision WallCollider(&WallTransform, { 4, 8, 4 });
 
     XMINT2 mouse_coords = { 0, 0 };
     XMFLOAT3 mirror_start = { 0, 0, 0 };
@@ -62,6 +70,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
     bool is_mouse_held = false;
     bool is_reflect_line_drawn = false;
+    bool can_move = false;
 
     while (true) {
         ////////// Camera //////////
@@ -103,7 +112,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
                 is_mouse_held = true;
                 break;
             case WM_LBUTTONUP:
-                if(is_reflect_line_drawn)
+                if(is_reflect_line_drawn && can_move)
                     PlayerTransform.SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
 
                 is_mouse_held = false;
@@ -126,7 +135,8 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
                 MirrorLineTransform.GetPosition(),
                 cam_ray_hit,
                 ReflectLineTransform.GetPosition(),
-                mirror_target);
+                mirror_target
+            );
 
             // --------------------
 
@@ -144,8 +154,22 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
             // --------------------
 
-            DrawLineTargetTransform.SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
-            DrawLineTargetTransform.Rotate(0.0f, XMConvertToRadians(1.5f), 0.0f);
+            XMFLOAT3 out_hit;
+
+            can_move = WallCollider.Ray_Intersect(
+                ReflectLineTransform.GetPosition(),
+                mirror_target,
+                out_hit
+            ) ? false : true;
+
+            if (can_move) {
+                DrawLineTargetTransform.SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
+                DrawLineTargetTransform.Rotate(0.0f, XMConvertToRadians(1.5f), 0.0f);
+            }
+            else {
+                DrawLineTargetTransform.SetPosition(out_hit.x, out_hit.y, out_hit.z);
+                DrawLineTargetTransform.SetRotation(0.0f, 0.0f, 0.0f);
+            }
         }
 
         ////////// RENDERING //////////
@@ -167,6 +191,15 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         myShader.Use();
         GroundTex.Use();
         GroundMdl.Draw();
+
+        Constants constants6;
+        constants6.MVP = WallTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+
+        myShader.SetConstants(&constants6);
+
+        myShader.Use();
+        WallTex.Use();
+        WallMdl.Draw();
 
         if (is_mouse_held) {
             // Disable depth write for all lines
@@ -197,7 +230,12 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
                 myShader.SetConstants(&constants5);
 
                 myShader.Use();
-                DrawLineTargetTex.Use();
+
+                if(can_move)
+                    DrawLineTargetTex.Use();
+                else
+                    DrawLineTargetNGTex.Use();
+
                 DrawLineTargetMdl.Draw();
             }
 
