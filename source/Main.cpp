@@ -38,6 +38,8 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     Shader myShader(&myGfxDevice, "../resources/shaders/default_vs.cso", "../resources/shaders/default_ps.cso", sizeof(Constants));
     myShader.BlendEnable(true);
 
+    Constants myConstants;
+
     Model PlayerMdl(&myGfxDevice, "../resources/objects/Player/TestPlayer.mdl");
     Texture PlayerTex(&myGfxDevice, "../resources/objects/Player/TestTexture.bmp");
     Transform PlayerTransform;
@@ -174,28 +176,25 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
         ////////// RENDERING //////////
 
-        Constants constants1;
-        constants1.MVP = PlayerTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+        myConstants.MVP = PlayerTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
 
-        myShader.SetConstants(&constants1);
+        myShader.SetConstants(&myConstants);
 
         myShader.Use();
         PlayerTex.Use();
         PlayerMdl.Draw();
 
-        Constants constants3;
-        constants3.MVP = GroundTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+        myConstants.MVP = GroundTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
 
-        myShader.SetConstants(&constants3);
+        myShader.SetConstants(&myConstants);
 
         myShader.Use();
         GroundTex.Use();
         GroundMdl.Draw();
 
-        Constants constants6;
-        constants6.MVP = WallTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+        myConstants.MVP = WallTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
 
-        myShader.SetConstants(&constants6);
+        myShader.SetConstants(&myConstants);
 
         myShader.Use();
         WallTex.Use();
@@ -205,29 +204,26 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
             // Disable depth write for all lines
             myShader.ZWriteEnable(false);
 
-            Constants constants2;
-            constants2.MVP = MirrorLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+            myConstants.MVP = MirrorLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
 
-            myShader.SetConstants(&constants2);
+            myShader.SetConstants(&myConstants);
 
             myShader.Use();
             DrawLineGuideTex.Use();
             DrawLineGuideMdl.Draw();
 
             if (is_reflect_line_drawn) {
-                Constants constants4;
-                constants4.MVP = ReflectLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+                myConstants.MVP = ReflectLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
 
-                myShader.SetConstants(&constants4);
+                myShader.SetConstants(&myConstants);
 
                 myShader.Use();
                 DrawLineGuideTex.Use();
                 DrawLineGuideMdl.Draw();
 
-                Constants constants5;
-                constants5.MVP = DrawLineTargetTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+                myConstants.MVP = DrawLineTargetTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
 
-                myShader.SetConstants(&constants5);
+                myShader.SetConstants(&myConstants);
 
                 myShader.Use();
 
