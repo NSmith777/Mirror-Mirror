@@ -14,6 +14,7 @@
     <ClCompile Include="source\Framework\Camera.cpp" />
     <ClCompile Include="source\Framework\Collision.cpp" />
     <ClCompile Include="source\Framework\GfxDevice.cpp" />
+    <ClCompile Include="source\GameObject.cpp" />
     <ClCompile Include="source\Main.cpp" />
     <ClCompile Include="source\Framework\Math.cpp" />
     <ClCompile Include="source\Framework\Model.cpp" />
@@ -67,6 +68,7 @@
     <ClInclude Include="source\Framework\Shader.h" />
     <ClInclude Include="source\Framework\Texture.h" />
     <ClInclude Include="source\Framework\Transform.h" />
+    <ClInclude Include="source\GameObject.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -13,6 +13,8 @@
 #include "Framework/Collision.h"
 #include "Framework/Math.h"
 
+#include "GameObject.h"
+
 using namespace DirectX;
 using namespace Math;
 
@@ -28,46 +30,42 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     GfxDevice myGfxDevice;
     
     Shader myScreenShader(&myGfxDevice, "../resources/shaders/screen_vs.cso", "../resources/shaders/screen_ps.cso", sizeof(Constants));
+    Shader myShader(&myGfxDevice, "../resources/shaders/default_vs.cso", "../resources/shaders/default_ps.cso", sizeof(Constants));
+    myShader.BlendEnable(true);
+
+    Texture PlayerTex(&myGfxDevice, "../resources/objects/Player/TestTexture.bmp");
+    Texture DrawLineGuideTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Guide_Dif.bmp");
+    Texture DrawLineTargetTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Target_Dif.bmp");
+    Texture DrawLineTargetNGTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Target_NG_Dif.bmp");
+    Texture GroundTex(&myGfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal_Dif.bmp");
+    Texture WallTex(&myGfxDevice, "../resources/objects/StoneWall/StoneWall_Dif.bmp");
+
+    Model PlayerMdl(&myGfxDevice, "../resources/objects/Player/TestPlayer.mdl");
+    Model DrawLineGuideMdl(&myGfxDevice, "../resources/objects/DrawLine/TestDrawLine_Guide.mdl");
+    Model DrawLineTargetMdl(&myGfxDevice, "../resources/objects/DrawLine/TestDrawLine_Target.mdl");
+    Model GroundMdl(&myGfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal.mdl");
+    Model WallMdl(&myGfxDevice, "../resources/objects/StoneWall/StoneWall.mdl");
+
+    GameObject Player(&PlayerMdl, &PlayerTex, &myShader);
+    GameObject MirrorLine(&DrawLineGuideMdl, &DrawLineGuideTex, &myShader);
+    GameObject ReflectLine(&DrawLineGuideMdl, &DrawLineGuideTex, &myShader);
+    GameObject DrawLineTarget(&DrawLineTargetMdl, &DrawLineTargetTex, &myShader);
+    GameObject Ground(&GroundMdl, &GroundTex, &myShader);
+    GameObject Wall(&WallMdl, &WallTex, &myShader);
+
+    BoxCollision WallCollider(Wall.GetTransform(), { 4, 8, 4 });
+
+    DrawLineTarget.GetTransform()->SetScale(1.75f, 1.75f, 1.75f);
+    Wall.GetTransform()->SetPosition(-8.0f, 0.0f, 0.0f);
 
     Camera myCamera(&myGfxDevice, &myScreenShader);
     myCamera.SetClearColor(0.25f, 0.25f, 0.25f);
 
-    myCamera.GetTransform()->Translate(0.0f, 20.0f, -20.0f);
-    myCamera.GetTransform()->Rotate(XMConvertToRadians(45.0f), 0.0f, 0.0f);
-
-    Shader myShader(&myGfxDevice, "../resources/shaders/default_vs.cso", "../resources/shaders/default_ps.cso", sizeof(Constants));
-    myShader.BlendEnable(true);
-
-    Constants myConstants;
-
-    Model PlayerMdl(&myGfxDevice, "../resources/objects/Player/TestPlayer.mdl");
-    Texture PlayerTex(&myGfxDevice, "../resources/objects/Player/TestTexture.bmp");
-    Transform PlayerTransform;
-
-    Model DrawLineGuideMdl(&myGfxDevice, "../resources/objects/DrawLine/TestDrawLine_Guide.mdl");
-    Texture DrawLineGuideTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Guide_Dif.bmp");
-    Transform MirrorLineTransform;
-    Transform ReflectLineTransform;
-
-    Model DrawLineTargetMdl(&myGfxDevice, "../resources/objects/DrawLine/TestDrawLine_Target.mdl");
-    Texture DrawLineTargetTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Target_Dif.bmp");
-    Texture DrawLineTargetNGTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Target_NG_Dif.bmp");
-    Transform DrawLineTargetTransform;
-    DrawLineTargetTransform.SetScale(1.75f, 1.75f, 1.75f);
-
-    Model GroundMdl(&myGfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal.mdl");
-    Texture GroundTex(&myGfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal_Dif.bmp");
-    Transform GroundTransform;
-
-    Model WallMdl(&myGfxDevice, "../resources/objects/StoneWall/StoneWall.mdl");
-    Texture WallTex(&myGfxDevice, "../resources/objects/StoneWall/StoneWall_Dif.bmp");
-    Transform WallTransform;
-    WallTransform.SetPosition(-8.0f, 0.0f, 0.0f);
-    BoxCollision WallCollider(&WallTransform, { 4, 8, 4 });
+    myCamera.GetTransform()->SetPosition(0.0f, 20.0f, -20.0f);
+    myCamera.GetTransform()->SetRotation(XMConvertToRadians(45.0f), 0.0f, 0.0f);
 
     XMINT2 mouse_coords = { 0, 0 };
     XMFLOAT3 mirror_start = { 0, 0, 0 };
-
     XMFLOAT3 mirror_target = { 0, 0, 0 };
 
     bool is_mouse_held = false;
@@ -75,13 +73,17 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     bool can_move = false;
 
     while (true) {
+        XMFLOAT3 PlayerPos = Player.GetTransform()->GetPosition();
+        Transform* MirrorLineTransform = MirrorLine.GetTransform();
+        Transform* ReflectLineTransform = ReflectLine.GetTransform();
+
         ////////// Camera //////////
 
         myCamera.Use();
 
         XMFLOAT3 cam_offset = { 0.0f, 20.0f, -20.0f };
 
-        XMFLOAT3 cam_lerp = XMFLOAT3_Lerp(myCamera.GetTransform()->GetPosition(), PlayerTransform.GetPosition() + cam_offset, 0.08f);
+        XMFLOAT3 cam_lerp = XMFLOAT3_Lerp(myCamera.GetTransform()->GetPosition(), PlayerPos + cam_offset, 0.08f);
 
         myCamera.GetTransform()->SetPosition(cam_lerp.x, cam_lerp.y, cam_lerp.z);
 
@@ -92,8 +94,6 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         XMFLOAT3 cam_ray_hit = -cam_pos.y * (cam_ray_origin - cam_pos) / (cam_ray_origin.y - cam_pos.y) + cam_pos;
 
         ////////// Input //////////
-
-        XMFLOAT3 PlayerPos = PlayerTransform.GetPosition();
 
         MSG msg;
         while (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -106,8 +106,8 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
                 mouse_coords.y = GET_Y_LPARAM(msg.lParam);
                 break;
             case WM_LBUTTONDOWN:
-                MirrorLineTransform.SetPosition(cam_ray_hit.x, cam_ray_hit.y, cam_ray_hit.z);
-                ReflectLineTransform.SetPosition(PlayerPos.x, PlayerPos.y, PlayerPos.z);
+                MirrorLineTransform->SetPosition(cam_ray_hit.x, cam_ray_hit.y, cam_ray_hit.z);
+                ReflectLineTransform->SetPosition(PlayerPos.x, PlayerPos.y, PlayerPos.z);
 
                 mirror_start = cam_ray_hit;
 
@@ -115,7 +115,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
                 break;
             case WM_LBUTTONUP:
                 if(is_reflect_line_drawn && can_move)
-                    PlayerTransform.SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
+                    Player.GetTransform()->SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
 
                 is_mouse_held = false;
                 break;
@@ -134,105 +134,67 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
             mirror_target.z = 2 * d * m - PlayerPos.z + 2 * c;
 
             is_reflect_line_drawn = is_xz_line_intersect(
-                MirrorLineTransform.GetPosition(),
+                MirrorLineTransform->GetPosition(),
                 cam_ray_hit,
-                ReflectLineTransform.GetPosition(),
+                ReflectLineTransform->GetPosition(),
                 mirror_target
             );
 
             // --------------------
 
-            XMFLOAT3 mirror_line_delta = cam_ray_hit - MirrorLineTransform.GetPosition();
+            XMFLOAT3 mirror_line_delta = cam_ray_hit - MirrorLineTransform->GetPosition();
 
-            MirrorLineTransform.SetRotation(0, atan2f(mirror_line_delta.x, mirror_line_delta.z), 0);
-            MirrorLineTransform.SetScale(0.4f, 0.4f, XMFLOAT3_Distance(MirrorLineTransform.GetPosition(), cam_ray_hit));
+            MirrorLineTransform->SetRotation(0, atan2f(mirror_line_delta.x, mirror_line_delta.z), 0);
+            MirrorLineTransform->SetScale(0.4f, 0.4f, XMFLOAT3_Distance(MirrorLineTransform->GetPosition(), cam_ray_hit));
 
             // --------------------
 
-            XMFLOAT3 reflect_line_delta = mirror_target - ReflectLineTransform.GetPosition();
+            XMFLOAT3 reflect_line_delta = mirror_target - ReflectLineTransform->GetPosition();
 
-            ReflectLineTransform.SetRotation(0, atan2f(reflect_line_delta.x, reflect_line_delta.z), 0);
-            ReflectLineTransform.SetScale(0.4f, 0.4f, XMFLOAT3_Distance(ReflectLineTransform.GetPosition(), mirror_target));
+            ReflectLineTransform->SetRotation(0, atan2f(reflect_line_delta.x, reflect_line_delta.z), 0);
+            ReflectLineTransform->SetScale(0.4f, 0.4f, XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), mirror_target));
 
             // --------------------
 
             XMFLOAT3 out_hit;
 
             can_move = WallCollider.Ray_Intersect(
-                ReflectLineTransform.GetPosition(),
+                ReflectLineTransform->GetPosition(),
                 mirror_target,
                 out_hit
             ) ? false : true;
 
             if (can_move) {
-                DrawLineTargetTransform.SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
-                DrawLineTargetTransform.Rotate(0.0f, XMConvertToRadians(1.5f), 0.0f);
+                DrawLineTarget.GetTransform()->SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
+                DrawLineTarget.GetTransform()->Rotate(0.0f, XMConvertToRadians(1.5f), 0.0f);
             }
             else {
-                DrawLineTargetTransform.SetPosition(out_hit.x, out_hit.y, out_hit.z);
-                DrawLineTargetTransform.SetRotation(0.0f, 0.0f, 0.0f);
+                DrawLineTarget.GetTransform()->SetPosition(out_hit.x, out_hit.y, out_hit.z);
+                DrawLineTarget.GetTransform()->SetRotation(0.0f, 0.0f, 0.0f);
             }
         }
 
         ////////// RENDERING //////////
 
-        myConstants.MVP = PlayerTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
-
-        myShader.SetConstants(&myConstants);
-
-        myShader.Use();
-        PlayerTex.Use();
-        PlayerMdl.Draw();
-
-        myConstants.MVP = GroundTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
-
-        myShader.SetConstants(&myConstants);
-
-        myShader.Use();
-        GroundTex.Use();
-        GroundMdl.Draw();
-
-        myConstants.MVP = WallTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
-
-        myShader.SetConstants(&myConstants);
-
-        myShader.Use();
-        WallTex.Use();
-        WallMdl.Draw();
+        Player.Render(&myCamera);
+        Ground.Render(&myCamera);
+        Wall.Render(&myCamera);
 
         if (is_mouse_held) {
             // Disable depth write for all lines
             myShader.ZWriteEnable(false);
 
-            myConstants.MVP = MirrorLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
-
-            myShader.SetConstants(&myConstants);
-
-            myShader.Use();
-            DrawLineGuideTex.Use();
-            DrawLineGuideMdl.Draw();
+            MirrorLine.Render(&myCamera);
 
             if (is_reflect_line_drawn) {
-                myConstants.MVP = ReflectLineTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
+                ReflectLine.Render(&myCamera);
 
-                myShader.SetConstants(&myConstants);
-
-                myShader.Use();
-                DrawLineGuideTex.Use();
-                DrawLineGuideMdl.Draw();
-
-                myConstants.MVP = DrawLineTargetTransform.GetModelMatrix() * myCamera.GetViewMatrix() * myCamera.GetProjMatrix();
-
-                myShader.SetConstants(&myConstants);
-
-                myShader.Use();
-
-                if(can_move)
-                    DrawLineTargetTex.Use();
+                if (can_move)
+                    DrawLineTarget.SetTexture(&DrawLineTargetTex);
                 else
-                    DrawLineTargetNGTex.Use();
+                    DrawLineTarget.SetTexture(&DrawLineTargetNGTex);
 
-                DrawLineTargetMdl.Draw();
+                DrawLineTarget.Render(&myCamera);
             }
 
             // Re-enable depth write

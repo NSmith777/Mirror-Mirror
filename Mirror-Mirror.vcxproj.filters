@@ -51,6 +51,9 @@
     <ClCompile Include="source\Framework\Transform.cpp">
       <Filter>Source Files\Framework</Filter>
     </ClCompile>
+    <ClCompile Include="source\GameObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="source\shaders\default_vs.hlsl">
@@ -90,6 +93,9 @@
     </ClInclude>
     <ClInclude Include="source\Framework\Transform.h">
       <Filter>Header Files\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="source\GameObject.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
