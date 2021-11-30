@@ -4,14 +4,14 @@
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
 
-#include "GfxDevice.h"
-#include "Model.h"
-#include "Texture.h"
-#include "Shader.h"
-#include "Transform.h"
-#include "Camera.h"
-#include "Collision.h"
-#include "Math.h"
+#include "Framework/GfxDevice.h"
+#include "Framework/Model.h"
+#include "Framework/Texture.h"
+#include "Framework/Shader.h"
+#include "Framework/Transform.h"
+#include "Framework/Camera.h"
+#include "Framework/Collision.h"
+#include "Framework/Math.h"
 
 using namespace DirectX;
 using namespace Math;

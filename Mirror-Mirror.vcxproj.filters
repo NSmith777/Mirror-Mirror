@@ -16,34 +16,40 @@
     <Filter Include="Shader Files">
       <UniqueIdentifier>{40381710-ecda-49d3-9091-fdad2960a4a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Framework">
+      <UniqueIdentifier>{f8873361-b8bc-4836-bdad-dc9ebfb96c48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Framework">
+      <UniqueIdentifier>{32360de6-f694-46d1-92e2-4fd48324c2b4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\GfxDevice.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\Framework\Camera.cpp">
+      <Filter>Source Files\Framework</Filter>
     </ClCompile>
-    <ClCompile Include="source\Model.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\Framework\Collision.cpp">
+      <Filter>Source Files\Framework</Filter>
     </ClCompile>
-    <ClCompile Include="source\Texture.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\Framework\GfxDevice.cpp">
+      <Filter>Source Files\Framework</Filter>
     </ClCompile>
-    <ClCompile Include="source\Shader.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\Framework\Math.cpp">
+      <Filter>Source Files\Framework</Filter>
     </ClCompile>
-    <ClCompile Include="source\Camera.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\Framework\Model.cpp">
+      <Filter>Source Files\Framework</Filter>
     </ClCompile>
-    <ClCompile Include="source\Transform.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\Framework\Shader.cpp">
+      <Filter>Source Files\Framework</Filter>
     </ClCompile>
-    <ClCompile Include="source\Math.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\Framework\Texture.cpp">
+      <Filter>Source Files\Framework</Filter>
     </ClCompile>
-    <ClCompile Include="source\Collision.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\Framework\Transform.cpp">
+      <Filter>Source Files\Framework</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -61,29 +67,29 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\GfxDevice.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\Framework\Camera.h">
+      <Filter>Header Files\Framework</Filter>
     </ClInclude>
-    <ClInclude Include="source\Model.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\Framework\Collision.h">
+      <Filter>Header Files\Framework</Filter>
     </ClInclude>
-    <ClInclude Include="source\Texture.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\Framework\GfxDevice.h">
+      <Filter>Header Files\Framework</Filter>
     </ClInclude>
-    <ClInclude Include="source\Shader.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\Framework\Math.h">
+      <Filter>Header Files\Framework</Filter>
     </ClInclude>
-    <ClInclude Include="source\Camera.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\Framework\Model.h">
+      <Filter>Header Files\Framework</Filter>
     </ClInclude>
-    <ClInclude Include="source\Transform.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\Framework\Shader.h">
+      <Filter>Header Files\Framework</Filter>
     </ClInclude>
-    <ClInclude Include="source\Math.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\Framework\Texture.h">
+      <Filter>Header Files\Framework</Filter>
     </ClInclude>
-    <ClInclude Include="source\Collision.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\Framework\Transform.h">
+      <Filter>Header Files\Framework</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
