@@ -18,11 +18,11 @@
 using namespace DirectX;
 using namespace Math;
 
-bool ccw(XMFLOAT3 A, XMFLOAT3 B, XMFLOAT3 C) {
+static inline bool ccw(XMFLOAT3 A, XMFLOAT3 B, XMFLOAT3 C) {
     return (C.z - A.z) * (B.x - A.x) > (B.z - A.z) * (C.x - A.x);
 }
 
-bool is_xz_line_intersect(XMFLOAT3 A, XMFLOAT3 B, XMFLOAT3 C, XMFLOAT3 D) {
+static inline bool is_xz_line_intersect(XMFLOAT3 A, XMFLOAT3 B, XMFLOAT3 C, XMFLOAT3 D) {
     return ccw(A, C, D) != ccw(B, C, D) && ccw(A, B, C) != ccw(A, B, D);
 }
 
@@ -50,23 +50,67 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     GameObject MirrorLine(&DrawLineGuideMdl, &DrawLineGuideTex, &myShader);
     GameObject ReflectLine(&DrawLineGuideMdl, &DrawLineGuideTex, &myShader);
     GameObject DrawLineTarget(&DrawLineTargetMdl, &DrawLineTargetTex, &myShader);
-    GameObject Ground(&GroundMdl, &GroundTex, &myShader);
-    GameObject Wall(&WallMdl, &WallTex, &myShader);
 
-    BoxCollision WallCollider(Wall.GetTransform(), { 4, 8, 4 });
+    std::vector<GameObject> Grounds;
+    std::vector<GameObject> Walls;
+
+    FILE* lvlfile = fopen("../resources/levels/lvl0.txt", "r");
+    char lvlfile_buf[512] = {'\0'};
+
+    while (fscanf(lvlfile, "%s\n", lvlfile_buf) == 1) {
+        if (strcmp(lvlfile_buf, "LAYER") == 0) {
+            int width = 0, height = 0;
+            if (fscanf(lvlfile, "%i %i\n", &width, &height) != 2)
+                assert(false);
+
+            for (int z = 0; z < height; z++) {
+                for (int x = 0; x < width; x++) {
+                    int gameobject_id = 0;
+                    if (fscanf(lvlfile, "%i,", &gameobject_id) != 1)
+                        assert(false);
+
+                    XMFLOAT3 obj_pos(x * 8.0f, 0.0f, z * -8.0f);
+
+                    switch (gameobject_id) {
+                    case 1:
+                        Player.GetTransform()->SetPosition(obj_pos.x, obj_pos.y, obj_pos.z);
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        Grounds.push_back(GameObject(&GroundMdl, &GroundTex, &myShader));
+
+                        Grounds[Grounds.size() - 1].AddBoxCollider({ 4, 4, 4 });
+                        Grounds[Grounds.size() - 1].GetTransform()->SetPosition(obj_pos.x, obj_pos.y, obj_pos.z);
+                        break;
+                    case 4:
+                        Walls.push_back(GameObject(&WallMdl, &WallTex, &myShader));
+
+                        Walls[Walls.size() - 1].AddBoxCollider({ 4, 8, 4 });
+                        Walls[Walls.size() - 1].GetTransform()->SetPosition(obj_pos.x, obj_pos.y, obj_pos.z);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+
+                if (fscanf(lvlfile, "\n") != 0)
+                    assert(false);
+            }
+        }
+    }
 
     DrawLineTarget.GetTransform()->SetScale(1.75f, 1.75f, 1.75f);
-    Wall.GetTransform()->SetPosition(-8.0f, 0.0f, 0.0f);
 
     Camera myCamera(&myGfxDevice, &myScreenShader);
     myCamera.SetClearColor(0.25f, 0.25f, 0.25f);
 
     myCamera.GetTransform()->SetPosition(0.0f, 20.0f, -20.0f);
-    myCamera.GetTransform()->SetRotation(XMConvertToRadians(45.0f), 0.0f, 0.0f);
+    myCamera.GetTransform()->SetRotation(XMConvertToRadians(60.0f), 0.0f, 0.0f);
 
-    XMINT2 mouse_coords = { 0, 0 };
-    XMFLOAT3 mirror_start = { 0, 0, 0 };
-    XMFLOAT3 mirror_target = { 0, 0, 0 };
+    XMINT2 mouse_coords(0, 0);
+    XMFLOAT3 mirror_start(0, 0, 0);
+    XMFLOAT3 mirror_target(0, 0, 0);
 
     bool is_mouse_held = false;
     bool is_reflect_line_drawn = false;
@@ -81,9 +125,9 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
         myCamera.Use();
 
-        XMFLOAT3 cam_offset = { 0.0f, 20.0f, -20.0f };
+        XMFLOAT3 cam_offset(0.0f, 30.0f, -18.0f);
 
-        XMFLOAT3 cam_lerp = XMFLOAT3_Lerp(myCamera.GetTransform()->GetPosition(), PlayerPos + cam_offset, 0.08f);
+        XMFLOAT3 cam_lerp = XMFLOAT3_Lerp(myCamera.GetTransform()->GetPosition(), PlayerPos + cam_offset, 0.1f);
 
         myCamera.GetTransform()->SetPosition(cam_lerp.x, cam_lerp.y, cam_lerp.z);
 
@@ -156,13 +200,38 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
             // --------------------
 
+            std::vector<XMFLOAT3> hits;
+
+            for (unsigned int i = 0; i < Walls.size(); i++) {
+                XMFLOAT3 cur_hit;
+
+                bool is_hit = Walls[i].GetBoxCollision()->Ray_Intersect(
+                    ReflectLineTransform->GetPosition(),
+                    mirror_target,
+                    cur_hit
+                );
+
+                if (is_hit)
+                    hits.push_back(cur_hit);
+            }
+
             XMFLOAT3 out_hit;
 
-            can_move = WallCollider.Ray_Intersect(
-                ReflectLineTransform->GetPosition(),
-                mirror_target,
-                out_hit
-            ) ? false : true;
+            if (hits.size() > 0) {
+                float distance = XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), hits[0]);
+                int closest_hit = 0;
+
+                for (unsigned int i = 0; i < hits.size(); i++) {
+                    if (XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), hits[i]) < distance)
+                        closest_hit = i;
+                }
+
+                out_hit = hits[closest_hit];
+                can_move = false;
+            }
+            else {
+                can_move = true;
+            }
 
             if (can_move) {
                 DrawLineTarget.GetTransform()->SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
@@ -177,8 +246,12 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         ////////// RENDERING //////////
 
         Player.Render(&myCamera);
-        Ground.Render(&myCamera);
-        Wall.Render(&myCamera);
+
+        for (unsigned int i = 0; i < Grounds.size(); i++)
+            Grounds[i].Render(&myCamera);
+        
+        for (unsigned int i = 0; i < Walls.size(); i++)
+            Walls[i].Render(&myCamera);
 
         if (is_mouse_held) {
             // Disable depth write for all lines
