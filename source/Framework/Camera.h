@@ -21,6 +21,8 @@ public:
 	void Use();
 
 	XMMATRIX GetViewMatrix();
+
+	XMMATRIX GetOrthoMatrix();
 	XMMATRIX GetProjMatrix();
 
 	Shader* GetShader() { return m_ScreenShader; }

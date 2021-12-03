@@ -99,6 +99,10 @@ XMMATRIX Camera::GetProjMatrix() {
 	return XMMatrixPerspectiveFovLH(XMConvertToRadians(fieldOfView), (float)width / height, zNear, zFar);
 }
 
+XMMATRIX Camera::GetOrthoMatrix() {
+	return XMMatrixOrthographicLH((float)width, (float)height, zNear, zFar);
+}
+
 XMFLOAT3 Camera::ScreenToWorldPoint(XMINT2 screenPos) {
 	XMFLOAT3 cam_pos = transform.GetPosition();
 

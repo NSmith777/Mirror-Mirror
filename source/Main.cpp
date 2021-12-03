@@ -12,6 +12,8 @@
 #include "Framework/Camera.h"
 #include "Framework/Collision.h"
 #include "Framework/Math.h"
+#include "Framework/Font.h"
+#include "Framework/Text.h"
 
 #include "GameObject.h"
 
@@ -30,8 +32,25 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     GfxDevice myGfxDevice;
     
     Shader myScreenShader(&myGfxDevice, "../resources/shaders/screen_vs.cso", "../resources/shaders/screen_ps.cso", sizeof(Constants));
+    Shader myUIShader(&myGfxDevice, "../resources/shaders/ui_vs.cso", "../resources/shaders/ui_ps.cso", sizeof(Constants));
     Shader myShader(&myGfxDevice, "../resources/shaders/default_vs.cso", "../resources/shaders/default_ps.cso", sizeof(Constants));
+
+    myUIShader.ZWriteEnable(false);
+    myUIShader.BlendEnable(true);
+
     myShader.BlendEnable(true);
+
+    FT_Library ft;
+    if (FT_Init_FreeType(&ft))
+        assert(false);
+
+    Font myFont(&myGfxDevice, &ft, "../resources/fonts/Roboto-Medium.ttf", 54);
+
+    Text myText1(&myGfxDevice, &myFont, &myUIShader, { -620, 300 }, 0.5f);
+    Text myText2(&myGfxDevice, &myFont, &myUIShader, { -620, 200 }, 1.0f);
+
+    myText1.SetText("Test Text 1");
+    myText2.SetText("Sample Text 2");
 
     Texture PlayerTex(&myGfxDevice, "../resources/objects/Player/TestTexture.bmp");
     Texture DrawLineGuideTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Guide_Dif.bmp");
@@ -273,6 +292,10 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
             // Re-enable depth write
             myShader.ZWriteEnable(true);
         }
+
+        // Draw text
+        myText1.Render(&myCamera);
+        myText2.Render(&myCamera);
 
         myGfxDevice.Present(&myCamera, 1);
     }
