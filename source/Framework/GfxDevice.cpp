@@ -20,7 +20,8 @@ GfxDevice::GfxDevice() {
 
     RegisterClassExA(&wndClassEx);
 
-    m_Window = CreateWindowExA(NULL, TITLE, TITLE, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, NULL, NULL, GetModuleHandle(NULL), NULL);
+    m_Window = CreateWindowExA(NULL, TITLE, TITLE, WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+        CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, NULL, NULL, GetModuleHandle(NULL), NULL);
 
     ShowWindow(m_Window, SW_SHOWDEFAULT);
 
@@ -38,7 +39,8 @@ GfxDevice::GfxDevice() {
     scd.Windowed = TRUE;                                    // windowed/full-screen mode
     scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;     // allow full-screen switching
 
-    D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL, D3D11_SDK_VERSION, &scd, &swapChain, &device, NULL, &deviceContext);
+    D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL,
+        D3D11_SDK_VERSION, &scd, &swapChain, &device, NULL, &deviceContext);
 
     ////////// Init Framebuffers //////////
 
