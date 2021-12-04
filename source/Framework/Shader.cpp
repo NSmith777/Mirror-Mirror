@@ -109,5 +109,13 @@ void Shader::ZWriteEnable(bool enable) {
 }
 
 Shader::~Shader() {
+    vertexShader->Release();
+    pixelShader->Release();
+    inputLayout->Release();
 
+    constantBuffer->Release();
+
+    blendState->Release();
+
+    depthStencilState->Release();
 }

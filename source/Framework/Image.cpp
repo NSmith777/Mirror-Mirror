@@ -62,5 +62,6 @@ void Image::Render(Camera* cam) {
 }
 
 Image::~Image() {
-
+    vertexBuffer->Release();
+    rasterizerState->Release();
 }

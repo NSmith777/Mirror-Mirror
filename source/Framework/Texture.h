@@ -22,5 +22,7 @@ private:
 	short bytes_per_pixel;
 	int pitch;
 
+	char* pixel_data;
+
 	ID3D11SamplerState* samplerState;
 };

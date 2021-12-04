@@ -23,7 +23,7 @@ Texture::Texture(GfxDevice *gfxDevice, const char *filepath) {
 
     pitch = width * bytes_per_pixel;
 
-    char *pixel_data = new char[height * pitch];
+    pixel_data = (char*)malloc(height * pitch);
 
     fseek(bmp_file, bmp_header.bfOffBits, SEEK_SET);
     fread(pixel_data, height * pitch, 1, bmp_file);
@@ -68,5 +68,10 @@ void Texture::Use() {
 }
 
 Texture::~Texture() {
+    texture->Release();
+    textureView->Release();
 
+    free(pixel_data);
+
+    samplerState->Release();
 }

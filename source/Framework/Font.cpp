@@ -47,6 +47,8 @@ Font::Font(GfxDevice* gfxDevice, FT_Library* pFt, const char *filepath, int size
         Characters.insert(std::pair<char, Character>(c, character));
     }
 
+    FT_Done_Face(face);
+
     ////////// Sampler //////////
 
     D3D11_SAMPLER_DESC samplerDesc = {};
@@ -60,5 +62,13 @@ Font::Font(GfxDevice* gfxDevice, FT_Library* pFt, const char *filepath, int size
 }
 
 Font::~Font() {
+    for (auto it = Characters.begin(); it != Characters.end(); it++) {
+        if(it->second.texture != NULL)
+            it->second.texture->Release();
 
+        if(it->second.textureView != NULL)
+            it->second.textureView->Release();
+    }
+
+    samplerState->Release();
 }

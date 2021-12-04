@@ -10,7 +10,7 @@ Text::Text(GfxDevice* gfxDevice, Font* pFont, Shader* pShader, XMFLOAT2 new_pos,
 
     constexpr int max_text_length = 65536;
 
-    text = new char[max_text_length];
+    text = (char*)malloc(max_text_length);
 	SetText("Sample Text");
 
     ////////// Vertex Buffer //////////
@@ -89,5 +89,8 @@ void Text::Render(Camera *cam) {
 }
 
 Text::~Text() {
+    vertexBuffer->Release();
+    rasterizerState->Release();
 
+    free(text);
 }

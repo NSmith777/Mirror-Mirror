@@ -154,5 +154,21 @@ void GfxDevice::Present(Camera* pCameras, unsigned int numCameras) {
 }
 
 GfxDevice::~GfxDevice() {
+    DestroyWindow(m_Window);
 
+    device->Release();
+    deviceContext->Release();
+    swapChain->Release();
+
+    backBuffer->Release();
+    backBufferView->Release();
+
+    depthBuffer->Release();
+    depthBufferView->Release();
+
+    depthStencilState->Release();
+    blendState->Release();
+
+    samplerState->Release();
+    quadBuffer->Release();
 }

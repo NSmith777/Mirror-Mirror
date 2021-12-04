@@ -1,16 +1,17 @@
 #pragma once
 
-#include "Framework/Model.h"
+#include <windows.h>
+#include <windowsx.h>
+#include <d3d11.h>
+
+#include "Framework/GfxDevice.h"
 #include "Framework/Texture.h"
-#include "Framework/Transform.h"
-#include "Framework/Shader.h"
+#include "Framework/Model.h"
 #include "Framework/Collision.h"
-#include "Framework/Camera.h"
 
 class GameObject {
 public:
 	GameObject(Model *mdl, Texture* tex, Shader *shdr);
-	GameObject(const GameObject& old); // Copy constructor
 	~GameObject();
 
 	void SetModel(Model* mdl) { model = mdl; }
@@ -23,6 +24,10 @@ public:
 	Transform* GetTransform() { return transform; }
 
 	void Render(Camera *cam);
+
+	// Supress heap alignment warnings
+	void* operator new(size_t i) { return _mm_malloc(i, 16); }
+	void operator delete(void* p) { _mm_free(p); }
 
 private:
 	Shader* shader;

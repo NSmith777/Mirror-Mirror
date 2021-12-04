@@ -55,5 +55,8 @@ void Model::Draw() {
 }
 
 Model::~Model() {
+    free(VertexData);
 
+    vertexBuffer->Release();
+    rasterizerState->Release();
 }

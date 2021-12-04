@@ -124,5 +124,10 @@ XMFLOAT3 Camera::ScreenToWorldPoint(XMINT2 screenPos) {
 }
 
 Camera::~Camera() {
+	backBuffer->Release();
+	backBufferView->Release();
+	backBufferTexView->Release();
 
+	depthBuffer->Release();
+	depthBufferView->Release();
 }
