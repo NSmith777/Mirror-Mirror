@@ -60,6 +60,9 @@
     <ClCompile Include="source\Framework\Text.cpp">
       <Filter>Source Files\Framework</Filter>
     </ClCompile>
+    <ClCompile Include="source\Framework\Image.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="source\shaders\default_vs.hlsl">
@@ -74,10 +77,10 @@
     <FxCompile Include="source\shaders\screen_ps.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="source\shaders\ui_vs.hlsl">
+    <FxCompile Include="source\shaders\text_vs.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="source\shaders\ui_ps.hlsl">
+    <FxCompile Include="source\shaders\text_ps.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>
@@ -113,6 +116,9 @@
       <Filter>Header Files\Framework</Filter>
     </ClInclude>
     <ClInclude Include="source\Framework\Text.h">
+      <Filter>Header Files\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Framework\Image.h">
       <Filter>Header Files\Framework</Filter>
     </ClInclude>
   </ItemGroup>

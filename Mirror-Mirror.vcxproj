@@ -15,6 +15,7 @@
     <ClCompile Include="source\Framework\Collision.cpp" />
     <ClCompile Include="source\Framework\Font.cpp" />
     <ClCompile Include="source\Framework\GfxDevice.cpp" />
+    <ClCompile Include="source\Framework\Image.cpp" />
     <ClCompile Include="source\Framework\Text.cpp" />
     <ClCompile Include="source\GameObject.cpp" />
     <ClCompile Include="source\Main.cpp" />
@@ -60,13 +61,13 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.1</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.1</ShaderModel>
     </FxCompile>
-    <FxCompile Include="source\shaders\ui_ps.hlsl">
+    <FxCompile Include="source\shaders\text_ps.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)/resources/shaders/%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)/resources/shaders/%(Filename).cso</ObjectFileOutput>
     </FxCompile>
-    <FxCompile Include="source\shaders\ui_vs.hlsl">
+    <FxCompile Include="source\shaders\text_vs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)/resources/shaders/%(Filename).cso</ObjectFileOutput>
@@ -78,6 +79,7 @@
     <ClInclude Include="source\Framework\Collision.h" />
     <ClInclude Include="source\Framework\Font.h" />
     <ClInclude Include="source\Framework\GfxDevice.h" />
+    <ClInclude Include="source\Framework\Image.h" />
     <ClInclude Include="source\Framework\Math.h" />
     <ClInclude Include="source\Framework\Model.h" />
     <ClInclude Include="source\Framework\Shader.h" />

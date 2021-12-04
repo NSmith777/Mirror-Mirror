@@ -14,6 +14,7 @@
 #include "Framework/Math.h"
 #include "Framework/Font.h"
 #include "Framework/Text.h"
+#include "Framework/Image.h"
 
 #include "GameObject.h"
 
@@ -32,11 +33,11 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     GfxDevice myGfxDevice;
     
     Shader myScreenShader(&myGfxDevice, "../resources/shaders/screen_vs.cso", "../resources/shaders/screen_ps.cso", sizeof(Constants));
-    Shader myUIShader(&myGfxDevice, "../resources/shaders/ui_vs.cso", "../resources/shaders/ui_ps.cso", sizeof(Constants));
+    Shader myTextShader(&myGfxDevice, "../resources/shaders/text_vs.cso", "../resources/shaders/text_ps.cso", sizeof(Constants));
     Shader myShader(&myGfxDevice, "../resources/shaders/default_vs.cso", "../resources/shaders/default_ps.cso", sizeof(Constants));
 
-    myUIShader.ZWriteEnable(false);
-    myUIShader.BlendEnable(true);
+    myTextShader.ZWriteEnable(false);
+    myTextShader.BlendEnable(true);
 
     myShader.BlendEnable(true);
 
@@ -46,8 +47,8 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
     Font myFont(&myGfxDevice, &ft, "../resources/fonts/Roboto-Medium.ttf", 54);
 
-    Text myText1(&myGfxDevice, &myFont, &myUIShader, { -620, 300 }, 0.5f);
-    Text myText2(&myGfxDevice, &myFont, &myUIShader, { -620, 200 }, 1.0f);
+    Text myText1(&myGfxDevice, &myFont, &myTextShader, { -620, 300 }, 0.5f);
+    Text myText2(&myGfxDevice, &myFont, &myTextShader, { -620, 200 }, 1.0f);
 
     myText1.SetText("Test Text 1");
     myText2.SetText("Sample Text 2");
@@ -58,6 +59,8 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     Texture DrawLineTargetNGTex(&myGfxDevice, "../resources/objects/DrawLine/DrawLine_Target_NG_Dif.bmp");
     Texture GroundTex(&myGfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal_Dif.bmp");
     Texture WallTex(&myGfxDevice, "../resources/objects/StoneWall/StoneWall_Dif.bmp");
+
+    Image myImage(&myGfxDevice, &WallTex, &myShader, { -620, -300 }, { 200, 200 });
 
     Model PlayerMdl(&myGfxDevice, "../resources/objects/Player/TestPlayer.mdl");
     Model DrawLineGuideMdl(&myGfxDevice, "../resources/objects/DrawLine/TestDrawLine_Guide.mdl");
@@ -296,6 +299,8 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         // Draw text
         myText1.Render(&myCamera);
         myText2.Render(&myCamera);
+
+        myImage.Render(&myCamera);
 
         myGfxDevice.Present(&myCamera, 1);
     }

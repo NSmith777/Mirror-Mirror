@@ -3,13 +3,6 @@
 
 #define TITLE "Mirror, Mirror"
 
-static const Vertex quadVerts[] = {
-    { { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
-    { { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
-    { { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
-    { { 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
-};
-
 GfxDevice::GfxDevice() {
     ////////// Init Window //////////
 
@@ -100,6 +93,13 @@ GfxDevice::GfxDevice() {
     deviceContext->RSSetViewports(1, &viewport);
 
     ////////// Init Quad Buffer //////////
+
+    static const Vertex quadVerts[] = {
+        { { 0.0f, 0.0f, 0.5f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
+        { { 0.0f, 1.0f, 0.5f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
+        { { 1.0f, 0.0f, 0.5f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
+        { { 1.0f, 1.0f, 0.5f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
+    };
 
     D3D11_BUFFER_DESC vertexBufferDesc = {};
     vertexBufferDesc.ByteWidth = sizeof(quadVerts);
