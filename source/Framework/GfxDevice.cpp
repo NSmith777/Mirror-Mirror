@@ -3,11 +3,25 @@
 
 #define TITLE "Mirror, Mirror"
 
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+    switch (message) {
+    case WM_CLOSE:
+        ExitProcess(0);
+        break;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+    default:
+        return DefWindowProcA(hWnd, message, wParam, lParam);
+    }
+    return 0;
+}
+
 GfxDevice::GfxDevice() {
     ////////// Init Window //////////
 
     WNDCLASSEXA wndClassEx = { sizeof(wndClassEx) };
-    wndClassEx.lpfnWndProc = DefWindowProcA;
+    wndClassEx.lpfnWndProc = WndProc;
     wndClassEx.hCursor = LoadCursor(NULL, IDC_ARROW);
     wndClassEx.lpszClassName = TITLE;
 
