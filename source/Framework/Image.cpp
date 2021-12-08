@@ -23,13 +23,13 @@
 // 
 //=============================================================================
 Image::Image(GfxDevice* gfxDevice, Texture* pTexture, Shader* pShader, XMFLOAT2 pos, XMFLOAT2 new_size) {
-	m_GfxDevice = gfxDevice;
-	m_Texture = pTexture;
-	m_Shader = pShader;
+    m_GfxDevice = gfxDevice;
+    m_Texture = pTexture;
+    m_Shader = pShader;
     ZeroMemory(&constants, sizeof(constants));
 
-	position = pos;
-	size = new_size;
+    position = pos;
+    size = new_size;
 
     ////////// Vertex Buffer //////////
 

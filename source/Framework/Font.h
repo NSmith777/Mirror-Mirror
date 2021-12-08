@@ -35,8 +35,8 @@ struct Character {
 //=============================================================================
 class Font {
 public:
-	Font(GfxDevice* gfxDevice, FT_Library* pFt, const char* filepath, int size);
-	~Font();
+    Font(GfxDevice* gfxDevice, FT_Library* pFt, const char* filepath, int size);
+    ~Font();
 
     Character* GetMappedChar(int idx) { return &Characters[idx]; }
     ID3D11SamplerState* GetSamplerState() { return samplerState; }

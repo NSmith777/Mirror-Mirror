@@ -17,9 +17,9 @@
 using namespace DirectX;
 
 typedef struct {
-	XMFLOAT3 position;
-	XMFLOAT2 texcoord;
-	XMFLOAT3 normal;
+    XMFLOAT3 position;
+    XMFLOAT2 texcoord;
+    XMFLOAT3 normal;
 } Vertex;
 
 //=============================================================================
@@ -29,17 +29,17 @@ typedef struct {
 //=============================================================================
 class Model {
 public:
-	Model(GfxDevice* gfxDevice, const char *filepath);
-	~Model();
+    Model(GfxDevice* gfxDevice, const char *filepath);
+    ~Model();
 
-	void Draw();
+    void Draw();
 
 private:
-	GfxDevice* m_GfxDevice;
+    GfxDevice* m_GfxDevice;
 
-	Vertex* VertexData;
-	unsigned int VertexCount;
+    Vertex* VertexData;
+    unsigned int VertexCount;
 
-	ID3D11Buffer* vertexBuffer;
-	ID3D11RasterizerState* rasterizerState;
+    ID3D11Buffer* vertexBuffer;
+    ID3D11RasterizerState* rasterizerState;
 };

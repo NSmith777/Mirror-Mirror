@@ -23,17 +23,17 @@
 // 
 //=============================================================================
 Text::Text(GfxDevice* gfxDevice, Font* pFont, Shader* pShader, XMFLOAT2 new_pos, float new_scale) {
-	m_GfxDevice = gfxDevice;
-	m_Font = pFont;
-	m_Shader = pShader;
-	
+    m_GfxDevice = gfxDevice;
+    m_Font = pFont;
+    m_Shader = pShader;
+    
     position = new_pos;
     scale = new_scale;
 
     constexpr int max_text_length = 65536;
 
     text = (char*)malloc(max_text_length);
-	SetText("Sample Text");
+    SetText("Sample Text");
 
     ////////// Vertex Buffer //////////
 

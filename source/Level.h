@@ -30,14 +30,14 @@ using namespace Math;
 //=============================================================================
 class Level {
 public:
-	Level(GfxDevice* myGfxDevice, FT_Library *pFt);
-	~Level();
+    Level(GfxDevice* myGfxDevice, FT_Library *pFt);
+    ~Level();
 
-	void Update();
+    void Update();
 
 private:
-	GfxDevice* m_GfxDevice;
-	bool is_running;
+    GfxDevice* m_GfxDevice;
+    bool is_running;
 
     Shader *myScreenShader;
     Shader *myTextShader;

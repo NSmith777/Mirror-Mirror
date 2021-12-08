@@ -23,30 +23,30 @@
 //=============================================================================
 class GameObject {
 public:
-	GameObject(Model *mdl, Texture* tex, Shader *shdr);
-	~GameObject();
+    GameObject(Model *mdl, Texture* tex, Shader *shdr);
+    ~GameObject();
 
-	void SetModel(Model* mdl) { model = mdl; }
-	void SetTexture(Texture* tex) { texture = tex; }
-	void SetShader(Shader* shdr) { shader = shdr; }
+    void SetModel(Model* mdl) { model = mdl; }
+    void SetTexture(Texture* tex) { texture = tex; }
+    void SetShader(Shader* shdr) { shader = shdr; }
 
-	void AddBoxCollider(XMFLOAT3 size);
+    void AddBoxCollider(XMFLOAT3 size);
 
-	BoxCollision* GetBoxCollision() { return boxCollision; }
-	Transform* GetTransform() { return transform; }
+    BoxCollision* GetBoxCollision() { return boxCollision; }
+    Transform* GetTransform() { return transform; }
 
-	void Render(Camera *cam);
+    void Render(Camera *cam);
 
-	// Supress heap alignment warnings
-	void* operator new(size_t i) { return _mm_malloc(i, 16); }
-	void operator delete(void* p) { _mm_free(p); }
+    // Supress heap alignment warnings
+    void* operator new(size_t i) { return _mm_malloc(i, 16); }
+    void operator delete(void* p) { _mm_free(p); }
 
 private:
-	Shader* shader;
-	Texture* texture;
-	Model* model;
-	BoxCollision* boxCollision;
-	Transform *transform;
+    Shader* shader;
+    Texture* texture;
+    Model* model;
+    BoxCollision* boxCollision;
+    Transform *transform;
 
-	Constants constants;
+    Constants constants;
 };

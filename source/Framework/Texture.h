@@ -19,22 +19,22 @@
 //=============================================================================
 class Texture {
 public:
-	Texture(GfxDevice* gfxDevice, const char* filepath);
-	~Texture();
+    Texture(GfxDevice* gfxDevice, const char* filepath);
+    ~Texture();
 
-	void Use();
+    void Use();
 
 private:
-	GfxDevice* m_GfxDevice;
+    GfxDevice* m_GfxDevice;
 
-	ID3D11Texture2D* texture;
-	ID3D11ShaderResourceView* textureView;
+    ID3D11Texture2D* texture;
+    ID3D11ShaderResourceView* textureView;
 
-	int width, height;
-	short bytes_per_pixel;
-	int pitch;
+    int width, height;
+    short bytes_per_pixel;
+    int pitch;
 
-	char* pixel_data;
+    char* pixel_data;
 
-	ID3D11SamplerState* samplerState;
+    ID3D11SamplerState* samplerState;
 };

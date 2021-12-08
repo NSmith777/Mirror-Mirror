@@ -19,9 +19,9 @@
 // 
 //=============================================================================
 Transform::Transform() {
-	position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+    position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 }
 
 //=============================================================================
@@ -36,13 +36,13 @@ Transform::Transform() {
 // 
 //=============================================================================
 XMMATRIX Transform::GetModelMatrix() {
-	XMMATRIX scaleMtx = XMMatrixScaling(scale.x, scale.y, scale.z);
-	XMMATRIX rotateXMtx = XMMatrixRotationNormal({ 1, 0, 0 }, rotation.x);
-	XMMATRIX rotateYMtx = XMMatrixRotationNormal({ 0, 1, 0 }, rotation.y);
-	XMMATRIX rotateZMtx = XMMatrixRotationNormal({ 0, 0, 1 }, rotation.z);
-	XMMATRIX translateMtx = XMMatrixTranslation(position.x, position.y, position.z);
+    XMMATRIX scaleMtx = XMMatrixScaling(scale.x, scale.y, scale.z);
+    XMMATRIX rotateXMtx = XMMatrixRotationNormal({ 1, 0, 0 }, rotation.x);
+    XMMATRIX rotateYMtx = XMMatrixRotationNormal({ 0, 1, 0 }, rotation.y);
+    XMMATRIX rotateZMtx = XMMatrixRotationNormal({ 0, 0, 1 }, rotation.z);
+    XMMATRIX translateMtx = XMMatrixTranslation(position.x, position.y, position.z);
 
-	return scaleMtx * rotateXMtx * rotateYMtx * rotateZMtx * translateMtx;
+    return scaleMtx * rotateXMtx * rotateYMtx * rotateZMtx * translateMtx;
 }
 
 //=============================================================================
@@ -57,9 +57,9 @@ XMMATRIX Transform::GetModelMatrix() {
 // 
 //=============================================================================
 XMFLOAT3 Transform::GetRightVec() {
-	XMFLOAT3 ret;
-	XMStoreFloat3(&ret, GetModelMatrix().r[0]);
-	return ret;
+    XMFLOAT3 ret;
+    XMStoreFloat3(&ret, GetModelMatrix().r[0]);
+    return ret;
 }
 
 //=============================================================================
@@ -74,9 +74,9 @@ XMFLOAT3 Transform::GetRightVec() {
 // 
 //=============================================================================
 XMFLOAT3 Transform::GetUpVec() {
-	XMFLOAT3 ret;
-	XMStoreFloat3(&ret, GetModelMatrix().r[1]);
-	return ret;
+    XMFLOAT3 ret;
+    XMStoreFloat3(&ret, GetModelMatrix().r[1]);
+    return ret;
 }
 
 //=============================================================================
@@ -91,9 +91,9 @@ XMFLOAT3 Transform::GetUpVec() {
 // 
 //=============================================================================
 XMFLOAT3 Transform::GetForwardVec() {
-	XMFLOAT3 ret;
-	XMStoreFloat3(&ret, GetModelMatrix().r[2]);
-	return ret;
+    XMFLOAT3 ret;
+    XMStoreFloat3(&ret, GetModelMatrix().r[2]);
+    return ret;
 }
 
 //=============================================================================
