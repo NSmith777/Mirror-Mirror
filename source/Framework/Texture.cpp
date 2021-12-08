@@ -1,5 +1,24 @@
+//==============================================================================
+// File: Texture.cpp
+// 
+// Description: Implements the Texture component.
+// 
+//==============================================================================
+
 #include "Texture.h"
 
+//=============================================================================
+// Texture::Texture
+//=============================================================================
+// 
+// Description: Constructor.
+// 
+// Parameters:	[GfxDevice *]	Graphics device object
+//              [const char *]  Path to the bitmap image file
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Texture::Texture(GfxDevice *gfxDevice, const char *filepath) {
     m_GfxDevice = gfxDevice;
     textureView = NULL;
@@ -62,11 +81,33 @@ Texture::Texture(GfxDevice *gfxDevice, const char *filepath) {
     m_GfxDevice->GetDevice()->CreateSamplerState(&samplerDesc, &samplerState);
 }
 
+//=============================================================================
+// Texture::Use
+//=============================================================================
+// 
+// Description: Binds this texture to the graphics backend.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Texture::Use() {
     m_GfxDevice->GetDeviceContext()->PSSetShaderResources(0, 1, &textureView);
     m_GfxDevice->GetDeviceContext()->PSSetSamplers(0, 1, &samplerState);
 }
 
+//=============================================================================
+// Texture::~Texture
+//=============================================================================
+// 
+// Description: Destructor.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Texture::~Texture() {
     texture->Release();
     textureView->Release();

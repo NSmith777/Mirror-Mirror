@@ -1,3 +1,10 @@
+//==============================================================================
+// File: GameObject.h
+// 
+// Description: Declares the GameObject class.
+// 
+//==============================================================================
+
 #pragma once
 
 #include <windows.h>
@@ -9,6 +16,11 @@
 #include "Framework/Model.h"
 #include "Framework/Collision.h"
 
+//=============================================================================
+// 
+// Synopsis:    
+// 
+//=============================================================================
 class GameObject {
 public:
 	GameObject(Model *mdl, Texture* tex, Shader *shdr);

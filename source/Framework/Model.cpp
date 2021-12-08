@@ -1,5 +1,24 @@
+//==============================================================================
+// File: Model.cpp
+// 
+// Description: Implements the Model (3D mesh) component.
+// 
+//==============================================================================
+
 #include "Model.h"
 
+//=============================================================================
+// Model::Model
+//=============================================================================
+// 
+// Description: Constructor.
+// 
+// Parameters:	[GfxDevice *]	Graphics device object
+//              [const char *]  Path to the MDL file to load
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Model::Model(GfxDevice* gfxDevice, const char* filepath) {
     m_GfxDevice = gfxDevice;
 
@@ -42,6 +61,17 @@ Model::Model(GfxDevice* gfxDevice, const char* filepath) {
     m_GfxDevice->GetDevice()->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
 }
 
+//=============================================================================
+// Model::Draw
+//=============================================================================
+// 
+// Description: Renders this 3D mesh to the screen.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Model::Draw() {
     UINT stride = sizeof(Vertex);
     UINT offset = 0;
@@ -54,6 +84,17 @@ void Model::Draw() {
     m_GfxDevice->GetDeviceContext()->Draw(VertexCount, 0);
 }
 
+//=============================================================================
+// Model::~Model
+//=============================================================================
+// 
+// Description: Destructor.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Model::~Model() {
     free(VertexData);
 

@@ -1,3 +1,10 @@
+//==============================================================================
+// File: Math.h
+// 
+// Description: Declarations for additional maths utility functions and type operator overloads.
+// 
+//==============================================================================
+
 #pragma once
 
 #include <windows.h>
@@ -6,6 +13,11 @@
 
 using namespace DirectX;
 
+//=============================================================================
+// 
+// Synopsis:    
+// 
+//=============================================================================
 namespace Math {
 	float Lerp(float a, float b, float f);
 

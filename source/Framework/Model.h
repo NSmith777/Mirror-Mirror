@@ -1,3 +1,10 @@
+//==============================================================================
+// File: Model.h
+// 
+// Description: Declares the Model (3D mesh) component.
+// 
+//==============================================================================
+
 #pragma once
 
 #include <windows.h>
@@ -15,6 +22,11 @@ typedef struct {
 	XMFLOAT3 normal;
 } Vertex;
 
+//=============================================================================
+// 
+// Synopsis:    
+// 
+//=============================================================================
 class Model {
 public:
 	Model(GfxDevice* gfxDevice, const char *filepath);

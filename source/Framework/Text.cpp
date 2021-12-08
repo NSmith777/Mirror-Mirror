@@ -1,5 +1,27 @@
+//==============================================================================
+// File: Text.cpp
+// 
+// Description: Implements the Text UI object.
+// 
+//==============================================================================
+
 #include "Text.h"
 
+//=============================================================================
+// Text::Text
+//=============================================================================
+// 
+// Description: Constructor.
+// 
+// Parameters:	[GfxDevice *]   Graphics device object
+//              [Font *]        Font object to use as this text's font
+//              [Shader *]      Shader used to render this text to the screen
+//              [XMFLOAT2]      Position in screen-space coordinates
+//              [XMFLOAT2]      Text scaling in pixels
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Text::Text(GfxDevice* gfxDevice, Font* pFont, Shader* pShader, XMFLOAT2 new_pos, float new_scale) {
 	m_GfxDevice = gfxDevice;
 	m_Font = pFont;
@@ -36,10 +58,32 @@ Text::Text(GfxDevice* gfxDevice, Font* pFont, Shader* pShader, XMFLOAT2 new_pos,
     m_GfxDevice->GetDevice()->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
 }
 
+//=============================================================================
+// Text::SetText
+//=============================================================================
+// 
+// Description: Updates the text buffer with a new text string.
+// 
+// Parameters:	[const char *]  New text string to copy
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Text::SetText(const char* new_text) {
     strcpy(text, new_text);
 }
 
+//=============================================================================
+// Text::Render
+//=============================================================================
+// 
+// Description: Draws this text to the screen, relative to a camera.
+// 
+// Parameters:	[Camera *]  Camera to draw relative to
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Text::Render(Camera *cam) {
     constants.MVP = cam->GetOrthoMatrix();
 
@@ -88,6 +132,17 @@ void Text::Render(Camera *cam) {
     }
 }
 
+//=============================================================================
+// Text::~Text
+//=============================================================================
+// 
+// Description: Destructor.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Text::~Text() {
     vertexBuffer->Release();
     rasterizerState->Release();

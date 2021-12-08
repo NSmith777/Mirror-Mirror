@@ -1,5 +1,24 @@
+//==============================================================================
+// File: Main.cpp
+// 
+// Description: Implements the Level class.
+// 
+//==============================================================================
+
 #include "Level.h"
 
+//=============================================================================
+// Level::Level
+//=============================================================================
+// 
+// Description: Constructor.
+// 
+// Parameters:	[GfxDevice *]	Graphics device object
+//              [FT_Library *]  Freetype instance
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt) {
     m_GfxDevice = myGfxDevice;
     is_running = true;
@@ -41,13 +60,13 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt) {
     ReflectLine     = new GameObject(DrawLineGuideMdl, DrawLineGuideTex, myShader);
     DrawLineTarget  = new GameObject(DrawLineTargetMdl, DrawLineTargetTex, myShader);
 
-    DrawLineTarget->GetTransform()->SetScale(1.75f, 1.75f, 1.75f);
+    DrawLineTarget->GetTransform()->SetScale({ 1.75f, 1.75f, 1.75f });
 
     myCamera = new Camera(m_GfxDevice, myScreenShader);
     myCamera->SetClearColor(0.25f, 0.25f, 0.25f);
 
-    myCamera->GetTransform()->SetPosition(0.0f, 20.0f, -20.0f);
-    myCamera->GetTransform()->SetRotation(XMConvertToRadians(60.0f), 0.0f, 0.0f);
+    myCamera->GetTransform()->SetPosition({ 0.0f, 20.0f, -20.0f });
+    myCamera->GetTransform()->SetRotation({ XMConvertToRadians(60.0f), 0.0f, 0.0f });
 
     mouse_coords = { 0, 0 };
     mirror_start = { 0, 0, 0 };
@@ -78,7 +97,7 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt) {
 
                     switch (gameobject_id) {
                     case 1:
-                        Player->GetTransform()->SetPosition(obj_pos.x, obj_pos.y, obj_pos.z);
+                        Player->GetTransform()->SetPosition(obj_pos);
                         break;
                     case 2:
                         break;
@@ -86,13 +105,13 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt) {
                         Grounds.push_back(new GameObject(GroundMdl, GroundTex, myShader));
 
                         Grounds[Grounds.size() - 1]->AddBoxCollider({ 4, 4, 4 });
-                        Grounds[Grounds.size() - 1]->GetTransform()->SetPosition(obj_pos.x, obj_pos.y, obj_pos.z);
+                        Grounds[Grounds.size() - 1]->GetTransform()->SetPosition(obj_pos);
                         break;
                     case 4:
                         Walls.push_back(new GameObject(WallMdl, WallTex, myShader));
 
                         Walls[Walls.size() - 1]->AddBoxCollider({ 4, 8, 4 });
-                        Walls[Walls.size() - 1]->GetTransform()->SetPosition(obj_pos.x, obj_pos.y, obj_pos.z);
+                        Walls[Walls.size() - 1]->GetTransform()->SetPosition(obj_pos);
                         break;
                     default:
                         break;
@@ -116,6 +135,17 @@ static inline bool is_xz_line_intersect(XMFLOAT3 A, XMFLOAT3 B, XMFLOAT3 C, XMFL
     return ccw(A, C, D) != ccw(B, C, D) && ccw(A, B, C) != ccw(A, B, D);
 }
 
+//=============================================================================
+// Level::Update
+//=============================================================================
+// 
+// Description: Runs the main level game loop.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Level::Update() {
     while (is_running) {
         XMFLOAT3 PlayerPos = Player->GetTransform()->GetPosition();
@@ -130,7 +160,7 @@ void Level::Update() {
 
         XMFLOAT3 cam_lerp = XMFLOAT3_Lerp(myCamera->GetTransform()->GetPosition(), PlayerPos + cam_offset, 0.1f);
 
-        myCamera->GetTransform()->SetPosition(cam_lerp.x, cam_lerp.y, cam_lerp.z);
+        myCamera->GetTransform()->SetPosition(cam_lerp);
 
         XMFLOAT3 cam_pos = myCamera->GetTransform()->GetPosition();
         XMFLOAT3 cam_ray_origin = myCamera->ScreenToWorldPoint(mouse_coords);
@@ -151,8 +181,8 @@ void Level::Update() {
                 mouse_coords.y = GET_Y_LPARAM(msg.lParam);
                 break;
             case WM_LBUTTONDOWN:
-                MirrorLineTransform->SetPosition(cam_ray_hit.x, cam_ray_hit.y, cam_ray_hit.z);
-                ReflectLineTransform->SetPosition(PlayerPos.x, PlayerPos.y, PlayerPos.z);
+                MirrorLineTransform->SetPosition(cam_ray_hit);
+                ReflectLineTransform->SetPosition(PlayerPos);
 
                 mirror_start = cam_ray_hit;
 
@@ -160,7 +190,7 @@ void Level::Update() {
                 break;
             case WM_LBUTTONUP:
                 if (is_reflect_line_drawn && can_move)
-                    Player->GetTransform()->SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
+                    Player->GetTransform()->SetPosition(mirror_target);
 
                 is_mouse_held = false;
                 break;
@@ -189,15 +219,15 @@ void Level::Update() {
 
             XMFLOAT3 mirror_line_delta = cam_ray_hit - MirrorLineTransform->GetPosition();
 
-            MirrorLineTransform->SetRotation(0, atan2f(mirror_line_delta.x, mirror_line_delta.z), 0);
-            MirrorLineTransform->SetScale(0.4f, 0.4f, XMFLOAT3_Distance(MirrorLineTransform->GetPosition(), cam_ray_hit));
+            MirrorLineTransform->SetRotation({ 0, atan2f(mirror_line_delta.x, mirror_line_delta.z), 0 });
+            MirrorLineTransform->SetScale({ 0.4f, 0.4f, XMFLOAT3_Distance(MirrorLineTransform->GetPosition(), cam_ray_hit) });
 
             // --------------------
 
             XMFLOAT3 reflect_line_delta = mirror_target - ReflectLineTransform->GetPosition();
 
-            ReflectLineTransform->SetRotation(0, atan2f(reflect_line_delta.x, reflect_line_delta.z), 0);
-            ReflectLineTransform->SetScale(0.4f, 0.4f, XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), mirror_target));
+            ReflectLineTransform->SetRotation({ 0, atan2f(reflect_line_delta.x, reflect_line_delta.z), 0 });
+            ReflectLineTransform->SetScale({ 0.4f, 0.4f, XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), mirror_target) });
 
             // --------------------
 
@@ -235,12 +265,12 @@ void Level::Update() {
             }
 
             if (can_move) {
-                DrawLineTarget->GetTransform()->SetPosition(mirror_target.x, mirror_target.y, mirror_target.z);
-                DrawLineTarget->GetTransform()->Rotate(0.0f, XMConvertToRadians(1.5f), 0.0f);
+                DrawLineTarget->GetTransform()->SetPosition(mirror_target);
+                DrawLineTarget->GetTransform()->Rotate({ 0.0f, XMConvertToRadians(1.5f), 0.0f });
             }
             else {
-                DrawLineTarget->GetTransform()->SetPosition(out_hit.x, out_hit.y, out_hit.z);
-                DrawLineTarget->GetTransform()->SetRotation(0.0f, 0.0f, 0.0f);
+                DrawLineTarget->GetTransform()->SetPosition(out_hit);
+                DrawLineTarget->GetTransform()->SetRotation({ 0.0f, 0.0f, 0.0f });
             }
         }
 
@@ -285,6 +315,17 @@ void Level::Update() {
     }
 }
 
+//=============================================================================
+// Level::~Level
+//=============================================================================
+// 
+// Description: Destructor.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Level::~Level() {
     delete myScreenShader;
     delete myTextShader;

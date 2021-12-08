@@ -1,3 +1,10 @@
+//==============================================================================
+// File: GfxDevice.cpp
+// 
+// Description: Implements the graphics device object.
+// 
+//==============================================================================
+
 #include "GfxDevice.h"
 #include "Model.h"
 
@@ -17,6 +24,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     return 0;
 }
 
+//=============================================================================
+// GfxDevice::GfxDevice
+//=============================================================================
+// 
+// Description: Constructor.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 GfxDevice::GfxDevice() {
     ////////// Init Window //////////
 
@@ -125,6 +143,18 @@ GfxDevice::GfxDevice() {
     device->CreateBuffer(&vertexBufferDesc, &vertexData, &quadBuffer);
 }
 
+//=============================================================================
+// GfxDevice::Present
+//=============================================================================
+// 
+// Description: 
+// 
+// Parameters:	[Camera *]      Array of cameras to draw to the screen
+//              [unsigned int]  Number of cameras in the array to draw
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void GfxDevice::Present(Camera* pCameras, unsigned int numCameras) {
     FLOAT clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
@@ -139,8 +169,8 @@ void GfxDevice::Present(Camera* pCameras, unsigned int numCameras) {
         D3D11_VIEWPORT camViewport = pCameras[i].GetViewport();
         
         Transform scrTransform;
-        scrTransform.Translate(camViewport.TopLeftX - 1.0f, camViewport.TopLeftY - 1.0f, 0.0f);
-        scrTransform.SetScale(camViewport.Width * 2.0f, camViewport.Height * 2.0f, 1.0f);
+        scrTransform.Translate({ camViewport.TopLeftX - 1.0f, camViewport.TopLeftY - 1.0f, 0.0f });
+        scrTransform.SetScale({ camViewport.Width * 2.0f, camViewport.Height * 2.0f, 1.0f });
 
         Constants scrConstants;
         scrConstants.MVP = scrTransform.GetModelMatrix();
@@ -167,6 +197,17 @@ void GfxDevice::Present(Camera* pCameras, unsigned int numCameras) {
     swapChain->Present(1, 0);
 }
 
+//=============================================================================
+// GfxDevice::~GfxDevice
+//=============================================================================
+// 
+// Description: Destructor.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 GfxDevice::~GfxDevice() {
     DestroyWindow(m_Window);
 

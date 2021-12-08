@@ -1,5 +1,27 @@
+//==============================================================================
+// File: Image.cpp
+// 
+// Description: Implements the UI image object.
+// 
+//==============================================================================
+
 #include "Image.h"
 
+//=============================================================================
+// Image::Image
+//=============================================================================
+// 
+// Description: Constructor.
+// 
+// Parameters:	[GfxDevice *]	Graphics device object
+//              [Texture *]     Texture to use as this image
+//              [Shader *]      Shader used to render this image to the screen
+//              [XMFLOAT2]      Position in screen-space coordinates
+//              [XMFLOAT2]      Image dimensions in pixels
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Image::Image(GfxDevice* gfxDevice, Texture* pTexture, Shader* pShader, XMFLOAT2 pos, XMFLOAT2 new_size) {
 	m_GfxDevice = gfxDevice;
 	m_Texture = pTexture;
@@ -38,10 +60,21 @@ Image::Image(GfxDevice* gfxDevice, Texture* pTexture, Shader* pShader, XMFLOAT2 
     m_GfxDevice->GetDevice()->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
 }
 
+//=============================================================================
+// Image::Render
+//=============================================================================
+// 
+// Description: Draws this image to the screen, relative to a camera.
+// 
+// Parameters:	[Camera *]  Camera to draw relative to
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Image::Render(Camera* cam) {
     Transform scrTransform;
-    scrTransform.Translate(position.x, position.y, 0.0f);
-    scrTransform.SetScale(size.x, size.y, 1.0f);
+    scrTransform.Translate({ position.x, position.y, 0.0f });
+    scrTransform.SetScale({ size.x, size.y, 1.0f });
 
     constants.MVP = scrTransform.GetModelMatrix() * cam->GetOrthoMatrix();
 
@@ -61,6 +94,17 @@ void Image::Render(Camera* cam) {
     m_GfxDevice->GetDeviceContext()->Draw(4, 0);
 }
 
+//=============================================================================
+// Image::~Image
+//=============================================================================
+// 
+// Description: Destructor.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Image::~Image() {
     vertexBuffer->Release();
     rasterizerState->Release();

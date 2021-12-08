@@ -1,3 +1,10 @@
+//==============================================================================
+// File: Shader.h
+// 
+// Description: Declares the Shader component.
+// 
+//==============================================================================
+
 #pragma once
 
 #include <windows.h>
@@ -15,6 +22,11 @@ typedef struct {
 
 class GfxDevice;
 
+//=============================================================================
+// 
+// Synopsis:    
+// 
+//=============================================================================
 class Shader {
 public:
     Shader(GfxDevice* gfxDevice, const char* vs_path, const char* ps_path, unsigned int constantsSize);
@@ -41,4 +53,6 @@ private:
 
     D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
     ID3D11DepthStencilState* depthStencilState;
+
+    std::vector<char> ReadData(const char* filename);
 };

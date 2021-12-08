@@ -1,5 +1,26 @@
+//==============================================================================
+// File: Font.cpp
+// 
+// Description: Implements the Font component.
+// 
+//==============================================================================
+
 #include "Font.h"
 
+//=============================================================================
+// Font::Font
+//=============================================================================
+// 
+// Description: Constructor.
+// 
+// Parameters:	[GfxDevice *]	Graphics device object
+//              [FT_Library *]  Freetype instance
+//              [const char *]  Path to (typically TTF) font file
+//              [int]           Font size (in pixels)
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Font::Font(GfxDevice* gfxDevice, FT_Library* pFt, const char *filepath, int size) {
     m_GfxDevice = gfxDevice;
 
@@ -61,6 +82,17 @@ Font::Font(GfxDevice* gfxDevice, FT_Library* pFt, const char *filepath, int size
     m_GfxDevice->GetDevice()->CreateSamplerState(&samplerDesc, &samplerState);
 }
 
+//=============================================================================
+// Font::~Font
+//=============================================================================
+// 
+// Description: Destructor.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Font::~Font() {
     for (auto it = Characters.begin(); it != Characters.end(); it++) {
         if(it->second.texture != NULL)

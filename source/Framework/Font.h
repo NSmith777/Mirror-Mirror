@@ -1,3 +1,10 @@
+//==============================================================================
+// File: Font.h
+// 
+// Description: Declares the Font component.
+// 
+//==============================================================================
+
 #pragma once
 
 #include <windows.h>
@@ -21,6 +28,11 @@ struct Character {
     int Advance;
 };
 
+//=============================================================================
+// 
+// Synopsis:    
+// 
+//=============================================================================
 class Font {
 public:
 	Font(GfxDevice* gfxDevice, FT_Library* pFt, const char* filepath, int size);

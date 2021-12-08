@@ -1,23 +1,26 @@
+//==============================================================================
+// File: Shader.cpp
+// 
+// Description: Implements the Shader component.
+// 
+//==============================================================================
+
 #include "Shader.h"
 
-std::vector<char> ReadData(const char *filename) {
-    std::vector<char> data;
-
-    FILE* fs = fopen(filename, "rb");
-
-    if (fs) {
-        fseek(fs, 0, SEEK_END);
-
-        size_t size = ftell(fs);
-
-        data.resize(size);
-        fseek(fs, 0, SEEK_SET);
-        fread(data.data(), size, 1, fs);
-        fclose(fs);
-    }
-    return data;
-}
-
+//=============================================================================
+// Shader::Shader
+//=============================================================================
+// 
+// Description: Constructor.
+// 
+// Parameters:	[GfxDevice *]	Graphics device object
+//              [const char *]  Path to the compiled vertex shader file
+//              [const char *]  Path to the compiled pixel shader file
+//              [unsigned int]  Size of this shader's constants structure
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Shader::Shader(GfxDevice* gfxDevice, const char *vs_path, const char *ps_path, unsigned int constantsSize) {
     m_GfxDevice = gfxDevice;
     m_constantsSize = constantsSize;
@@ -69,6 +72,47 @@ Shader::Shader(GfxDevice* gfxDevice, const char *vs_path, const char *ps_path, u
     m_GfxDevice->GetDevice()->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
 }
 
+//=============================================================================
+// Shader::ReadData
+//=============================================================================
+// 
+// Description: Reads the entirety of a specified file into an output buffer.
+// 
+// Parameters:	[const char *]      Path to the file to read
+// 
+// Return:      [std::vector<char>] Output buffer containing the file data.
+//                                  If file failed to open, returns an empty vector.
+// 
+//=============================================================================
+std::vector<char> Shader::ReadData(const char* filename) {
+    std::vector<char> data;
+
+    FILE* fs = fopen(filename, "rb");
+
+    if (fs) {
+        fseek(fs, 0, SEEK_END);
+
+        size_t size = ftell(fs);
+
+        data.resize(size);
+        fseek(fs, 0, SEEK_SET);
+        fread(data.data(), size, 1, fs);
+        fclose(fs);
+    }
+    return data;
+}
+
+//=============================================================================
+// Shader::Use
+//=============================================================================
+// 
+// Description: Binds this shader to the graphics backend.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Shader::Use() {
     m_GfxDevice->GetDeviceContext()->IASetInputLayout(inputLayout);
     m_GfxDevice->GetDeviceContext()->VSSetShader(vertexShader, nullptr, 0);
@@ -80,6 +124,17 @@ void Shader::Use() {
     m_GfxDevice->GetDeviceContext()->OMSetDepthStencilState(depthStencilState, 0);
 }
 
+//=============================================================================
+// Shader::SetConstants
+//=============================================================================
+// 
+// Description: Updates the constants data in this shader's constant buffer.
+// 
+// Parameters:	[void *]    Constants structure to upload
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Shader::SetConstants(void *pConstantsData) {
     D3D11_MAPPED_SUBRESOURCE mappedSubresource;
 
@@ -90,6 +145,17 @@ void Shader::SetConstants(void *pConstantsData) {
     m_GfxDevice->GetDeviceContext()->Unmap(constantBuffer, 0);
 }
 
+//=============================================================================
+// Shader::BlendEnable
+//=============================================================================
+// 
+// Description: Controls colour/alpha blending enable on the graphics backend.
+// 
+// Parameters:	[bool]  Enable blending?
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Shader::BlendEnable(bool enable) {
     BlendStateDesc.AlphaToCoverageEnable = enable;
     BlendStateDesc.IndependentBlendEnable = enable;
@@ -100,6 +166,17 @@ void Shader::BlendEnable(bool enable) {
     m_GfxDevice->GetDevice()->CreateBlendState(&BlendStateDesc, &blendState);
 }
 
+//=============================================================================
+// Shader::ZWriteEnable
+//=============================================================================
+// 
+// Description: Controls depth buffer write enable on the graphics backend.
+// 
+// Parameters:	[bool]  Enable depth write?
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Shader::ZWriteEnable(bool enable) {
     depthStencilDesc.DepthEnable = enable;
 
@@ -108,6 +185,17 @@ void Shader::ZWriteEnable(bool enable) {
     m_GfxDevice->GetDevice()->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
 }
 
+//=============================================================================
+// Shader::~Shader
+//=============================================================================
+// 
+// Description: Destructor.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Shader::~Shader() {
     vertexShader->Release();
     pixelShader->Release();

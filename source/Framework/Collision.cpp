@@ -1,3 +1,10 @@
+//==============================================================================
+// File: Collision.cpp
+// 
+// Description: Implements the BoxCollision component.
+// 
+//==============================================================================
+
 #include "Collision.h"
 #include "Math.h"
 
@@ -5,32 +12,50 @@
 
 using namespace Math;
 
-enum Axes { X, Y, Z };
-enum Planes { NX, NY, NZ, PX, PY, PZ, MAX_PLANES };
-
-typedef struct {
-    XMFLOAT3 point;
-    bool is_in_box;
-} Box_Hit;
-
+//=============================================================================
+// BoxCollision::BoxCollision
+//=============================================================================
+// 
+// Description: Constructor.
+// 
+// Parameters:	[Transform *]   Target transform, to perform collision calculations against
+//              [XMFLOAT3]      Box dimensions, relative to the center of the transform
+// 
+// Return:      N/A
+// 
+//=============================================================================
 BoxCollision::BoxCollision(Transform *trans, XMFLOAT3 size) {
     transform = trans;
     box_size = size;
 }
 
-static inline void GetIntersection(float fDst1, float fDst2, XMFLOAT3 P1, XMFLOAT3 P2, XMFLOAT3& Hit) {
+inline void BoxCollision::GetIntersection(float fDst1, float fDst2, XMFLOAT3 P1, XMFLOAT3 P2, XMFLOAT3& Hit) {
     if ((fDst1 * fDst2) >= 0.0f) return;
     if (fDst1 == fDst2) return;
     Hit = P1 + (P2 - P1) * (-fDst1 / (fDst2 - fDst1));
 }
 
-static inline bool InBox(XMFLOAT3 Hit, XMFLOAT3 B1, XMFLOAT3 B2, const int Axis) {
+inline bool BoxCollision::InBox(XMFLOAT3 Hit, XMFLOAT3 B1, XMFLOAT3 B2, const int Axis) {
     if (Axis == X && Hit.z > B1.z && Hit.z < B2.z && Hit.y > B1.y && Hit.y < B2.y) return true;
     if (Axis == Y && Hit.z > B1.z && Hit.z < B2.z && Hit.x > B1.x && Hit.x < B2.x) return true;
     if (Axis == Z && Hit.x > B1.x && Hit.x < B2.x && Hit.y > B1.y && Hit.y < B2.y) return true;
     return false;
 }
 
+//=============================================================================
+// BoxCollision::Ray_Intersect
+//=============================================================================
+// 
+// Description: Performs a line intersection test with this box collider.
+// 
+// Parameters:	[XMFLOAT3]      Line start point
+//              [XMFLOAT3]      Line end point
+//              [XMFLOAT3 &]    Output intersection (hit) point.
+//                              If function returns false, this parameter remains unchanged.
+// 
+// Return:      [bool]          Is intersecting?
+// 
+//=============================================================================
 bool BoxCollision::Ray_Intersect(XMFLOAT3 L1, XMFLOAT3 L2, XMFLOAT3& Hit) {
     XMFLOAT3 B1 = transform->GetPosition() - box_size;
     XMFLOAT3 B2 = transform->GetPosition() + box_size;
@@ -88,6 +113,17 @@ bool BoxCollision::Ray_Intersect(XMFLOAT3 L1, XMFLOAT3 L2, XMFLOAT3& Hit) {
     return false;
 }
 
+//=============================================================================
+// BoxCollision::~BoxCollision
+//=============================================================================
+// 
+// Description: Destructor.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 BoxCollision::~BoxCollision() {
 
 }

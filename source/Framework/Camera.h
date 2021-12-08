@@ -1,3 +1,10 @@
+//==============================================================================
+// File: Camera.h
+// 
+// Description: Declares the Camera game object.
+// 
+//==============================================================================
+
 #pragma once
 
 #include <windows.h>
@@ -13,6 +20,11 @@ using namespace DirectX;
 class GfxDevice;
 class Shader;
 
+//=============================================================================
+// 
+// Synopsis:    
+// 
+//=============================================================================
 class Camera {
 public:
 	Camera(GfxDevice* gfxDevice, Shader* screenShader);

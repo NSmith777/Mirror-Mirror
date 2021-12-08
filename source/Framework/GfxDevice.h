@@ -1,3 +1,10 @@
+//==============================================================================
+// File: GfxDevice.h
+// 
+// Description: Declares the graphics device object.
+// 
+//==============================================================================
+
 #pragma once
 
 #include <windows.h>
@@ -7,6 +14,13 @@
 
 class Camera;
 
+//=============================================================================
+// 
+// Synopsis:    Provides abstraction for the graphics backend
+//              and window instance, and is also responsible for drawing the
+//              Camera framebuffers to the screen.
+// 
+//=============================================================================
 class GfxDevice {
 public:
     GfxDevice();

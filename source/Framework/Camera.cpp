@@ -1,8 +1,28 @@
+//==============================================================================
+// File: Camera.cpp
+// 
+// Description: Implements the Camera game object.
+// 
+//==============================================================================
+
 #include "Camera.h"
 #include "Math.h"
 
 using namespace Math;
 
+//=============================================================================
+// Camera::Camera
+//=============================================================================
+// 
+// Description: Constructor.
+// 
+// Parameters:	[GfxDevice *]	Graphics device object
+//				[Shader *]		Screen-space shader used to draw the game scene
+//								before presenting the current frame
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
 	m_GfxDevice = gfxDevice;
 	m_ScreenShader = screenShader;
@@ -70,6 +90,17 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
 	m_GfxDevice->GetDevice()->CreateDepthStencilView(depthBuffer, &depthStencilViewDesc, &depthBufferView);
 }
 
+//=============================================================================
+// Camera::Use
+//=============================================================================
+// 
+// Description: Binds this camera's framebuffers to the graphics backend.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Camera::Use() {
 	m_GfxDevice->GetDeviceContext()->ClearRenderTargetView(backBufferView, clearColor);
 	m_GfxDevice->GetDeviceContext()->ClearDepthStencilView(depthBufferView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -77,6 +108,17 @@ void Camera::Use() {
 	m_GfxDevice->GetDeviceContext()->OMSetRenderTargets(1, &backBufferView, depthBufferView);
 }
 
+//=============================================================================
+// Camera::GetViewMatrix
+//=============================================================================
+// 
+// Description: Constructs a view matrix using this camera's transformations.
+// 
+// Parameters:	N/A
+// 
+// Return:      [XMMATRIX]	This camera's view matrix
+// 
+//=============================================================================
 XMMATRIX Camera::GetViewMatrix() {
 	XMFLOAT3 position = transform.GetPosition();
 	XMFLOAT3 rotation = transform.GetRotation();
@@ -89,20 +131,66 @@ XMMATRIX Camera::GetViewMatrix() {
 	return translateMtx * rotateZMtx * rotateYMtx * rotateXMtx;
 }
 
+//=============================================================================
+// Camera::SetClearColor
+//=============================================================================
+// 
+// Description: Sets this camera's clear colour.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Camera::SetClearColor(float r, float g, float b) {
 	clearColor[0] = r;
 	clearColor[1] = g;
 	clearColor[2] = b;
 }
 
+//=============================================================================
+// Camera::GetProjMatrix
+//=============================================================================
+// 
+// Description: Constructs this camera's perspective projection matrix
+// 
+// Parameters:	N/A
+// 
+// Return:      [XMMATRIX]	This camera's perspective projection matrix
+// 
+//=============================================================================
 XMMATRIX Camera::GetProjMatrix() {
 	return XMMatrixPerspectiveFovLH(XMConvertToRadians(fieldOfView), (float)width / height, zNear, zFar);
 }
 
+//=============================================================================
+// Camera::GetOrthoMatrix
+//=============================================================================
+// 
+// Description: Constructs this camera's orthographic projection matrix.
+//				Used primarily for drawing UI objects to the screen.
+// 
+// Parameters:	N/A
+// 
+// Return:      [XMMATRIX]	This camera's orthographic projection matrix
+// 
+//=============================================================================
 XMMATRIX Camera::GetOrthoMatrix() {
 	return XMMatrixOrthographicLH((float)width, (float)height, zNear, zFar);
 }
 
+//=============================================================================
+// Camera::ScreenToWorldPoint
+//=============================================================================
+// 
+// Description: Converts a specified point from screen-space to world-space,
+//				relative to this camera's transformations.
+// 
+// Parameters:	[XMINT2]	Screen-space point to be converted
+// 
+// Return:      [XMFLOAT3]	World-space point
+// 
+//=============================================================================
 XMFLOAT3 Camera::ScreenToWorldPoint(XMINT2 screenPos) {
 	XMFLOAT3 cam_pos = transform.GetPosition();
 
@@ -123,6 +211,17 @@ XMFLOAT3 Camera::ScreenToWorldPoint(XMINT2 screenPos) {
 	return world_point;
 }
 
+//=============================================================================
+// Camera::~Camera
+//=============================================================================
+// 
+// Description: Destructor.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 Camera::~Camera() {
 	backBuffer->Release();
 	backBufferView->Release();
