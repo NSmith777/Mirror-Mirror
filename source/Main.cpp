@@ -8,6 +8,7 @@
 #include <windows.h>
 #include <d3d11.h>
 
+#include "Menu.h"
 #include "Level.h"
 
 //=============================================================================
@@ -18,7 +19,7 @@
 // 
 // Parameters:  Standard win32 parameters
 // 
-// Returns:     Exit code (int)
+// Returns:     [int]   Exit code
 // 
 //=============================================================================
 int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
@@ -37,10 +38,31 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     //
     // Run our main game loop
     //
+    bool run_menu = true;
+    int level_num = 1;
     while (true) {
-        Level myLevel(&myGfxDevice, &ft);
+        if (run_menu) {
+            Menu myMenu(&myGfxDevice, &ft);
+            myMenu.Update();
 
+            level_num = myMenu.GetReturnChoice();
+        }
+
+        Level myLevel(&myGfxDevice, &ft, level_num);
         myLevel.Update();
+
+        switch (myLevel.GetReturnChoice()) {
+        case 0:
+            run_menu = true;
+            break;
+        case 1:
+            run_menu = false;
+            break;
+        case 2:
+            level_num++;
+            run_menu = level_num > 30 ? true : false;
+            break;
+        }
     }
 
     //

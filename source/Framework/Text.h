@@ -27,7 +27,17 @@ public:
     const char* GetText() { return text; }
     void SetText(const char* new_text);
 
+    void SetPosition(XMFLOAT2 pos) { position = pos; }
+
     void Render(Camera* cam);
+
+    enum class TextJustify {
+        JUSTIFY_LEFT,
+        JUSTIFY_CENTER,
+        JUSTIFY_RIGHT,
+    };
+
+    void SetJustify(TextJustify justify) { m_TextJustify = justify; }
 
     // Supress heap alignment warnings
     void* operator new(size_t i) { return _mm_malloc(i, 16); }
@@ -42,9 +52,11 @@ private:
     XMFLOAT2 position;
     float scale;
 
-    Vertex VertexData[4];
     ID3D11Buffer* vertexBuffer;
     ID3D11RasterizerState* rasterizerState;
+
+    float m_XLength;
+    TextJustify m_TextJustify;
 
     char *text;
 };

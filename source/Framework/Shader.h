@@ -18,6 +18,10 @@ using namespace DirectX;
 
 typedef struct {
     XMMATRIX MVP;
+    XMMATRIX MV;
+    XMMATRIX M;
+    XMMATRIX _World2Object;
+    XMFLOAT3 _WorldSpaceCameraPos;
 } Constants;
 
 class GfxDevice;

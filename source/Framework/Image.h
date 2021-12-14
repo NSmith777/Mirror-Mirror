@@ -26,13 +26,15 @@ public:
     Image(GfxDevice* gfxDevice, Texture* pTexture, Shader* pShader, XMFLOAT2 pos, XMFLOAT2 new_size);
     ~Image();
 
+    bool IsHovering(Camera* cam, XMINT2 mouse_pos);
+
     void Render(Camera* cam);
 
     // Supress heap alignment warnings
     void* operator new(size_t i) { return _mm_malloc(i, 16); }
     void operator delete(void* p) { _mm_free(p); }
 
-private:
+protected:
     GfxDevice* m_GfxDevice;
     Texture* m_Texture;
     Shader* m_Shader;

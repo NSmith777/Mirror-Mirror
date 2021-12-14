@@ -89,16 +89,18 @@ std::vector<char> Shader::ReadData(const char* filename) {
 
     FILE* fs = fopen(filename, "rb");
 
-    if (fs) {
-        fseek(fs, 0, SEEK_END);
+    if (!fs)
+        assert(false);
 
-        size_t size = ftell(fs);
+    fseek(fs, 0, SEEK_END);
 
-        data.resize(size);
-        fseek(fs, 0, SEEK_SET);
-        fread(data.data(), size, 1, fs);
-        fclose(fs);
-    }
+    size_t size = ftell(fs);
+
+    data.resize(size);
+    fseek(fs, 0, SEEK_SET);
+    fread(data.data(), size, 1, fs);
+    fclose(fs);
+
     return data;
 }
 

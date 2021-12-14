@@ -66,6 +66,9 @@
     <ClCompile Include="source\Level.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Menu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="source\shaders\default_vs.hlsl">
@@ -84,6 +87,12 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="source\shaders\text_ps.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="source\shaders\envmap_ps.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="source\shaders\envmap_vs.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>
@@ -125,6 +134,9 @@
       <Filter>Header Files\Framework</Filter>
     </ClInclude>
     <ClInclude Include="source\Level.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Menu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,5 @@
 //==============================================================================
-// File: Main.cpp
+// File: Level.cpp
 // 
 // Description: Implements the Level class.
 // 
@@ -19,66 +19,98 @@
 // Return:      N/A
 // 
 //=============================================================================
-Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt) {
+Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
     m_GfxDevice = myGfxDevice;
-    is_running = true;
+    m_IsRunning = true;
 
-    myScreenShader  = new Shader(m_GfxDevice, "../resources/shaders/screen_vs.cso", "../resources/shaders/screen_ps.cso", sizeof(Constants));
-    myTextShader    = new Shader(m_GfxDevice, "../resources/shaders/text_vs.cso", "../resources/shaders/text_ps.cso", sizeof(Constants));
-    myShader        = new Shader(m_GfxDevice, "../resources/shaders/default_vs.cso", "../resources/shaders/default_ps.cso", sizeof(Constants));
+    m_ScreenShader  = new Shader(m_GfxDevice, "../resources/shaders/screen_vs.cso", "../resources/shaders/screen_ps.cso", sizeof(Constants));
+    m_TextShader    = new Shader(m_GfxDevice, "../resources/shaders/text_vs.cso", "../resources/shaders/text_ps.cso", sizeof(Constants));
+    m_DefaultShader = new Shader(m_GfxDevice, "../resources/shaders/default_vs.cso", "../resources/shaders/default_ps.cso", sizeof(Constants));
 
-    myTextShader->ZWriteEnable(false);
-    myTextShader->BlendEnable(true);
+    m_TextShader->ZWriteEnable(false);
+    m_TextShader->BlendEnable(true);
 
-    myShader->BlendEnable(true);
+    m_DefaultShader->BlendEnable(true);
 
-    myFont = new Font(m_GfxDevice, pFt, "../resources/fonts/Roboto-Medium.ttf", 54);
+    m_Font = new Font(m_GfxDevice, pFt, "../resources/fonts/Roboto-Medium.ttf", 54);
 
-    myText1 = new Text(m_GfxDevice, myFont, myTextShader, { -620, 300 }, 0.5f);
-    myText2 = new Text(m_GfxDevice, myFont, myTextShader, { -620, 200 }, 1.0f);
+    m_MovesCntText = new Text(m_GfxDevice, m_Font, m_TextShader, { -610, -290 }, 1.2f);
+    m_MovesCntText->SetText("Moves: 0");
 
-    myText1->SetText("Test Text 1");
-    myText2->SetText("Sample Text 2");
+    m_MovesCount = 0;
 
-    PlayerTex           = new Texture(m_GfxDevice, "../resources/objects/Player/TestTexture.bmp");
-    DrawLineGuideTex    = new Texture(m_GfxDevice, "../resources/objects/DrawLine/DrawLine_Guide_Dif.bmp");
-    DrawLineTargetTex   = new Texture(m_GfxDevice, "../resources/objects/DrawLine/DrawLine_Target_Dif.bmp");
-    DrawLineTargetNGTex = new Texture(m_GfxDevice, "../resources/objects/DrawLine/DrawLine_Target_NG_Dif.bmp");
-    GroundTex           = new Texture(m_GfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal_Dif.bmp");
-    WallTex             = new Texture(m_GfxDevice, "../resources/objects/StoneWall/StoneWall_Dif.bmp");
+    m_PlayerTex           = new Texture(m_GfxDevice, "../resources/objects/Player/TestTexture.bmp");
+    m_DrawLineGuideTex    = new Texture(m_GfxDevice, "../resources/objects/DrawLine/DrawLine_Guide_Dif.bmp");
+    m_DrawLineTargetTex   = new Texture(m_GfxDevice, "../resources/objects/DrawLine/DrawLine_Target_Dif.bmp");
+    m_DrawLineTargetNGTex = new Texture(m_GfxDevice, "../resources/objects/DrawLine/DrawLine_Target_NG_Dif.bmp");
+    m_GoalTex             = new Texture(m_GfxDevice, "../resources/objects/Goal/Goal_Dif.bmp");
+    m_GroundTex           = new Texture(m_GfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal_Dif.bmp");
+    m_WallTex             = new Texture(m_GfxDevice, "../resources/objects/StoneWall/StoneWall_Dif.bmp");
 
-    myImage = new Image(m_GfxDevice, WallTex, myShader, { -620, -300 }, { 200, 200 });
+    m_PlayerMdl           = new Model(m_GfxDevice, "../resources/objects/Player/TestPlayer.mdl");
+    m_DrawLineGuideMdl    = new Model(m_GfxDevice, "../resources/objects/DrawLine/TestDrawLine_Guide.mdl");
+    m_DrawLineTargetMdl   = new Model(m_GfxDevice, "../resources/objects/DrawLine/TestDrawLine_Target.mdl");
+    m_GoalUnpressedMdl    = new Model(m_GfxDevice, "../resources/objects/Goal/GoalUnpressed.mdl");
+    m_GoalPressedMdl      = new Model(m_GfxDevice, "../resources/objects/Goal/GoalPressed.mdl");
+    m_GroundMdl           = new Model(m_GfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal.mdl");
+    m_WallMdl             = new Model(m_GfxDevice, "../resources/objects/StoneWall/StoneWall.mdl");
 
-    PlayerMdl           = new Model(m_GfxDevice, "../resources/objects/Player/TestPlayer.mdl");
-    DrawLineGuideMdl    = new Model(m_GfxDevice, "../resources/objects/DrawLine/TestDrawLine_Guide.mdl");
-    DrawLineTargetMdl   = new Model(m_GfxDevice, "../resources/objects/DrawLine/TestDrawLine_Target.mdl");
-    GroundMdl           = new Model(m_GfxDevice, "../resources/objects/CobbleGroundNormal/CobbleGroundNormal.mdl");
-    WallMdl             = new Model(m_GfxDevice, "../resources/objects/StoneWall/StoneWall.mdl");
+    m_Player          = new GameObject(m_PlayerMdl, m_PlayerTex, m_DefaultShader);
+    m_MirrorLine      = new GameObject(m_DrawLineGuideMdl, m_DrawLineGuideTex, m_DefaultShader);
+    m_ReflectLine     = new GameObject(m_DrawLineGuideMdl, m_DrawLineGuideTex, m_DefaultShader);
+    m_DrawLineTarget  = new GameObject(m_DrawLineTargetMdl, m_DrawLineTargetTex, m_DefaultShader);
+    m_Goal            = new GameObject(m_GoalUnpressedMdl, m_GoalTex, m_DefaultShader);
 
-    Player          = new GameObject(PlayerMdl, PlayerTex, myShader);
-    MirrorLine      = new GameObject(DrawLineGuideMdl, DrawLineGuideTex, myShader);
-    ReflectLine     = new GameObject(DrawLineGuideMdl, DrawLineGuideTex, myShader);
-    DrawLineTarget  = new GameObject(DrawLineTargetMdl, DrawLineTargetTex, myShader);
+    m_Goal->AddBoxCollider({ 2, 2, 2 });
 
-    DrawLineTarget->GetTransform()->SetScale({ 1.75f, 1.75f, 1.75f });
+    m_DrawLineTarget->GetTransform()->SetScale({ 1.75f, 1.75f, 1.75f });
 
-    myCamera = new Camera(m_GfxDevice, myScreenShader);
-    myCamera->SetClearColor(0.25f, 0.25f, 0.25f);
+    m_MenuText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 0 }, 1.25f);
+    m_MenuText->SetPosition({ 0, 80 });
+    m_MenuText->SetJustify(Text::TextJustify::JUSTIFY_CENTER);
 
-    myCamera->GetTransform()->SetPosition({ 0.0f, 20.0f, -20.0f });
-    myCamera->GetTransform()->SetRotation({ XMConvertToRadians(60.0f), 0.0f, 0.0f });
+    m_LeftOptionText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 0 }, 0.8f);
+    m_LeftOptionText->SetPosition({ -150, -122 });
+    m_LeftOptionText->SetJustify(Text::TextJustify::JUSTIFY_CENTER);
 
-    mouse_coords = { 0, 0 };
-    mirror_start = { 0, 0, 0 };
-    mirror_target = { 0, 0, 0 };
+    m_RightOptionText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 0 }, 0.8f);
+    m_RightOptionText->SetPosition({ 150, -122 });
+    m_RightOptionText->SetJustify(Text::TextJustify::JUSTIFY_CENTER);
 
-    is_mouse_held = false;
-    is_reflect_line_drawn = false;
-    can_move = false;
+    m_ButtonTex = new Texture(m_GfxDevice, "../resources/ui/button.bmp");
+    m_PanelTex  = new Texture(m_GfxDevice, "../resources/ui/panel.bmp");
+
+    m_MenuPanel     = new Image(m_GfxDevice, m_PanelTex, m_DefaultShader, { -300, -160 }, { 600, 400 });
+    m_LeftOption    = new Image(m_GfxDevice, m_ButtonTex, m_DefaultShader, { -280, -140 }, { 256, 64 });
+    m_RightOption   = new Image(m_GfxDevice, m_ButtonTex, m_DefaultShader, { 20, -140 }, { 256, 64 });
+
+    m_Camera = new Camera(m_GfxDevice, m_ScreenShader);
+    m_Camera->SetClearColor(0.25f, 0.25f, 0.25f);
+
+    m_Camera->GetTransform()->SetPosition({ 0.0f, 20.0f, -20.0f });
+    m_Camera->GetTransform()->SetRotation({ XMConvertToRadians(60.0f), 0.0f, 0.0f });
+
+    m_LevelState = LevelState::STATE_MAIN;
+    m_ReturnChoice = 0;
+
+    m_MouseCoords = { 0, 0 };
+    m_MirrorStart = { 0, 0, 0 };
+    m_MirrorTarget = { 0, 0, 0 };
+
+    m_IsMouseHeld = false;
+    m_IsReflectLineDrawn = false;
+    m_CanMove = false;
 
     ////////// LOAD LAYOUT //////////
 
-    FILE* lvlfile = fopen("../resources/levels/lvl0.txt", "r");
+    char lvlfile_path[512];
+    sprintf(lvlfile_path, "../resources/levels/lvl%i.txt", level_num);
+
+    FILE* lvlfile = fopen(lvlfile_path, "r");
+
+    if (!lvlfile)
+        assert(false);
+
     char lvlfile_buf[512] = { '\0' };
 
     while (fscanf(lvlfile, "%s\n", lvlfile_buf) == 1) {
@@ -89,29 +121,30 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt) {
 
             for (int z = 0; z < height; z++) {
                 for (int x = 0; x < width; x++) {
-                    int gameobject_id = 0;
+                    LevelObjectId gameobject_id;
                     if (fscanf(lvlfile, "%i,", &gameobject_id) != 1)
                         assert(false);
 
                     XMFLOAT3 obj_pos(x * 8.0f, 0.0f, z * -8.0f);
 
                     switch (gameobject_id) {
-                    case 1:
-                        Player->GetTransform()->SetPosition(obj_pos);
+                    case LevelObjectId::ID_PLAYER:
+                        m_Player->GetTransform()->SetPosition(obj_pos);
                         break;
-                    case 2:
+                    case LevelObjectId::ID_GOAL:
+                        m_Goal->GetTransform()->SetPosition(obj_pos);
                         break;
-                    case 3:
-                        Grounds.push_back(new GameObject(GroundMdl, GroundTex, myShader));
+                    case LevelObjectId::ID_GROUND:
+                        m_Grounds.push_back(new GameObject(m_GroundMdl, m_GroundTex, m_DefaultShader));
 
-                        Grounds[Grounds.size() - 1]->AddBoxCollider({ 4, 4, 4 });
-                        Grounds[Grounds.size() - 1]->GetTransform()->SetPosition(obj_pos);
+                        m_Grounds[m_Grounds.size() - 1]->AddBoxCollider({ 4, 4, 4 });
+                        m_Grounds[m_Grounds.size() - 1]->GetTransform()->SetPosition(obj_pos);
                         break;
-                    case 4:
-                        Walls.push_back(new GameObject(WallMdl, WallTex, myShader));
+                    case LevelObjectId::ID_WALL:
+                        m_Walls.push_back(new GameObject(m_WallMdl, m_WallTex, m_DefaultShader));
 
-                        Walls[Walls.size() - 1]->AddBoxCollider({ 4, 8, 4 });
-                        Walls[Walls.size() - 1]->GetTransform()->SetPosition(obj_pos);
+                        m_Walls[m_Walls.size() - 1]->AddBoxCollider({ 4, 8, 4 });
+                        m_Walls[m_Walls.size() - 1]->GetTransform()->SetPosition(obj_pos);
                         break;
                     default:
                         break;
@@ -136,10 +169,274 @@ static inline bool is_xz_line_intersect(XMFLOAT3 A, XMFLOAT3 B, XMFLOAT3 C, XMFL
 }
 
 //=============================================================================
+// Level::RunGame
+//=============================================================================
+// 
+// Description: Runs the main level game sequence.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
+void Level::RunGame() {
+    XMFLOAT3 PlayerPos = m_Player->GetTransform()->GetPosition();
+    Transform* MirrorLineTransform = m_MirrorLine->GetTransform();
+    Transform* ReflectLineTransform = m_ReflectLine->GetTransform();
+
+    ////////// Camera //////////
+
+    m_Camera->Use();
+
+    XMFLOAT3 cam_offset(0.0f, 30.0f, -18.0f);
+
+    XMFLOAT3 cam_lerp = XMFLOAT3_Lerp(m_Camera->GetTransform()->GetPosition(), PlayerPos + cam_offset, 0.1f);
+
+    m_Camera->GetTransform()->SetPosition(cam_lerp);
+
+    XMFLOAT3 cam_pos = m_Camera->GetTransform()->GetPosition();
+    XMFLOAT3 cam_ray_origin = m_Camera->ScreenToWorldPoint(m_MouseCoords);
+
+    // Raycast camera ray to the plane y=0
+    XMFLOAT3 cam_ray_hit = -cam_pos.y * (cam_ray_origin - cam_pos) / (cam_ray_origin.y - cam_pos.y) + cam_pos;
+
+    ////////// Input //////////
+
+    MSG msg;
+    while (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE)) {
+        switch (msg.message) {
+        case WM_MOUSEMOVE:
+            m_MouseCoords.x = GET_X_LPARAM(msg.lParam);
+            m_MouseCoords.y = GET_Y_LPARAM(msg.lParam);
+            break;
+        case WM_LBUTTONDOWN:
+            switch(m_LevelState) {
+            case LevelState::STATE_MAIN:
+                MirrorLineTransform->SetPosition(cam_ray_hit);
+                ReflectLineTransform->SetPosition(PlayerPos);
+
+                m_MirrorStart = cam_ray_hit;
+
+                m_IsMouseHeld = true;
+                break;
+            case LevelState::STATE_GAME_OVER:
+                if (m_LeftOption->IsHovering(m_Camera, m_MouseCoords)) {
+                    m_IsRunning = false;
+                    m_ReturnChoice = 0;
+                }
+                else if (m_RightOption->IsHovering(m_Camera, m_MouseCoords)) {
+                    m_IsRunning = false;
+                    m_ReturnChoice = 1;
+                }
+                break;
+            case LevelState::STATE_COMPLETED:
+                if (m_LeftOption->IsHovering(m_Camera, m_MouseCoords)) {
+                    m_IsRunning = false;
+                    m_ReturnChoice = 1;
+                }
+                else if (m_RightOption->IsHovering(m_Camera, m_MouseCoords)) {
+                    m_IsRunning = false;
+                    m_ReturnChoice = 2;
+                }
+                break;
+            }
+            break;
+        case WM_LBUTTONUP:
+            if (m_LevelState == LevelState::STATE_MAIN && m_IsReflectLineDrawn && m_CanMove) {
+                m_Player->GetTransform()->SetPosition(m_MirrorTarget);
+
+                XMFLOAT3 hit;
+
+                bool is_goal_hit = m_Goal->GetBoxCollision()->Ray_Intersect(
+                    m_Player->GetTransform()->GetPosition(),
+                    m_Player->GetTransform()->GetPosition() + XMFLOAT3(0, 4, 0),
+                    hit
+                    );
+
+                if (is_goal_hit)
+                    m_LevelState = LevelState::STATE_COMPLETED;
+
+                bool is_landed = false;
+                for (unsigned int i = 0; i < m_Grounds.size(); i++) {
+                    bool is_hit = m_Grounds[i]->GetBoxCollision()->Ray_Intersect(
+                        m_Player->GetTransform()->GetPosition(),
+                        m_Player->GetTransform()->GetPosition() + XMFLOAT3(0, 4, 0),
+                        hit
+                    );
+
+                    if (is_hit)
+                        is_landed = true;
+                }
+
+                if(!is_landed)
+                    m_LevelState = LevelState::STATE_GAME_OVER;
+
+                m_MovesCount++;
+
+                char moves_count_str[16];
+                sprintf(moves_count_str, "Moves: %i", m_MovesCount);
+                m_MovesCntText->SetText(moves_count_str);
+            }
+
+            m_IsMouseHeld = false;
+            break;
+        }
+        DispatchMessageA(&msg);
+    }
+
+    ////////// CALCULATE DRAW LINES //////////
+
+    if (m_IsMouseHeld) {
+        float m = (cam_ray_hit.z - m_MirrorStart.z) / (cam_ray_hit.x - m_MirrorStart.x);
+        float c = (cam_ray_hit.x * m_MirrorStart.z - m_MirrorStart.x * cam_ray_hit.z) / (cam_ray_hit.x - m_MirrorStart.x);
+        float d = (PlayerPos.x + (PlayerPos.z - c) * m) / (1 + (m * m));
+
+        m_MirrorTarget.x = 2 * d - PlayerPos.x;
+        m_MirrorTarget.z = 2 * d * m - PlayerPos.z + 2 * c;
+
+        m_IsReflectLineDrawn = is_xz_line_intersect(
+            MirrorLineTransform->GetPosition(),
+            cam_ray_hit,
+            ReflectLineTransform->GetPosition(),
+            m_MirrorTarget
+        );
+
+        // --------------------
+
+        XMFLOAT3 mirror_line_delta = cam_ray_hit - MirrorLineTransform->GetPosition();
+
+        MirrorLineTransform->SetRotation({ 0, atan2f(mirror_line_delta.x, mirror_line_delta.z), 0 });
+        MirrorLineTransform->SetScale({ 0.4f, 0.4f, XMFLOAT3_Distance(MirrorLineTransform->GetPosition(), cam_ray_hit) });
+
+        // --------------------
+
+        XMFLOAT3 reflect_line_delta = m_MirrorTarget - ReflectLineTransform->GetPosition();
+
+        ReflectLineTransform->SetRotation({ 0, atan2f(reflect_line_delta.x, reflect_line_delta.z), 0 });
+        ReflectLineTransform->SetScale({ 0.4f, 0.4f, XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), m_MirrorTarget) });
+
+        // --------------------
+
+        std::vector<XMFLOAT3> hits;
+
+        for (unsigned int i = 0; i < m_Walls.size(); i++) {
+            XMFLOAT3 cur_hit;
+
+            bool is_hit = m_Walls[i]->GetBoxCollision()->Ray_Intersect(
+                ReflectLineTransform->GetPosition(),
+                m_MirrorTarget,
+                cur_hit
+            );
+
+            if (is_hit)
+                hits.push_back(cur_hit);
+        }
+
+        XMFLOAT3 out_hit;
+
+        if (hits.size() > 0) {
+            float distance = XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), hits[0]);
+            int closest_hit = 0;
+
+            for (unsigned int i = 0; i < hits.size(); i++) {
+                if (XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), hits[i]) < distance)
+                    closest_hit = i;
+            }
+
+            out_hit = hits[closest_hit];
+            m_CanMove = false;
+        }
+        else {
+            m_CanMove = true;
+        }
+
+        if (m_CanMove) {
+            m_DrawLineTarget->GetTransform()->SetPosition(m_MirrorTarget);
+            m_DrawLineTarget->GetTransform()->Rotate({ 0.0f, XMConvertToRadians(1.5f), 0.0f });
+        }
+        else {
+            m_DrawLineTarget->GetTransform()->SetPosition(out_hit);
+            m_DrawLineTarget->GetTransform()->SetRotation({ 0.0f, 0.0f, 0.0f });
+        }
+    }
+
+    ////////// RENDERING //////////
+
+    m_Player->Render(m_Camera);
+
+    m_Goal->Render(m_Camera);
+
+    for (unsigned int i = 0; i < m_Grounds.size(); i++)
+        m_Grounds[i]->Render(m_Camera);
+
+    for (unsigned int i = 0; i < m_Walls.size(); i++)
+        m_Walls[i]->Render(m_Camera);
+
+    if (m_IsMouseHeld) {
+        // Disable depth write for all lines
+        m_DefaultShader->ZWriteEnable(false);
+
+        m_MirrorLine->Render(m_Camera);
+
+        if (m_IsReflectLineDrawn) {
+            m_ReflectLine->Render(m_Camera);
+
+            if (m_CanMove)
+                m_DrawLineTarget->SetTexture(m_DrawLineTargetTex);
+            else
+                m_DrawLineTarget->SetTexture(m_DrawLineTargetNGTex);
+
+            m_DrawLineTarget->Render(m_Camera);
+        }
+
+        // Re-enable depth write
+        m_DefaultShader->ZWriteEnable(true);
+    }
+
+    m_MovesCntText->Render(m_Camera);
+}
+
+void Level::RunGameOver() {
+    m_MenuText->SetText("Game Over!");
+    m_LeftOptionText->SetText("QUIT");
+    m_RightOptionText->SetText("RETRY");
+
+    m_DefaultShader->ZWriteEnable(false);
+
+    m_MenuPanel->Render(m_Camera);
+    m_LeftOption->Render(m_Camera);
+    m_RightOption->Render(m_Camera);
+
+    m_MenuText->Render(m_Camera);
+    m_LeftOptionText->Render(m_Camera);
+    m_RightOptionText->Render(m_Camera);
+
+    m_DefaultShader->ZWriteEnable(true);
+}
+
+void Level::RunComplete() {
+    m_MenuText->SetText("Level Completed!");
+    m_LeftOptionText->SetText("RETRY");
+    m_RightOptionText->SetText("NEXT");
+
+    m_DefaultShader->ZWriteEnable(false);
+
+    m_MenuPanel->Render(m_Camera);
+    m_LeftOption->Render(m_Camera);
+    m_RightOption->Render(m_Camera);
+
+    m_MenuText->Render(m_Camera);
+    m_LeftOptionText->Render(m_Camera);
+    m_RightOptionText->Render(m_Camera);
+
+    m_DefaultShader->ZWriteEnable(true);
+}
+
+//=============================================================================
 // Level::Update
 //=============================================================================
 // 
-// Description: Runs the main level game loop.
+// Description: Runs the main level loop.
 // 
 // Parameters:	N/A
 // 
@@ -147,171 +444,21 @@ static inline bool is_xz_line_intersect(XMFLOAT3 A, XMFLOAT3 B, XMFLOAT3 C, XMFL
 // 
 //=============================================================================
 void Level::Update() {
-    while (is_running) {
-        XMFLOAT3 PlayerPos = Player->GetTransform()->GetPosition();
-        Transform* MirrorLineTransform = MirrorLine->GetTransform();
-        Transform* ReflectLineTransform = ReflectLine->GetTransform();
+    while (m_IsRunning) {
+        RunGame();
 
-        ////////// Camera //////////
-
-        myCamera->Use();
-
-        XMFLOAT3 cam_offset(0.0f, 30.0f, -18.0f);
-
-        XMFLOAT3 cam_lerp = XMFLOAT3_Lerp(myCamera->GetTransform()->GetPosition(), PlayerPos + cam_offset, 0.1f);
-
-        myCamera->GetTransform()->SetPosition(cam_lerp);
-
-        XMFLOAT3 cam_pos = myCamera->GetTransform()->GetPosition();
-        XMFLOAT3 cam_ray_origin = myCamera->ScreenToWorldPoint(mouse_coords);
-
-        // Raycast camera ray to the plane y=0
-        XMFLOAT3 cam_ray_hit = -cam_pos.y * (cam_ray_origin - cam_pos) / (cam_ray_origin.y - cam_pos.y) + cam_pos;
-
-        ////////// Input //////////
-
-        MSG msg;
-        while (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE)) {
-            switch (msg.message) {
-            case WM_KEYDOWN:
-                is_running = false;
-                break;
-            case WM_MOUSEMOVE:
-                mouse_coords.x = GET_X_LPARAM(msg.lParam);
-                mouse_coords.y = GET_Y_LPARAM(msg.lParam);
-                break;
-            case WM_LBUTTONDOWN:
-                MirrorLineTransform->SetPosition(cam_ray_hit);
-                ReflectLineTransform->SetPosition(PlayerPos);
-
-                mirror_start = cam_ray_hit;
-
-                is_mouse_held = true;
-                break;
-            case WM_LBUTTONUP:
-                if (is_reflect_line_drawn && can_move)
-                    Player->GetTransform()->SetPosition(mirror_target);
-
-                is_mouse_held = false;
-                break;
-            }
-            DispatchMessageA(&msg);
+        switch (m_LevelState) {
+        case LevelState::STATE_PAUSED:
+            break;
+        case LevelState::STATE_GAME_OVER:
+            RunGameOver();
+            break;
+        case LevelState::STATE_COMPLETED:
+            RunComplete();
+            break;
         }
 
-        ////////// CALCULATE DRAW LINES //////////
-
-        if (is_mouse_held) {
-            float m = (cam_ray_hit.z - mirror_start.z) / (cam_ray_hit.x - mirror_start.x);
-            float c = (cam_ray_hit.x * mirror_start.z - mirror_start.x * cam_ray_hit.z) / (cam_ray_hit.x - mirror_start.x);
-            float d = (PlayerPos.x + (PlayerPos.z - c) * m) / (1 + (m * m));
-
-            mirror_target.x = 2 * d - PlayerPos.x;
-            mirror_target.z = 2 * d * m - PlayerPos.z + 2 * c;
-
-            is_reflect_line_drawn = is_xz_line_intersect(
-                MirrorLineTransform->GetPosition(),
-                cam_ray_hit,
-                ReflectLineTransform->GetPosition(),
-                mirror_target
-            );
-
-            // --------------------
-
-            XMFLOAT3 mirror_line_delta = cam_ray_hit - MirrorLineTransform->GetPosition();
-
-            MirrorLineTransform->SetRotation({ 0, atan2f(mirror_line_delta.x, mirror_line_delta.z), 0 });
-            MirrorLineTransform->SetScale({ 0.4f, 0.4f, XMFLOAT3_Distance(MirrorLineTransform->GetPosition(), cam_ray_hit) });
-
-            // --------------------
-
-            XMFLOAT3 reflect_line_delta = mirror_target - ReflectLineTransform->GetPosition();
-
-            ReflectLineTransform->SetRotation({ 0, atan2f(reflect_line_delta.x, reflect_line_delta.z), 0 });
-            ReflectLineTransform->SetScale({ 0.4f, 0.4f, XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), mirror_target) });
-
-            // --------------------
-
-            std::vector<XMFLOAT3> hits;
-
-            for (unsigned int i = 0; i < Walls.size(); i++) {
-                XMFLOAT3 cur_hit;
-
-                bool is_hit = Walls[i]->GetBoxCollision()->Ray_Intersect(
-                    ReflectLineTransform->GetPosition(),
-                    mirror_target,
-                    cur_hit
-                );
-
-                if (is_hit)
-                    hits.push_back(cur_hit);
-            }
-
-            XMFLOAT3 out_hit;
-
-            if (hits.size() > 0) {
-                float distance = XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), hits[0]);
-                int closest_hit = 0;
-
-                for (unsigned int i = 0; i < hits.size(); i++) {
-                    if (XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), hits[i]) < distance)
-                        closest_hit = i;
-                }
-
-                out_hit = hits[closest_hit];
-                can_move = false;
-            }
-            else {
-                can_move = true;
-            }
-
-            if (can_move) {
-                DrawLineTarget->GetTransform()->SetPosition(mirror_target);
-                DrawLineTarget->GetTransform()->Rotate({ 0.0f, XMConvertToRadians(1.5f), 0.0f });
-            }
-            else {
-                DrawLineTarget->GetTransform()->SetPosition(out_hit);
-                DrawLineTarget->GetTransform()->SetRotation({ 0.0f, 0.0f, 0.0f });
-            }
-        }
-
-        ////////// RENDERING //////////
-
-        Player->Render(myCamera);
-
-        for (unsigned int i = 0; i < Grounds.size(); i++)
-            Grounds[i]->Render(myCamera);
-
-        for (unsigned int i = 0; i < Walls.size(); i++)
-            Walls[i]->Render(myCamera);
-
-        if (is_mouse_held) {
-            // Disable depth write for all lines
-            myShader->ZWriteEnable(false);
-
-            MirrorLine->Render(myCamera);
-
-            if (is_reflect_line_drawn) {
-                ReflectLine->Render(myCamera);
-
-                if (can_move)
-                    DrawLineTarget->SetTexture(DrawLineTargetTex);
-                else
-                    DrawLineTarget->SetTexture(DrawLineTargetNGTex);
-
-                DrawLineTarget->Render(myCamera);
-            }
-
-            // Re-enable depth write
-            myShader->ZWriteEnable(true);
-        }
-
-        // Draw text
-        myText1->Render(myCamera);
-        myText2->Render(myCamera);
-
-        myImage->Render(myCamera);
-
-        m_GfxDevice->Present(myCamera, 1);
+        m_GfxDevice->Present(m_Camera, 1);
     }
 }
 
@@ -327,40 +474,52 @@ void Level::Update() {
 // 
 //=============================================================================
 Level::~Level() {
-    delete myScreenShader;
-    delete myTextShader;
-    delete myShader;
+    delete m_ScreenShader;
+    delete m_TextShader;
+    delete m_DefaultShader;
 
-    delete myFont;
+    delete m_Font;
 
-    delete myText1;
-    delete myText2;
+    delete m_MovesCntText;
 
-    delete PlayerTex;
-    delete DrawLineGuideTex;
-    delete DrawLineTargetTex;
-    delete DrawLineTargetNGTex;
-    delete GroundTex;
-    delete WallTex;
+    delete m_PlayerTex;
+    delete m_DrawLineGuideTex;
+    delete m_DrawLineTargetTex;
+    delete m_DrawLineTargetNGTex;
+    delete m_GoalTex;
+    delete m_GroundTex;
+    delete m_WallTex;
 
-    delete myImage;
+    delete m_PlayerMdl;
+    delete m_DrawLineGuideMdl;
+    delete m_DrawLineTargetMdl;
+    delete m_GoalUnpressedMdl;
+    delete m_GoalPressedMdl;
+    delete m_GroundMdl;
+    delete m_WallMdl;
 
-    delete PlayerMdl;
-    delete DrawLineGuideMdl;
-    delete DrawLineTargetMdl;
-    delete GroundMdl;
-    delete WallMdl;
+    delete m_Player;
+    delete m_MirrorLine;
+    delete m_ReflectLine;
+    delete m_DrawLineTarget;
+    delete m_Goal;
 
-    delete Player;
-    delete MirrorLine;
-    delete ReflectLine;
-    delete DrawLineTarget;
+    for (unsigned int i = 0; i < m_Grounds.size(); i++)
+        delete m_Grounds[i];
 
-    for (unsigned int i = 0; i < Grounds.size(); i++)
-        delete Grounds[i];
+    for (unsigned int i = 0; i < m_Walls.size(); i++)
+        delete m_Walls[i];
 
-    for (unsigned int i = 0; i < Walls.size(); i++)
-        delete Walls[i];
+    delete m_MenuText;
+    delete m_LeftOptionText;
+    delete m_RightOptionText;
 
-    delete myCamera;
+    delete m_ButtonTex;
+    delete m_PanelTex;
+
+    delete m_MenuPanel;
+    delete m_LeftOption;
+    delete m_RightOption;
+
+    delete m_Camera;
 }

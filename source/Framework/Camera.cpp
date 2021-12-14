@@ -31,29 +31,38 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
     backBufferTexView = NULL;
     depthBufferView = NULL;
 
-    // Set default camera dimensions in pixels
+    //
+    // Set default camera pixel dimensions
+    //
     width = 1280;
     height = 720;
 
-    // Set clear colour to black
+    //
+    // Set default clear colour to black
+    //
     clearColor[0] = 0.0f;
     clearColor[1] = 0.0f;
     clearColor[2] = 0.0f;
     clearColor[3] = 1.0f;
 
+    //
     // Set viewport to fit the entire screen
+    //
     viewport.TopLeftX = 0.0f;
     viewport.TopLeftY = 0.0f;
     viewport.Width = 1.0f;
     viewport.Height = 1.0f;
 
-    // Set up default projection properties
+    //
+    // Finally, set default projection properties
+    //
     fieldOfView = 60.0f;
     zNear = 0.1f;
     zFar = 1000.0f;
 
-    ////////// Init Framebuffers //////////
-
+    //
+    // Setup colour buffer texture
+    //
     D3D11_TEXTURE2D_DESC textureDesc = {};
     textureDesc.Width = width;
     textureDesc.Height = height;
@@ -67,26 +76,40 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
     textureDesc.CPUAccessFlags = 0;
     textureDesc.MiscFlags = 0;
 
+    m_GfxDevice->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &backBuffer);
+
+    //
+    // This render target view object allows us to bind this camera's colour buffer
+    // to the graphics backend later on, as an active render target to draw to.
+    //
     CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2DMS, textureDesc.Format);
 
-    m_GfxDevice->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &backBuffer);
     m_GfxDevice->GetDevice()->CreateRenderTargetView(backBuffer, &renderTargetViewDesc, &backBufferView);
 
+    //
+    // Similarly, we can setup this shader resource view object to bind
+    // this camera's colour buffer to a shader, to sample as a texture.
+    //
     CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2DMS, textureDesc.Format);
 
     m_GfxDevice->GetDevice()->CreateShaderResourceView(backBuffer, &shaderResourceViewDesc, &backBufferTexView);
 
+    //
+    // Setup depth buffer texture; we can just inherit from the colour buffer
+    // properties to bypass most of the manual setup.
+    //
     D3D11_TEXTURE2D_DESC depthBufferDesc;
-    backBuffer->GetDesc(&depthBufferDesc); // base on framebuffer properties
+    backBuffer->GetDesc(&depthBufferDesc);
 
     depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
     depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
     depthBufferDesc.SampleDesc.Count = 4;
     depthBufferDesc.SampleDesc.Quality = 0;
 
+    m_GfxDevice->GetDevice()->CreateTexture2D(&depthBufferDesc, nullptr, &depthBuffer);
+
     CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2DMS, depthBufferDesc.Format);
 
-    m_GfxDevice->GetDevice()->CreateTexture2D(&depthBufferDesc, nullptr, &depthBuffer);
     m_GfxDevice->GetDevice()->CreateDepthStencilView(depthBuffer, &depthStencilViewDesc, &depthBufferView);
 }
 
@@ -223,6 +246,9 @@ XMFLOAT3 Camera::ScreenToWorldPoint(XMINT2 screenPos) {
 // 
 //=============================================================================
 Camera::~Camera() {
+    //
+    // Free the framebuffer resources from memory
+    //
     backBuffer->Release();
     backBufferView->Release();
     backBufferTexView->Release();

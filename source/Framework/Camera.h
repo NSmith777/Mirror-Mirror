@@ -43,6 +43,9 @@ public:
     D3D11_VIEWPORT GetViewport() { return viewport; }
     ID3D11ShaderResourceView* GetRenderTargetTex() { return backBufferTexView; }
 
+    int GetPixelWidth() { return width; }
+    int GetPixelHeight() { return height; }
+
     void SetClearColor(float r, float g, float b);
 
     XMFLOAT3 ScreenToWorldPoint(XMINT2 screenPos);

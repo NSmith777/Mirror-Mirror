@@ -30,54 +30,74 @@ using namespace Math;
 //=============================================================================
 class Level {
 public:
-    Level(GfxDevice* myGfxDevice, FT_Library *pFt);
+    Level(GfxDevice* myGfxDevice, FT_Library *pFt, int level_num);
     ~Level();
 
     void Update();
 
+    int GetReturnChoice() { return m_ReturnChoice; }
+
 private:
+    void RunGame();
+    void RunGameOver();
+    void RunComplete();
+
     GfxDevice* m_GfxDevice;
-    bool is_running;
+    bool m_IsRunning;
 
-    Shader *myScreenShader;
-    Shader *myTextShader;
-    Shader *myShader;
+    Shader *m_ScreenShader, *m_TextShader, *m_DefaultShader;
 
-    Font *myFont;
+    Font *m_Font;
 
-    Text *myText1;
-    Text *myText2;
+    Text *m_MovesCntText;
 
-    Texture *PlayerTex;
-    Texture *DrawLineGuideTex;
-    Texture *DrawLineTargetTex;
-    Texture *DrawLineTargetNGTex;
-    Texture *GroundTex;
-    Texture *WallTex;
+    Texture *m_PlayerTex;
+    Texture *m_DrawLineGuideTex, *m_DrawLineTargetTex, *m_DrawLineTargetNGTex;
+    Texture *m_GoalTex;
+    Texture *m_GroundTex, *m_WallTex;
 
-    Image *myImage;
+    Model *m_PlayerMdl;
+    Model *m_DrawLineGuideMdl, *m_DrawLineTargetMdl;
+    Model *m_GoalUnpressedMdl, *m_GoalPressedMdl;
+    Model *m_GroundMdl;
+    Model *m_WallMdl;
 
-    Model *PlayerMdl;
-    Model *DrawLineGuideMdl;
-    Model *DrawLineTargetMdl;
-    Model *GroundMdl;
-    Model *WallMdl;
+    GameObject* m_Player;
+    GameObject* m_MirrorLine, *m_ReflectLine, *m_DrawLineTarget;
+    GameObject* m_Goal;
 
-    GameObject *Player;
-    GameObject *MirrorLine;
-    GameObject *ReflectLine;
-    GameObject *DrawLineTarget;
+    std::vector<GameObject*> m_Grounds;
+    std::vector<GameObject*> m_Walls;
 
-    std::vector<GameObject*> Grounds;
-    std::vector<GameObject*> Walls;
+    Text* m_MenuText, *m_LeftOptionText, *m_RightOptionText;
+    Texture* m_ButtonTex, * m_PanelTex;
+    Image* m_MenuPanel, *m_LeftOption, *m_RightOption;
 
-    Camera *myCamera;
+    Camera *m_Camera;
 
-    XMINT2 mouse_coords;
-    XMFLOAT3 mirror_start;
-    XMFLOAT3 mirror_target;
+    XMINT2 m_MouseCoords;
+    XMFLOAT3 m_MirrorStart, m_MirrorTarget;
 
-    bool is_mouse_held;
-    bool is_reflect_line_drawn;
-    bool can_move;
+    enum class LevelObjectId {
+        ID_PLAYER = 1,
+        ID_GOAL,
+        ID_GROUND,
+        ID_WALL,
+    };
+
+    enum class LevelState {
+        STATE_MAIN,
+        STATE_PAUSED,
+        STATE_GAME_OVER,
+        STATE_COMPLETED,
+    };
+
+    LevelState m_LevelState;
+    int m_ReturnChoice;
+
+    int m_MovesCount;
+
+    bool m_IsMouseHeld;
+    bool m_IsReflectLineDrawn;
+    bool m_CanMove;
 };

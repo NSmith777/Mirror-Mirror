@@ -34,10 +34,10 @@ Image::Image(GfxDevice* gfxDevice, Texture* pTexture, Shader* pShader, XMFLOAT2 
     ////////// Vertex Buffer //////////
 
     static const Vertex quadVerts[] = {
-        { { 0.0f, 0.0f, 0.5f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
-        { { 0.0f, 1.0f, 0.5f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
-        { { 1.0f, 0.0f, 0.5f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
-        { { 1.0f, 1.0f, 0.5f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
+        { { 0.0f, 0.0f, 0.5f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
+        { { 0.0f, 1.0f, 0.5f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
+        { { 1.0f, 0.0f, 0.5f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
+        { { 1.0f, 1.0f, 0.5f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
     };
 
     D3D11_BUFFER_DESC vertexBufferDesc = {};
@@ -59,6 +59,24 @@ Image::Image(GfxDevice* gfxDevice, Texture* pTexture, Shader* pShader, XMFLOAT2 
 
     m_GfxDevice->GetDevice()->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
 }
+
+bool Image::IsHovering(Camera* cam, XMINT2 mouse_pos) {
+    XMINT2 mouse2screen(
+        mouse_pos.x - cam->GetPixelWidth() / 2,
+        -mouse_pos.y + cam->GetPixelHeight() / 2
+    );
+
+    if (mouse2screen.x < position.x ||
+        mouse2screen.y < position.y ||
+        mouse2screen.x > position.x + size.x ||
+        mouse2screen.y > position.y + size.y)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 
 //=============================================================================
 // Image::Render

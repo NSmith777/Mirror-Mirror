@@ -59,6 +59,10 @@ void GameObject::AddBoxCollider(XMFLOAT3 size) {
 //=============================================================================
 void GameObject::Render(Camera* cam) {
     constants.MVP = transform->GetModelMatrix() * cam->GetViewMatrix() * cam->GetProjMatrix();
+    constants.MV = transform->GetModelMatrix() * cam->GetViewMatrix();
+    constants.M = transform->GetModelMatrix();
+    constants._World2Object = XMMatrixInverse(NULL, constants.M);
+    constants._WorldSpaceCameraPos = cam->GetTransform()->GetPosition();
 
     shader->SetConstants(&constants);
 
