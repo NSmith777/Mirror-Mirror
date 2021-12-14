@@ -71,15 +71,15 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
 
     m_MenuText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 0 }, 1.25f);
     m_MenuText->SetPosition({ 0, 80 });
-    m_MenuText->SetJustify(Text::TextJustify::JUSTIFY_CENTER);
+    m_MenuText->SetJustify(Text::TextAlign::ALIGN_CENTER);
 
     m_LeftOptionText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 0 }, 0.8f);
     m_LeftOptionText->SetPosition({ -150, -122 });
-    m_LeftOptionText->SetJustify(Text::TextJustify::JUSTIFY_CENTER);
+    m_LeftOptionText->SetJustify(Text::TextAlign::ALIGN_CENTER);
 
     m_RightOptionText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 0 }, 0.8f);
     m_RightOptionText->SetPosition({ 150, -122 });
-    m_RightOptionText->SetJustify(Text::TextJustify::JUSTIFY_CENTER);
+    m_RightOptionText->SetJustify(Text::TextAlign::ALIGN_CENTER);
 
     m_ButtonTex = new Texture(m_GfxDevice, "../resources/ui/button.bmp");
     m_PanelTex  = new Texture(m_GfxDevice, "../resources/ui/panel.bmp");

@@ -31,13 +31,13 @@ public:
 
     void Render(Camera* cam);
 
-    enum class TextJustify {
-        JUSTIFY_LEFT,
-        JUSTIFY_CENTER,
-        JUSTIFY_RIGHT,
+    enum class TextAlign {
+        ALIGN_LEFT,
+        ALIGN_CENTER,
+        ALIGN_RIGHT,
     };
 
-    void SetJustify(TextJustify justify) { m_TextJustify = justify; }
+    void SetJustify(TextAlign align) { m_TextAlign = align; }
 
     // Supress heap alignment warnings
     void* operator new(size_t i) { return _mm_malloc(i, 16); }
@@ -56,7 +56,7 @@ private:
     ID3D11RasterizerState* rasterizerState;
 
     float m_XLength;
-    TextJustify m_TextJustify;
+    TextAlign m_TextAlign;
 
     char *text;
 };

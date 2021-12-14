@@ -55,15 +55,15 @@ Menu::Menu(GfxDevice* gfxDevice, FT_Library* pFt) {
 
     m_StartText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, -256 }, 0.65f);
     m_StartText->SetText("CLICK TO START");
-    m_StartText->SetJustify(Text::TextJustify::JUSTIFY_CENTER);
+    m_StartText->SetJustify(Text::TextAlign::ALIGN_CENTER);
 
     m_BackText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, -228 }, 0.8f);
     m_BackText->SetText("BACK");
-    m_BackText->SetJustify(Text::TextJustify::JUSTIFY_CENTER);
+    m_BackText->SetJustify(Text::TextAlign::ALIGN_CENTER);
 
     m_LvlSelText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 256 }, 1.0f);
     m_LvlSelText->SetText("Level Select");
-    m_LvlSelText->SetJustify(Text::TextJustify::JUSTIFY_CENTER);
+    m_LvlSelText->SetJustify(Text::TextAlign::ALIGN_CENTER);
 
     char lvlnum_str[4];
     int lvlnum = 1;
@@ -85,7 +85,7 @@ Menu::Menu(GfxDevice* gfxDevice, FT_Library* pFt) {
 
             m_LvlBtnTexts[(y * 6) + x] = new Text(m_GfxDevice, m_Font, m_TextShader, lvlnum_pos, 0.75f);
             m_LvlBtnTexts[(y * 6) + x]->SetText(lvlnum_str);
-            m_LvlBtnTexts[(y * 6) + x]->SetJustify(Text::TextJustify::JUSTIFY_CENTER);
+            m_LvlBtnTexts[(y * 6) + x]->SetJustify(Text::TextAlign::ALIGN_CENTER);
 
             lvlnum++;
         }

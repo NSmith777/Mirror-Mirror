@@ -33,7 +33,7 @@ Text::Text(GfxDevice* gfxDevice, Font* pFont, Shader* pShader, XMFLOAT2 new_pos,
     vertexBuffer = NULL;
 
     m_XLength = 0.0f;
-    m_TextJustify = TextJustify::JUSTIFY_LEFT;
+    m_TextAlign = TextAlign::ALIGN_LEFT;
 
     ////////// Rasterizer state //////////
 
@@ -125,14 +125,14 @@ void Text::SetText(const char* new_text) {
 //=============================================================================
 void Text::Render(Camera *cam) {
     Transform scrTransform;
-    switch (m_TextJustify) {
-    case TextJustify::JUSTIFY_LEFT:
+    switch (m_TextAlign) {
+    case TextAlign::ALIGN_LEFT:
         scrTransform.Translate({ position.x, position.y, 0.0f });
         break;
-    case TextJustify::JUSTIFY_CENTER:
+    case TextAlign::ALIGN_CENTER:
         scrTransform.Translate({ position.x - (m_XLength / 2), position.y, 0.0f });
         break;
-    case TextJustify::JUSTIFY_RIGHT:
+    case TextAlign::ALIGN_RIGHT:
         scrTransform.Translate({ position.x - m_XLength, position.y, 0.0f });
         break;
     }
