@@ -39,7 +39,7 @@ Menu::Menu(GfxDevice* gfxDevice, FT_Library* pFt) {
     m_Logo      = new GameObject(m_LogoMdl, m_LogoTex, m_EnvMapShader);
 
     m_Camera = new Camera(m_GfxDevice, m_ScreenShader);
-    m_Camera->SetClearColor(0.25f, 0.25f, 0.25f);
+    m_Camera->SetClearColor(0.1406f, 0.1836f, 0.2695f);
 
     m_Camera->GetTransform()->SetPosition({ 0.0f, 0.0f, -10.0f });
 
