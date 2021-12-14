@@ -23,7 +23,7 @@ Menu::Menu(GfxDevice* gfxDevice, FT_Library* pFt) {
     m_GfxDevice = gfxDevice;
     m_IsRunning = true;
 
-    m_DefaultShader = new Shader(m_GfxDevice, "../resources/shaders/default_vs.cso", "../resources/shaders/default_ps.cso", sizeof(Constants));
+    m_UnlitShader = new Shader(m_GfxDevice, "../resources/shaders/unlit_vs.cso", "../resources/shaders/unlit_ps.cso", sizeof(Constants));
     m_EnvMapShader = new Shader(m_GfxDevice, "../resources/shaders/envmap_vs.cso", "../resources/shaders/envmap_ps.cso", sizeof(Constants));
     m_TextShader = new Shader(m_GfxDevice, "../resources/shaders/text_vs.cso", "../resources/shaders/text_ps.cso", sizeof(Constants));
     m_ScreenShader = new Shader(m_GfxDevice, "../resources/shaders/screen_vs.cso", "../resources/shaders/screen_ps.cso", sizeof(Constants));
@@ -31,8 +31,8 @@ Menu::Menu(GfxDevice* gfxDevice, FT_Library* pFt) {
     m_TextShader->BlendEnable(true);
     m_TextShader->ZWriteEnable(false);
 
-    m_DefaultShader->BlendEnable(true);
-    m_DefaultShader->ZWriteEnable(false);
+    m_UnlitShader->BlendEnable(true);
+    m_UnlitShader->ZWriteEnable(false);
 
     m_LogoTex   = new Texture(m_GfxDevice, "../resources/objects/3DLogo/3DLogoTex.bmp");
     m_LogoMdl   = new Model(m_GfxDevice, "../resources/objects/3DLogo/3DLogo.mdl");
@@ -47,9 +47,9 @@ Menu::Menu(GfxDevice* gfxDevice, FT_Library* pFt) {
     m_PanelTex      = new Texture(m_GfxDevice, "../resources/ui/panel.bmp");
     m_LvlButtonTex  = new Texture(m_GfxDevice, "../resources/ui/lvlsel_button.bmp");
 
-    m_StartBtn  = new Image(m_GfxDevice, m_ButtonTex, m_DefaultShader, { -150, -280 }, { 300, 75 });
-    m_BackBtn   = new Image(m_GfxDevice, m_ButtonTex, m_DefaultShader, { -150, -250 }, { 300, 75 });
-    m_Panel     = new Image(m_GfxDevice, m_PanelTex, m_DefaultShader, { -300, -160 }, { 600, 400 });
+    m_StartBtn  = new Image(m_GfxDevice, m_ButtonTex, m_UnlitShader, { -150, -280 }, { 300, 75 });
+    m_BackBtn   = new Image(m_GfxDevice, m_ButtonTex, m_UnlitShader, { -150, -250 }, { 300, 75 });
+    m_Panel     = new Image(m_GfxDevice, m_PanelTex, m_UnlitShader, { -300, -160 }, { 600, 400 });
 
     m_Font = new Font(m_GfxDevice, pFt, "../resources/fonts/Roboto-Medium.ttf", 54);
 
@@ -74,7 +74,7 @@ Menu::Menu(GfxDevice* gfxDevice, FT_Library* pFt) {
                 (float)(150 - (y * 70))
             );
 
-            m_LvlButtons[(y * 6) + x] = new Image(m_GfxDevice, m_LvlButtonTex, m_DefaultShader, lvlbutton_pos, { 64, 64 });
+            m_LvlButtons[(y * 6) + x] = new Image(m_GfxDevice, m_LvlButtonTex, m_UnlitShader, lvlbutton_pos, { 64, 64 });
 
             XMFLOAT2 lvlnum_pos(
                 lvlbutton_pos.x + 32,
@@ -226,7 +226,7 @@ void Menu::Update() {
 // 
 //=============================================================================
 Menu::~Menu() {
-    delete m_DefaultShader;
+    delete m_UnlitShader;
     delete m_EnvMapShader;
     delete m_TextShader;
     delete m_ScreenShader;

@@ -45,7 +45,7 @@ private:
     GfxDevice* m_GfxDevice;
     bool m_IsRunning;
 
-    Shader *m_ScreenShader, *m_TextShader, *m_DefaultShader;
+    Shader *m_ScreenShader, *m_TextShader, *m_UnlitShader, *m_DefaultShader;
 
     Font *m_Font;
 

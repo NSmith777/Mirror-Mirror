@@ -43,7 +43,7 @@ private:
     GfxDevice* m_GfxDevice;
     bool m_IsRunning;
 
-    Shader* m_DefaultShader, *m_EnvMapShader, *m_TextShader, *m_ScreenShader;
+    Shader* m_UnlitShader, *m_EnvMapShader, *m_TextShader, *m_ScreenShader;
 
     Texture* m_LogoTex;
     Model* m_LogoMdl;

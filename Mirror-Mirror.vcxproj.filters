@@ -95,6 +95,12 @@
     <FxCompile Include="source\shaders\envmap_vs.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
+    <FxCompile Include="source\shaders\unlit_vs.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="source\shaders\unlit_ps.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Framework\Camera.h">

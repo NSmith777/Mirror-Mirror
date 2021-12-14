@@ -25,10 +25,14 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
 
     m_ScreenShader  = new Shader(m_GfxDevice, "../resources/shaders/screen_vs.cso", "../resources/shaders/screen_ps.cso", sizeof(Constants));
     m_TextShader    = new Shader(m_GfxDevice, "../resources/shaders/text_vs.cso", "../resources/shaders/text_ps.cso", sizeof(Constants));
+    m_UnlitShader   = new Shader(m_GfxDevice, "../resources/shaders/unlit_vs.cso", "../resources/shaders/unlit_ps.cso", sizeof(Constants));
     m_DefaultShader = new Shader(m_GfxDevice, "../resources/shaders/default_vs.cso", "../resources/shaders/default_ps.cso", sizeof(Constants));
 
     m_TextShader->ZWriteEnable(false);
     m_TextShader->BlendEnable(true);
+
+    m_UnlitShader->ZWriteEnable(false);
+    m_UnlitShader->BlendEnable(true);
 
     m_DefaultShader->BlendEnable(true);
 
@@ -80,9 +84,9 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
     m_ButtonTex = new Texture(m_GfxDevice, "../resources/ui/button.bmp");
     m_PanelTex  = new Texture(m_GfxDevice, "../resources/ui/panel.bmp");
 
-    m_MenuPanel     = new Image(m_GfxDevice, m_PanelTex, m_DefaultShader, { -300, -160 }, { 600, 400 });
-    m_LeftOption    = new Image(m_GfxDevice, m_ButtonTex, m_DefaultShader, { -280, -140 }, { 256, 64 });
-    m_RightOption   = new Image(m_GfxDevice, m_ButtonTex, m_DefaultShader, { 20, -140 }, { 256, 64 });
+    m_MenuPanel     = new Image(m_GfxDevice, m_PanelTex, m_UnlitShader, { -300, -160 }, { 600, 400 });
+    m_LeftOption    = new Image(m_GfxDevice, m_ButtonTex, m_UnlitShader, { -280, -140 }, { 256, 64 });
+    m_RightOption   = new Image(m_GfxDevice, m_ButtonTex, m_UnlitShader, { 20, -140 }, { 256, 64 });
 
     m_Camera = new Camera(m_GfxDevice, m_ScreenShader);
     m_Camera->SetClearColor(0.25f, 0.25f, 0.25f);
@@ -401,8 +405,6 @@ void Level::RunGameOver() {
     m_LeftOptionText->SetText("QUIT");
     m_RightOptionText->SetText("RETRY");
 
-    m_DefaultShader->ZWriteEnable(false);
-
     m_MenuPanel->Render(m_Camera);
     m_LeftOption->Render(m_Camera);
     m_RightOption->Render(m_Camera);
@@ -410,8 +412,6 @@ void Level::RunGameOver() {
     m_MenuText->Render(m_Camera);
     m_LeftOptionText->Render(m_Camera);
     m_RightOptionText->Render(m_Camera);
-
-    m_DefaultShader->ZWriteEnable(true);
 }
 
 void Level::RunComplete() {
@@ -419,8 +419,6 @@ void Level::RunComplete() {
     m_LeftOptionText->SetText("RETRY");
     m_RightOptionText->SetText("NEXT");
 
-    m_DefaultShader->ZWriteEnable(false);
-
     m_MenuPanel->Render(m_Camera);
     m_LeftOption->Render(m_Camera);
     m_RightOption->Render(m_Camera);
@@ -428,8 +426,6 @@ void Level::RunComplete() {
     m_MenuText->Render(m_Camera);
     m_LeftOptionText->Render(m_Camera);
     m_RightOptionText->Render(m_Camera);
-
-    m_DefaultShader->ZWriteEnable(true);
 }
 
 //=============================================================================
@@ -476,6 +472,7 @@ void Level::Update() {
 Level::~Level() {
     delete m_ScreenShader;
     delete m_TextShader;
+    delete m_UnlitShader;
     delete m_DefaultShader;
 
     delete m_Font;
