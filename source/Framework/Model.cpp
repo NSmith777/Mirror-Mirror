@@ -33,10 +33,12 @@ Model::Model(GfxDevice* gfxDevice, const char* filepath) {
     if (magic != 0x004C444D)
         assert(false);
 
-    fread(&VertexCount, sizeof(unsigned int), 1, mdl_file);
+    fread(&m_VertexCount, sizeof(unsigned int), 1, mdl_file);
 
-    unsigned int VertexDataSize = VertexCount * sizeof(Vertex);
-    VertexData = (Vertex*)malloc(VertexDataSize);
+    unsigned int VertexDataSize = m_VertexCount * sizeof(Vertex);
+    
+    Vertex *VertexData = (Vertex*)malloc(VertexDataSize);
+
     fread(VertexData, VertexDataSize, 1, mdl_file);
 
     fclose(mdl_file);
@@ -48,7 +50,9 @@ Model::Model(GfxDevice* gfxDevice, const char* filepath) {
 
     D3D11_SUBRESOURCE_DATA vertexData = { VertexData };
 
-    m_GfxDevice->GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexData, &vertexBuffer);
+    m_GfxDevice->GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexData, &m_D3DVertexBuffer);
+
+    free(VertexData);
 
     ////////// Model rasterizer state //////////
 
@@ -58,7 +62,7 @@ Model::Model(GfxDevice* gfxDevice, const char* filepath) {
     rasterizerDesc.FillMode = D3D11_FILL_SOLID;
     rasterizerDesc.CullMode = D3D11_CULL_BACK;
 
-    m_GfxDevice->GetDevice()->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
+    m_GfxDevice->GetDevice()->CreateRasterizerState(&rasterizerDesc, &m_D3DRasterizerState);
 }
 
 //=============================================================================
@@ -77,11 +81,11 @@ void Model::Draw() {
     UINT offset = 0;
 
     m_GfxDevice->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_GfxDevice->GetDeviceContext()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+    m_GfxDevice->GetDeviceContext()->IASetVertexBuffers(0, 1, &m_D3DVertexBuffer, &stride, &offset);
 
-    m_GfxDevice->GetDeviceContext()->RSSetState(rasterizerState);
+    m_GfxDevice->GetDeviceContext()->RSSetState(m_D3DRasterizerState);
 
-    m_GfxDevice->GetDeviceContext()->Draw(VertexCount, 0);
+    m_GfxDevice->GetDeviceContext()->Draw(m_VertexCount, 0);
 }
 
 //=============================================================================
@@ -96,8 +100,6 @@ void Model::Draw() {
 // 
 //=============================================================================
 Model::~Model() {
-    free(VertexData);
-
-    vertexBuffer->Release();
-    rasterizerState->Release();
+    m_D3DVertexBuffer->Release();
+    m_D3DRasterizerState->Release();
 }

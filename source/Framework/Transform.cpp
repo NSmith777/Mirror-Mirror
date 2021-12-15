@@ -19,9 +19,9 @@
 // 
 //=============================================================================
 Transform::Transform() {
-    position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-    rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
-    scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+    m_Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    m_Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    m_Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 }
 
 //=============================================================================
@@ -36,11 +36,11 @@ Transform::Transform() {
 // 
 //=============================================================================
 XMMATRIX Transform::GetModelMatrix() {
-    XMMATRIX scaleMtx = XMMatrixScaling(scale.x, scale.y, scale.z);
-    XMMATRIX rotateXMtx = XMMatrixRotationNormal({ 1, 0, 0 }, rotation.x);
-    XMMATRIX rotateYMtx = XMMatrixRotationNormal({ 0, 1, 0 }, rotation.y);
-    XMMATRIX rotateZMtx = XMMatrixRotationNormal({ 0, 0, 1 }, rotation.z);
-    XMMATRIX translateMtx = XMMatrixTranslation(position.x, position.y, position.z);
+    XMMATRIX scaleMtx = XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
+    XMMATRIX rotateXMtx = XMMatrixRotationNormal({ 1, 0, 0 }, m_Rotation.x);
+    XMMATRIX rotateYMtx = XMMatrixRotationNormal({ 0, 1, 0 }, m_Rotation.y);
+    XMMATRIX rotateZMtx = XMMatrixRotationNormal({ 0, 0, 1 }, m_Rotation.z);
+    XMMATRIX translateMtx = XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 
     return scaleMtx * rotateXMtx * rotateYMtx * rotateZMtx * translateMtx;
 }

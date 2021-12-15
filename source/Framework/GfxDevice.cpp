@@ -66,27 +66,27 @@ GfxDevice::GfxDevice() {
     scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;     // allow full-screen switching
 
     D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL,
-        D3D11_SDK_VERSION, &scd, &swapChain, &device, NULL, &deviceContext);
+        D3D11_SDK_VERSION, &scd, &m_D3DSwapChain, &m_D3DDevice, NULL, &m_D3DDeviceContext);
 
     ////////// Init Framebuffers //////////
 
-    backBufferView = NULL;
-    depthBufferView = NULL;
+    m_D3DBackBufferView = NULL;
+    m_D3DDepthBufferView = NULL;
 
-    swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBuffer);
+    m_D3DSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&m_D3DBackBuffer);
 
-    device->CreateRenderTargetView(backBuffer, nullptr, &backBufferView);
+    m_D3DDevice->CreateRenderTargetView(m_D3DBackBuffer, nullptr, &m_D3DBackBufferView);
 
     D3D11_TEXTURE2D_DESC depthBufferDesc;
 
-    backBuffer->GetDesc(&depthBufferDesc); // base on framebuffer properties
+    m_D3DBackBuffer->GetDesc(&depthBufferDesc); // base on framebuffer properties
 
     depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
     depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
-    device->CreateTexture2D(&depthBufferDesc, nullptr, &depthBuffer);
+    m_D3DDevice->CreateTexture2D(&depthBufferDesc, nullptr, &m_D3DDepthBuffer);
 
-    device->CreateDepthStencilView(depthBuffer, nullptr, &depthBufferView);
+    m_D3DDevice->CreateDepthStencilView(m_D3DDepthBuffer, nullptr, &m_D3DDepthBufferView);
 
     // The following states are for drawing the camera render targets to the screen
 
@@ -95,7 +95,7 @@ GfxDevice::GfxDevice() {
     depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
     depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
-    device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
+    m_D3DDevice->CreateDepthStencilState(&depthStencilDesc, &m_D3DDepthStencilState);
 
     D3D11_BLEND_DESC BlendStateDesc = {};
     BlendStateDesc.AlphaToCoverageEnable = FALSE;
@@ -108,7 +108,7 @@ GfxDevice::GfxDevice() {
     BlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
     BlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     BlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-    device->CreateBlendState(&BlendStateDesc, &blendState);
+    m_D3DDevice->CreateBlendState(&BlendStateDesc, &m_D3DBlendState);
 
     D3D11_SAMPLER_DESC samplerDesc = {};
     samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
@@ -117,13 +117,13 @@ GfxDevice::GfxDevice() {
     samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 
-    device->CreateSamplerState(&samplerDesc, &samplerState);
+    m_D3DDevice->CreateSamplerState(&samplerDesc, &m_D3DSamplerState);
 
     ////////// Init Viewport //////////
 
     D3D11_VIEWPORT viewport = { 0, 0, 1280, 720, 0, 1 };
 
-    deviceContext->RSSetViewports(1, &viewport);
+    m_D3DDeviceContext->RSSetViewports(1, &viewport);
 
     ////////// Init Quad Buffer //////////
 
@@ -141,7 +141,7 @@ GfxDevice::GfxDevice() {
 
     D3D11_SUBRESOURCE_DATA vertexData = { quadVerts };
 
-    device->CreateBuffer(&vertexBufferDesc, &vertexData, &quadBuffer);
+    m_D3DDevice->CreateBuffer(&vertexBufferDesc, &vertexData, &m_D3DQuadVB);
 }
 
 //=============================================================================
@@ -159,12 +159,12 @@ GfxDevice::GfxDevice() {
 void GfxDevice::Present(Camera* pCameras, unsigned int numCameras) {
     FLOAT clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-    deviceContext->ClearRenderTargetView(backBufferView, clearColor);
-    deviceContext->ClearDepthStencilView(depthBufferView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_D3DDeviceContext->ClearRenderTargetView(m_D3DBackBufferView, clearColor);
+    m_D3DDeviceContext->ClearDepthStencilView(m_D3DDepthBufferView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    deviceContext->OMSetRenderTargets(1, &backBufferView, depthBufferView);
-    deviceContext->OMSetDepthStencilState(depthStencilState, 0);
-    deviceContext->OMSetBlendState(blendState, nullptr, 0xffffffff);
+    m_D3DDeviceContext->OMSetRenderTargets(1, &m_D3DBackBufferView, m_D3DDepthBufferView);
+    m_D3DDeviceContext->OMSetDepthStencilState(m_D3DDepthStencilState, 0);
+    m_D3DDeviceContext->OMSetBlendState(m_D3DBlendState, nullptr, 0xffffffff);
 
     for (unsigned int i = 0; i < numCameras; i++) {
         D3D11_VIEWPORT camViewport = pCameras[i].GetViewport();
@@ -183,19 +183,19 @@ void GfxDevice::Present(Camera* pCameras, unsigned int numCameras) {
 
         ID3D11ShaderResourceView* renderTargetTex = pCameras[i].GetRenderTargetTex();
 
-        deviceContext->PSSetShaderResources(0, 1, &renderTargetTex);
-        deviceContext->PSSetSamplers(0, 1, &samplerState);
+        m_D3DDeviceContext->PSSetShaderResources(0, 1, &renderTargetTex);
+        m_D3DDeviceContext->PSSetSamplers(0, 1, &m_D3DSamplerState);
 
         UINT stride = sizeof(Vertex);
         UINT offset = 0;
 
-        deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-        deviceContext->IASetVertexBuffers(0, 1, &quadBuffer, &stride, &offset);
+        m_D3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        m_D3DDeviceContext->IASetVertexBuffers(0, 1, &m_D3DQuadVB, &stride, &offset);
 
-        deviceContext->Draw(4, 0);
+        m_D3DDeviceContext->Draw(4, 0);
     }
 
-    swapChain->Present(1, 0);
+    m_D3DSwapChain->Present(1, 0);
 }
 
 //=============================================================================
@@ -212,19 +212,19 @@ void GfxDevice::Present(Camera* pCameras, unsigned int numCameras) {
 GfxDevice::~GfxDevice() {
     DestroyWindow(m_Window);
 
-    device->Release();
-    deviceContext->Release();
-    swapChain->Release();
+    m_D3DDevice->Release();
+    m_D3DDeviceContext->Release();
+    m_D3DSwapChain->Release();
 
-    backBuffer->Release();
-    backBufferView->Release();
+    m_D3DBackBuffer->Release();
+    m_D3DBackBufferView->Release();
 
-    depthBuffer->Release();
-    depthBufferView->Release();
+    m_D3DDepthBuffer->Release();
+    m_D3DDepthBufferView->Release();
 
-    depthStencilState->Release();
-    blendState->Release();
+    m_D3DDepthStencilState->Release();
+    m_D3DBlendState->Release();
 
-    samplerState->Release();
-    quadBuffer->Release();
+    m_D3DSamplerState->Release();
+    m_D3DQuadVB->Release();
 }

@@ -21,13 +21,13 @@
 //=============================================================================
 class Text {
 public:
-    Text(GfxDevice* gfxDevice, Font* pFont, Shader* pShader, XMFLOAT2 pos, float new_scale);
+    Text(GfxDevice* gfxDevice, Font* pFont, Shader* pShader, XMFLOAT2 position, float scale);
     ~Text();
 
-    const char* GetText() { return text; }
+    const char* GetText() { return m_Text; }
     void SetText(const char* new_text);
 
-    void SetPosition(XMFLOAT2 pos) { position = pos; }
+    void SetPosition(XMFLOAT2 position) { m_Position = position; }
 
     void Render(Camera* cam);
 
@@ -47,16 +47,16 @@ private:
     GfxDevice* m_GfxDevice;
     Font* m_Font;
     Shader* m_Shader;
-    Constants constants;
+    Constants m_Constants;
 
-    XMFLOAT2 position;
-    float scale;
+    XMFLOAT2 m_Position;
+    float m_Scale;
 
-    ID3D11Buffer* vertexBuffer;
-    ID3D11RasterizerState* rasterizerState;
+    ID3D11Buffer* m_D3DVertexBuffer;
+    ID3D11RasterizerState* m_D3DRasterizerState;
 
     float m_XLength;
     TextAlign m_TextAlign;
 
-    char *text;
+    char *m_Text;
 };

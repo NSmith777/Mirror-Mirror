@@ -38,13 +38,13 @@ public:
     XMMATRIX GetProjMatrix();
 
     Shader* GetShader() { return m_ScreenShader; }
-    Transform* GetTransform() { return &transform; }
+    Transform* GetTransform() { return &m_Transform; }
 
-    D3D11_VIEWPORT GetViewport() { return viewport; }
-    ID3D11ShaderResourceView* GetRenderTargetTex() { return backBufferTexView; }
+    D3D11_VIEWPORT GetViewport() { return m_Viewport; }
+    ID3D11ShaderResourceView* GetRenderTargetTex() { return m_D3DBackBufferTexView; }
 
-    int GetPixelWidth() { return width; }
-    int GetPixelHeight() { return height; }
+    int GetPixelWidth() { return m_Width; }
+    int GetPixelHeight() { return m_Height; }
 
     void SetClearColor(float r, float g, float b);
 
@@ -54,22 +54,22 @@ private:
     GfxDevice* m_GfxDevice;
     Shader* m_ScreenShader;
 
-    Transform transform;
+    Transform m_Transform;
 
     // Projection properties
-    float clearColor[4];
-    float fieldOfView;
-    float zNear;
-    float zFar;
-    D3D11_VIEWPORT viewport;
+    float m_ClearColor[4];
+    float m_FieldOfView;
+    float m_ZNear;
+    float m_ZFar;
+    D3D11_VIEWPORT m_Viewport;
 
     // Camera framebuffer
-    unsigned int width, height;
+    unsigned int m_Width, m_Height;
 
-    ID3D11Texture2D* backBuffer;
-    ID3D11RenderTargetView* backBufferView;
-    ID3D11ShaderResourceView* backBufferTexView;
+    ID3D11Texture2D* m_D3DBackBuffer;
+    ID3D11RenderTargetView* m_D3DBackBufferView;
+    ID3D11ShaderResourceView* m_D3DBackBufferTexView;
 
-    ID3D11Texture2D* depthBuffer;
-    ID3D11DepthStencilView* depthBufferView;
+    ID3D11Texture2D* m_D3DDepthBuffer;
+    ID3D11DepthStencilView* m_D3DDepthBufferView;
 };

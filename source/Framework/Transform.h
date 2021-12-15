@@ -26,15 +26,15 @@ public:
     Transform();
     ~Transform();
 
-    XMFLOAT3 GetPosition() { return position; }
-    XMFLOAT3 GetRotation() { return rotation; }
+    XMFLOAT3 GetPosition() { return m_Position; }
+    XMFLOAT3 GetRotation() { return m_Rotation; }
 
-    void SetPosition(XMFLOAT3 new_position) { position = new_position; }
-    void SetRotation(XMFLOAT3 new_rotation) { rotation = new_rotation; }
-    void SetScale(XMFLOAT3 new_scale) { scale = new_scale; }
+    void SetPosition(XMFLOAT3 position) { m_Position = position; }
+    void SetRotation(XMFLOAT3 rotation) { m_Rotation = rotation; }
+    void SetScale(XMFLOAT3 scale) { m_Scale = scale; }
 
-    void Translate(XMFLOAT3 translate) { position = position + translate; }
-    void Rotate(XMFLOAT3 rotate) { rotation = rotation + rotate; }
+    void Translate(XMFLOAT3 translation) { m_Position = m_Position + translation; }
+    void Rotate(XMFLOAT3 rotation) { m_Rotation = m_Rotation + rotation; }
 
     XMMATRIX GetModelMatrix();
 
@@ -43,7 +43,7 @@ public:
     XMFLOAT3 GetForwardVec();
 
 private:
-    XMFLOAT3 position;
-    XMFLOAT3 rotation;
-    XMFLOAT3 scale;
+    XMFLOAT3 m_Position;
+    XMFLOAT3 m_Rotation;
+    XMFLOAT3 m_Scale;
 };

@@ -26,27 +26,27 @@ public:
     GfxDevice();
     ~GfxDevice();
 
-    ID3D11Device* GetDevice() { return device; }
-    ID3D11DeviceContext* GetDeviceContext() { return deviceContext; }
+    ID3D11Device* GetDevice() { return m_D3DDevice; }
+    ID3D11DeviceContext* GetDeviceContext() { return m_D3DDeviceContext; }
 
     void Present(Camera *pCameras, unsigned int numCameras);
 
 private:
     HWND m_Window;
 
-    ID3D11Device* device;
-    ID3D11DeviceContext* deviceContext;
-    IDXGISwapChain* swapChain;
+    ID3D11Device* m_D3DDevice;
+    ID3D11DeviceContext* m_D3DDeviceContext;
+    IDXGISwapChain* m_D3DSwapChain;
 
-    ID3D11Texture2D* backBuffer;
-    ID3D11RenderTargetView* backBufferView;
+    ID3D11Texture2D* m_D3DBackBuffer;
+    ID3D11RenderTargetView* m_D3DBackBufferView;
 
-    ID3D11Texture2D* depthBuffer;
-    ID3D11DepthStencilView* depthBufferView;
+    ID3D11Texture2D* m_D3DDepthBuffer;
+    ID3D11DepthStencilView* m_D3DDepthBufferView;
 
-    ID3D11DepthStencilState* depthStencilState;
-    ID3D11BlendState* blendState;
+    ID3D11DepthStencilState* m_D3DDepthStencilState;
+    ID3D11BlendState* m_D3DBlendState;
 
-    ID3D11SamplerState* samplerState;
-    ID3D11Buffer* quadBuffer;
+    ID3D11SamplerState* m_D3DSamplerState;
+    ID3D11Buffer* m_D3DQuadVB;
 };

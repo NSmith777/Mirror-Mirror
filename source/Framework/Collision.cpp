@@ -25,8 +25,8 @@ using namespace Math;
 // 
 //=============================================================================
 BoxCollision::BoxCollision(Transform *trans, XMFLOAT3 size) {
-    transform = trans;
-    box_size = size;
+    m_Transform = trans;
+    m_BoxSize = size;
 }
 
 inline void BoxCollision::GetIntersection(float fDst1, float fDst2, XMFLOAT3 P1, XMFLOAT3 P2, XMFLOAT3& Hit) {
@@ -57,8 +57,8 @@ inline bool BoxCollision::InBox(XMFLOAT3 Hit, XMFLOAT3 B1, XMFLOAT3 B2, const in
 // 
 //=============================================================================
 bool BoxCollision::Ray_Intersect(XMFLOAT3 L1, XMFLOAT3 L2, XMFLOAT3& Hit) {
-    XMFLOAT3 B1 = transform->GetPosition() - box_size;
-    XMFLOAT3 B2 = transform->GetPosition() + box_size;
+    XMFLOAT3 B1 = m_Transform->GetPosition() - m_BoxSize;
+    XMFLOAT3 B2 = m_Transform->GetPosition() + m_BoxSize;
 
     if (L2.x < B1.x && L1.x < B1.x) return false;
     if (L2.x > B2.x && L1.x > B2.x) return false;

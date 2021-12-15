@@ -22,14 +22,14 @@
 // Return:      N/A
 // 
 //=============================================================================
-Image::Image(GfxDevice* gfxDevice, Texture* pTexture, Shader* pShader, XMFLOAT2 pos, XMFLOAT2 new_size) {
+Image::Image(GfxDevice* gfxDevice, Texture* pTexture, Shader* pShader, XMFLOAT2 position, XMFLOAT2 size) {
     m_GfxDevice = gfxDevice;
     m_Texture = pTexture;
     m_Shader = pShader;
-    ZeroMemory(&constants, sizeof(constants));
+    ZeroMemory(&m_Constants, sizeof(m_Constants));
 
-    position = pos;
-    size = new_size;
+    m_Position = position;
+    m_Size = size;
 
     ////////// Vertex Buffer //////////
 
@@ -47,7 +47,7 @@ Image::Image(GfxDevice* gfxDevice, Texture* pTexture, Shader* pShader, XMFLOAT2 
 
     D3D11_SUBRESOURCE_DATA vertexData = { quadVerts };
 
-    m_GfxDevice->GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexData, &vertexBuffer);
+    m_GfxDevice->GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexData, &m_D3DVertexBuffer);
 
     ////////// Rasterizer state //////////
 
@@ -57,7 +57,7 @@ Image::Image(GfxDevice* gfxDevice, Texture* pTexture, Shader* pShader, XMFLOAT2 
     rasterizerDesc.FillMode = D3D11_FILL_SOLID;
     rasterizerDesc.CullMode = D3D11_CULL_BACK;
 
-    m_GfxDevice->GetDevice()->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
+    m_GfxDevice->GetDevice()->CreateRasterizerState(&rasterizerDesc, &m_D3DRasterizerState);
 }
 
 bool Image::IsHovering(Camera* cam, XMINT2 mouse_pos) {
@@ -66,10 +66,10 @@ bool Image::IsHovering(Camera* cam, XMINT2 mouse_pos) {
         -mouse_pos.y + cam->GetPixelHeight() / 2
     );
 
-    if (mouse2screen.x < position.x ||
-        mouse2screen.y < position.y ||
-        mouse2screen.x > position.x + size.x ||
-        mouse2screen.y > position.y + size.y)
+    if (mouse2screen.x < m_Position.x ||
+        mouse2screen.y < m_Position.y ||
+        mouse2screen.x > m_Position.x + m_Size.x ||
+        mouse2screen.y > m_Position.y + m_Size.y)
     {
         return false;
     }
@@ -91,12 +91,12 @@ bool Image::IsHovering(Camera* cam, XMINT2 mouse_pos) {
 //=============================================================================
 void Image::Render(Camera* cam) {
     Transform scrTransform;
-    scrTransform.Translate({ position.x, position.y, 0.0f });
-    scrTransform.SetScale({ size.x, size.y, 1.0f });
+    scrTransform.Translate({ m_Position.x, m_Position.y, 0.0f });
+    scrTransform.SetScale({ m_Size.x, m_Size.y, 1.0f });
 
-    constants.MVP = scrTransform.GetModelMatrix() * cam->GetOrthoMatrix();
+    m_Constants.MVP = scrTransform.GetModelMatrix() * cam->GetOrthoMatrix();
 
-    m_Shader->SetConstants(&constants);
+    m_Shader->SetConstants(&m_Constants);
     m_Shader->Use();
 
     m_Texture->Use();
@@ -105,9 +105,9 @@ void Image::Render(Camera* cam) {
     UINT offset = 0;
 
     m_GfxDevice->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-    m_GfxDevice->GetDeviceContext()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+    m_GfxDevice->GetDeviceContext()->IASetVertexBuffers(0, 1, &m_D3DVertexBuffer, &stride, &offset);
 
-    m_GfxDevice->GetDeviceContext()->RSSetState(rasterizerState);
+    m_GfxDevice->GetDeviceContext()->RSSetState(m_D3DRasterizerState);
 
     m_GfxDevice->GetDeviceContext()->Draw(4, 0);
 }
@@ -124,6 +124,6 @@ void Image::Render(Camera* cam) {
 // 
 //=============================================================================
 Image::~Image() {
-    vertexBuffer->Release();
-    rasterizerState->Release();
+    m_D3DVertexBuffer->Release();
+    m_D3DRasterizerState->Release();
 }

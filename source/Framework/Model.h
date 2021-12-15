@@ -37,9 +37,8 @@ public:
 private:
     GfxDevice* m_GfxDevice;
 
-    Vertex* VertexData;
-    unsigned int VertexCount;
+    unsigned int m_VertexCount;
 
-    ID3D11Buffer* vertexBuffer;
-    ID3D11RasterizerState* rasterizerState;
+    ID3D11Buffer* m_D3DVertexBuffer;
+    ID3D11RasterizerState* m_D3DRasterizerState;
 };

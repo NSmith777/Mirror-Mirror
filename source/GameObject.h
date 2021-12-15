@@ -26,14 +26,14 @@ public:
     GameObject(Model *mdl, Texture* tex, Shader *shdr);
     ~GameObject();
 
-    void SetModel(Model* mdl) { model = mdl; }
-    void SetTexture(Texture* tex) { texture = tex; }
-    void SetShader(Shader* shdr) { shader = shdr; }
+    void SetModel(Model* mdl) { m_Model = mdl; }
+    void SetTexture(Texture* tex) { m_Texture = tex; }
+    void SetShader(Shader* shdr) { m_Shader = shdr; }
 
     void AddBoxCollider(XMFLOAT3 size);
 
-    BoxCollision* GetBoxCollision() { return boxCollision; }
-    Transform* GetTransform() { return transform; }
+    BoxCollision* GetBoxCollision() { return m_BoxCollision; }
+    Transform* GetTransform() { return m_Transform; }
 
     void Render(Camera *cam);
 
@@ -42,11 +42,11 @@ public:
     void operator delete(void* p) { _mm_free(p); }
 
 private:
-    Shader* shader;
-    Texture* texture;
-    Model* model;
-    BoxCollision* boxCollision;
-    Transform *transform;
+    Shader* m_Shader;
+    Texture* m_Texture;
+    Model* m_Model;
+    BoxCollision* m_BoxCollision;
+    Transform *m_Transform;
 
-    Constants constants;
+    Constants m_Constants;
 };

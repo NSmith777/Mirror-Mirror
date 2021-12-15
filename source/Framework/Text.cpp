@@ -22,15 +22,15 @@
 // Return:      N/A
 // 
 //=============================================================================
-Text::Text(GfxDevice* gfxDevice, Font* pFont, Shader* pShader, XMFLOAT2 new_pos, float new_scale) {
+Text::Text(GfxDevice* gfxDevice, Font* pFont, Shader* pShader, XMFLOAT2 position, float scale) {
     m_GfxDevice = gfxDevice;
     m_Font = pFont;
     m_Shader = pShader;
     
-    position = new_pos;
-    scale = new_scale;
+    m_Position = position;
+    m_Scale = scale;
 
-    vertexBuffer = NULL;
+    m_D3DVertexBuffer = NULL;
 
     m_XLength = 0.0f;
     m_TextAlign = TextAlign::ALIGN_LEFT;
@@ -43,11 +43,11 @@ Text::Text(GfxDevice* gfxDevice, Font* pFont, Shader* pShader, XMFLOAT2 new_pos,
     rasterizerDesc.FillMode = D3D11_FILL_SOLID;
     rasterizerDesc.CullMode = D3D11_CULL_BACK;
 
-    m_GfxDevice->GetDevice()->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
+    m_GfxDevice->GetDevice()->CreateRasterizerState(&rasterizerDesc, &m_D3DRasterizerState);
 
     constexpr int max_text_length = 65536;
 
-    text = (char*)malloc(max_text_length);
+    m_Text = (char*)malloc(max_text_length);
     SetText("Sample Text");
 }
 
@@ -63,16 +63,16 @@ Text::Text(GfxDevice* gfxDevice, Font* pFont, Shader* pShader, XMFLOAT2 new_pos,
 // 
 //=============================================================================
 void Text::SetText(const char* new_text) {
-    strcpy(text, new_text);
+    strcpy(m_Text, new_text);
 
     ////////// Vertex Buffer //////////
 
-    if (vertexBuffer != NULL)
-        vertexBuffer->Release();
+    if (m_D3DVertexBuffer != NULL)
+        m_D3DVertexBuffer->Release();
 
-    size_t VertexDataSize = 4 * sizeof(Vertex) * strlen(text);
+    size_t VertexDataSize = 4 * sizeof(Vertex) * strlen(m_Text);
 
-    Vertex* VertexData = (Vertex*)malloc(4 * sizeof(Vertex) * strlen(text));
+    Vertex* VertexData = (Vertex*)malloc(4 * sizeof(Vertex) * strlen(m_Text));
 
     D3D11_BUFFER_DESC vertexBufferDesc = {};
     vertexBufferDesc.ByteWidth = VertexDataSize;
@@ -82,14 +82,14 @@ void Text::SetText(const char* new_text) {
     float x_cursor = 0.0f;
     float y_cursor = 0.0f;
 
-    for (unsigned int i = 0; i < strlen(text); i++) {
-        Character* ch = m_Font->GetMappedChar(text[i]);
+    for (unsigned int i = 0; i < strlen(m_Text); i++) {
+        Character* ch = m_Font->GetMappedChar(m_Text[i]);
 
-        float xpos = x_cursor + ch->Bearing.x * scale;
-        float ypos = y_cursor - (ch->Size.y - ch->Bearing.y) * scale;
+        float xpos = x_cursor + ch->Bearing.x * m_Scale;
+        float ypos = y_cursor - (ch->Size.y - ch->Bearing.y) * m_Scale;
 
-        float w = ch->Size.x * scale;
-        float h = ch->Size.y * scale;
+        float w = ch->Size.x * m_Scale;
+        float h = ch->Size.y * m_Scale;
 
         Vertex vertices[4] = {
             { { xpos,     ypos,     0.5f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } },
@@ -100,14 +100,14 @@ void Text::SetText(const char* new_text) {
 
         memcpy(VertexData + (i * 4), vertices, sizeof(vertices));
 
-        x_cursor += (ch->Advance >> 6) * scale;
+        x_cursor += (ch->Advance >> 6) * m_Scale;
     }
 
     m_XLength = x_cursor;
 
     D3D11_SUBRESOURCE_DATA vertexData = { VertexData };
 
-    m_GfxDevice->GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexData, &vertexBuffer);
+    m_GfxDevice->GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexData, &m_D3DVertexBuffer);
 
     free(VertexData);
 }
@@ -127,31 +127,31 @@ void Text::Render(Camera *cam) {
     Transform scrTransform;
     switch (m_TextAlign) {
     case TextAlign::ALIGN_LEFT:
-        scrTransform.Translate({ position.x, position.y, 0.0f });
+        scrTransform.Translate({ m_Position.x, m_Position.y, 0.0f });
         break;
     case TextAlign::ALIGN_CENTER:
-        scrTransform.Translate({ position.x - (m_XLength / 2), position.y, 0.0f });
+        scrTransform.Translate({ m_Position.x - (m_XLength / 2), m_Position.y, 0.0f });
         break;
     case TextAlign::ALIGN_RIGHT:
-        scrTransform.Translate({ position.x - m_XLength, position.y, 0.0f });
+        scrTransform.Translate({ m_Position.x - m_XLength, m_Position.y, 0.0f });
         break;
     }
 
-    constants.MVP = scrTransform.GetModelMatrix() * cam->GetOrthoMatrix();
+    m_Constants.MVP = scrTransform.GetModelMatrix() * cam->GetOrthoMatrix();
 
-    m_Shader->SetConstants(&constants);
+    m_Shader->SetConstants(&m_Constants);
     m_Shader->Use();
 
     UINT stride = sizeof(Vertex);
     UINT offset = 0;
 
     m_GfxDevice->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-    m_GfxDevice->GetDeviceContext()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+    m_GfxDevice->GetDeviceContext()->IASetVertexBuffers(0, 1, &m_D3DVertexBuffer, &stride, &offset);
 
-    m_GfxDevice->GetDeviceContext()->RSSetState(rasterizerState);
+    m_GfxDevice->GetDeviceContext()->RSSetState(m_D3DRasterizerState);
 
-    for (unsigned int i = 0; i < strlen(text); i++) {
-        Character *ch = m_Font->GetMappedChar(text[i]);
+    for (unsigned int i = 0; i < strlen(m_Text); i++) {
+        Character *ch = m_Font->GetMappedChar(m_Text[i]);
 
         ID3D11SamplerState* fontSamplerState = m_Font->GetSamplerState();
 
@@ -174,8 +174,8 @@ void Text::Render(Camera *cam) {
 // 
 //=============================================================================
 Text::~Text() {
-    vertexBuffer->Release();
-    rasterizerState->Release();
+    m_D3DVertexBuffer->Release();
+    m_D3DRasterizerState->Release();
 
-    free(text);
+    free(m_Text);
 }

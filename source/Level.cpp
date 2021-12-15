@@ -94,6 +94,8 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
     m_Camera->GetTransform()->SetPosition({ 0.0f, 20.0f, -20.0f });
     m_Camera->GetTransform()->SetRotation({ XMConvertToRadians(60.0f), 0.0f, 0.0f });
 
+    m_CamOffset = { 0.0f, 30.0f, -18.0f };
+
     m_LevelState = LevelState::STATE_MAIN;
     m_ReturnChoice = 0;
 
@@ -192,9 +194,7 @@ void Level::RunGame() {
 
     m_Camera->Use();
 
-    XMFLOAT3 cam_offset(0.0f, 30.0f, -18.0f);
-
-    XMFLOAT3 cam_lerp = XMFLOAT3_Lerp(m_Camera->GetTransform()->GetPosition(), PlayerPos + cam_offset, 0.1f);
+    XMFLOAT3 cam_lerp = XMFLOAT3_Lerp(m_Camera->GetTransform()->GetPosition(), PlayerPos + m_CamOffset, 0.1f);
 
     m_Camera->GetTransform()->SetPosition(cam_lerp);
 

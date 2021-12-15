@@ -38,12 +38,12 @@ public:
     Font(GfxDevice* gfxDevice, FT_Library* pFt, const char* filepath, int size);
     ~Font();
 
-    Character* GetMappedChar(int idx) { return &Characters[idx]; }
-    ID3D11SamplerState* GetSamplerState() { return samplerState; }
+    Character* GetMappedChar(int idx) { return &m_Characters[idx]; }
+    ID3D11SamplerState* GetSamplerState() { return m_D3DSamplerState; }
 
 private:
     GfxDevice* m_GfxDevice;
 
-    std::map<char, Character> Characters;
-    ID3D11SamplerState* samplerState;
+    std::map<char, Character> m_Characters;
+    ID3D11SamplerState* m_D3DSamplerState;
 };

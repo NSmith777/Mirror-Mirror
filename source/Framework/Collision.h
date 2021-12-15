@@ -27,9 +27,6 @@ protected:
     bool InBox(XMFLOAT3 Hit, XMFLOAT3 B1, XMFLOAT3 B2, const int Axis);
 
 private:
-    Transform* transform;
-    XMFLOAT3 box_size;
-
     enum Axes { X, Y, Z };
     enum Planes { NX, NY, NZ, PX, PY, PZ, MAX_PLANES };
 
@@ -37,4 +34,7 @@ private:
         XMFLOAT3 point;
         bool is_in_box;
     } Box_Hit;
+
+    Transform* m_Transform;
+    XMFLOAT3 m_BoxSize;
 };

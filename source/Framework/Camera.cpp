@@ -27,45 +27,45 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
     m_GfxDevice = gfxDevice;
     m_ScreenShader = screenShader;
     
-    backBufferView = NULL;
-    backBufferTexView = NULL;
-    depthBufferView = NULL;
+    m_D3DBackBufferView = NULL;
+    m_D3DBackBufferTexView = NULL;
+    m_D3DDepthBufferView = NULL;
 
     //
     // Set default camera pixel dimensions
     //
-    width = 1280;
-    height = 720;
+    m_Width = 1280;
+    m_Height = 720;
 
     //
     // Set default clear colour to black
     //
-    clearColor[0] = 0.0f;
-    clearColor[1] = 0.0f;
-    clearColor[2] = 0.0f;
-    clearColor[3] = 1.0f;
+    m_ClearColor[0] = 0.0f;
+    m_ClearColor[1] = 0.0f;
+    m_ClearColor[2] = 0.0f;
+    m_ClearColor[3] = 1.0f;
 
     //
     // Set viewport to fit the entire screen
     //
-    viewport.TopLeftX = 0.0f;
-    viewport.TopLeftY = 0.0f;
-    viewport.Width = 1.0f;
-    viewport.Height = 1.0f;
+    m_Viewport.TopLeftX = 0.0f;
+    m_Viewport.TopLeftY = 0.0f;
+    m_Viewport.Width = 1.0f;
+    m_Viewport.Height = 1.0f;
 
     //
     // Finally, set default projection properties
     //
-    fieldOfView = 60.0f;
-    zNear = 0.1f;
-    zFar = 1000.0f;
+    m_FieldOfView = 60.0f;
+    m_ZNear = 0.1f;
+    m_ZFar = 1000.0f;
 
     //
     // Setup colour buffer texture
     //
     D3D11_TEXTURE2D_DESC textureDesc = {};
-    textureDesc.Width = width;
-    textureDesc.Height = height;
+    textureDesc.Width = m_Width;
+    textureDesc.Height = m_Height;
     textureDesc.MipLevels = 1;
     textureDesc.ArraySize = 1;
     textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -76,7 +76,7 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
     textureDesc.CPUAccessFlags = 0;
     textureDesc.MiscFlags = 0;
 
-    m_GfxDevice->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &backBuffer);
+    m_GfxDevice->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &m_D3DBackBuffer);
 
     //
     // This render target view object allows us to bind this camera's colour buffer
@@ -84,7 +84,7 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
     //
     CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2DMS, textureDesc.Format);
 
-    m_GfxDevice->GetDevice()->CreateRenderTargetView(backBuffer, &renderTargetViewDesc, &backBufferView);
+    m_GfxDevice->GetDevice()->CreateRenderTargetView(m_D3DBackBuffer, &renderTargetViewDesc, &m_D3DBackBufferView);
 
     //
     // Similarly, we can setup this shader resource view object to bind
@@ -92,25 +92,25 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
     //
     CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc(D3D11_SRV_DIMENSION_TEXTURE2DMS, textureDesc.Format);
 
-    m_GfxDevice->GetDevice()->CreateShaderResourceView(backBuffer, &shaderResourceViewDesc, &backBufferTexView);
+    m_GfxDevice->GetDevice()->CreateShaderResourceView(m_D3DBackBuffer, &shaderResourceViewDesc, &m_D3DBackBufferTexView);
 
     //
     // Setup depth buffer texture; we can just inherit from the colour buffer
     // properties to bypass most of the manual setup.
     //
     D3D11_TEXTURE2D_DESC depthBufferDesc;
-    backBuffer->GetDesc(&depthBufferDesc);
+    m_D3DBackBuffer->GetDesc(&depthBufferDesc);
 
     depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
     depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
     depthBufferDesc.SampleDesc.Count = 4;
     depthBufferDesc.SampleDesc.Quality = 0;
 
-    m_GfxDevice->GetDevice()->CreateTexture2D(&depthBufferDesc, nullptr, &depthBuffer);
+    m_GfxDevice->GetDevice()->CreateTexture2D(&depthBufferDesc, nullptr, &m_D3DDepthBuffer);
 
     CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2DMS, depthBufferDesc.Format);
 
-    m_GfxDevice->GetDevice()->CreateDepthStencilView(depthBuffer, &depthStencilViewDesc, &depthBufferView);
+    m_GfxDevice->GetDevice()->CreateDepthStencilView(m_D3DDepthBuffer, &depthStencilViewDesc, &m_D3DDepthBufferView);
 }
 
 //=============================================================================
@@ -125,10 +125,10 @@ Camera::Camera(GfxDevice* gfxDevice, Shader *screenShader) {
 // 
 //=============================================================================
 void Camera::Use() {
-    m_GfxDevice->GetDeviceContext()->ClearRenderTargetView(backBufferView, clearColor);
-    m_GfxDevice->GetDeviceContext()->ClearDepthStencilView(depthBufferView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_GfxDevice->GetDeviceContext()->ClearRenderTargetView(m_D3DBackBufferView, m_ClearColor);
+    m_GfxDevice->GetDeviceContext()->ClearDepthStencilView(m_D3DDepthBufferView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    m_GfxDevice->GetDeviceContext()->OMSetRenderTargets(1, &backBufferView, depthBufferView);
+    m_GfxDevice->GetDeviceContext()->OMSetRenderTargets(1, &m_D3DBackBufferView, m_D3DDepthBufferView);
 }
 
 //=============================================================================
@@ -143,8 +143,8 @@ void Camera::Use() {
 // 
 //=============================================================================
 XMMATRIX Camera::GetViewMatrix() {
-    XMFLOAT3 position = transform.GetPosition();
-    XMFLOAT3 rotation = transform.GetRotation();
+    XMFLOAT3 position = m_Transform.GetPosition();
+    XMFLOAT3 rotation = m_Transform.GetRotation();
 
     XMMATRIX translateMtx = XMMatrixTranslation(-position.x, -position.y, -position.z);
     XMMATRIX rotateZMtx = XMMatrixRotationNormal({ 0, 0, 1 }, -rotation.z);
@@ -166,9 +166,9 @@ XMMATRIX Camera::GetViewMatrix() {
 // 
 //=============================================================================
 void Camera::SetClearColor(float r, float g, float b) {
-    clearColor[0] = r;
-    clearColor[1] = g;
-    clearColor[2] = b;
+    m_ClearColor[0] = r;
+    m_ClearColor[1] = g;
+    m_ClearColor[2] = b;
 }
 
 //=============================================================================
@@ -183,7 +183,7 @@ void Camera::SetClearColor(float r, float g, float b) {
 // 
 //=============================================================================
 XMMATRIX Camera::GetProjMatrix() {
-    return XMMatrixPerspectiveFovLH(XMConvertToRadians(fieldOfView), (float)width / height, zNear, zFar);
+    return XMMatrixPerspectiveFovLH(XMConvertToRadians(m_FieldOfView), (float)m_Width / m_Height, m_ZNear, m_ZFar);
 }
 
 //=============================================================================
@@ -199,7 +199,7 @@ XMMATRIX Camera::GetProjMatrix() {
 // 
 //=============================================================================
 XMMATRIX Camera::GetOrthoMatrix() {
-    return XMMatrixOrthographicLH((float)width, (float)height, zNear, zFar);
+    return XMMatrixOrthographicLH((float)m_Width, (float)m_Height, m_ZNear, m_ZFar);
 }
 
 //=============================================================================
@@ -215,18 +215,18 @@ XMMATRIX Camera::GetOrthoMatrix() {
 // 
 //=============================================================================
 XMFLOAT3 Camera::ScreenToWorldPoint(XMINT2 screenPos) {
-    XMFLOAT3 cam_pos = transform.GetPosition();
+    XMFLOAT3 cam_pos = m_Transform.GetPosition();
 
-    XMFLOAT3 cam_right = transform.GetRightVec();
-    XMFLOAT3 cam_up = transform.GetUpVec();
-    XMFLOAT3 cam_forward = transform.GetForwardVec();
+    XMFLOAT3 cam_right = m_Transform.GetRightVec();
+    XMFLOAT3 cam_up = m_Transform.GetUpVec();
+    XMFLOAT3 cam_forward = m_Transform.GetForwardVec();
 
-    float Vnear = tanf(XMConvertToRadians(fieldOfView / 2));
-    float Hnear = Vnear * ((float)width / height);
+    float Vnear = tanf(XMConvertToRadians(m_FieldOfView / 2));
+    float Hnear = Vnear * ((float)m_Width / m_Height);
 
     XMFLOAT2 viewportPos = {
-        screenPos.x / (width / 2.0f) - 1.0f,
-        screenPos.y / (height / 2.0f) - 1.0f
+        screenPos.x / (m_Width / 2.0f) - 1.0f,
+        screenPos.y / (m_Height / 2.0f) - 1.0f
     };
 
     XMFLOAT3 world_point = cam_pos + cam_forward + (cam_right * Hnear * viewportPos.x) - (cam_up * Vnear * viewportPos.y);
@@ -249,10 +249,10 @@ Camera::~Camera() {
     //
     // Free the framebuffer resources from memory
     //
-    backBuffer->Release();
-    backBufferView->Release();
-    backBufferTexView->Release();
+    m_D3DBackBuffer->Release();
+    m_D3DBackBufferView->Release();
+    m_D3DBackBufferTexView->Release();
 
-    depthBuffer->Release();
-    depthBufferView->Release();
+    m_D3DDepthBuffer->Release();
+    m_D3DDepthBufferView->Release();
 }

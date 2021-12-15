@@ -23,7 +23,7 @@
 //=============================================================================
 class Image {
 public:
-    Image(GfxDevice* gfxDevice, Texture* pTexture, Shader* pShader, XMFLOAT2 pos, XMFLOAT2 new_size);
+    Image(GfxDevice* gfxDevice, Texture* pTexture, Shader* pShader, XMFLOAT2 position, XMFLOAT2 size);
     ~Image();
 
     bool IsHovering(Camera* cam, XMINT2 mouse_pos);
@@ -38,11 +38,11 @@ protected:
     GfxDevice* m_GfxDevice;
     Texture* m_Texture;
     Shader* m_Shader;
-    Constants constants;
+    Constants m_Constants;
 
-    XMFLOAT2 position;
-    XMFLOAT2 size;
+    XMFLOAT2 m_Position;
+    XMFLOAT2 m_Size;
 
-    ID3D11Buffer* vertexBuffer;
-    ID3D11RasterizerState* rasterizerState;
+    ID3D11Buffer* m_D3DVertexBuffer;
+    ID3D11RasterizerState* m_D3DRasterizerState;
 };

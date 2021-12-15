@@ -45,18 +45,18 @@ public:
 private:
     GfxDevice* m_GfxDevice;
 
-    ID3D11VertexShader* vertexShader;
-    ID3D11PixelShader* pixelShader;
-    ID3D11InputLayout* inputLayout;
+    ID3D11VertexShader* m_D3DVertexShader;
+    ID3D11PixelShader* m_D3DPixelShader;
+    ID3D11InputLayout* m_D3DInputLayout;
 
-    ID3D11Buffer* constantBuffer;
-    unsigned int m_constantsSize;
+    ID3D11Buffer* m_D3DConstantBuffer;
+    unsigned int m_ConstantsSize;
 
-    D3D11_BLEND_DESC BlendStateDesc;
-    ID3D11BlendState* blendState;
+    D3D11_BLEND_DESC m_D3DBlendStateDesc;
+    ID3D11BlendState* m_D3DBlendState;
 
-    D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-    ID3D11DepthStencilState* depthStencilState;
+    D3D11_DEPTH_STENCIL_DESC m_D3DDepthStencilDesc;
+    ID3D11DepthStencilState* m_D3DDepthStencilState;
 
     std::vector<char> ReadData(const char* filename);
 };

@@ -23,13 +23,13 @@
 //=============================================================================
 Shader::Shader(GfxDevice* gfxDevice, const char *vs_path, const char *ps_path, unsigned int constantsSize) {
     m_GfxDevice = gfxDevice;
-    m_constantsSize = constantsSize;
+    m_ConstantsSize = constantsSize;
 
     std::vector<char> vertexShaderData = ReadData(vs_path);
     std::vector<char> pixelShaderData = ReadData(ps_path);
 
-    m_GfxDevice->GetDevice()->CreateVertexShader(vertexShaderData.data(), vertexShaderData.size(), nullptr, &vertexShader);
-    m_GfxDevice->GetDevice()->CreatePixelShader(pixelShaderData.data(), pixelShaderData.size(), nullptr, &pixelShader);
+    m_GfxDevice->GetDevice()->CreateVertexShader(vertexShaderData.data(), vertexShaderData.size(), nullptr, &m_D3DVertexShader);
+    m_GfxDevice->GetDevice()->CreatePixelShader(pixelShaderData.data(), pixelShaderData.size(), nullptr, &m_D3DPixelShader);
 
     D3D11_INPUT_ELEMENT_DESC inputElementDesc[] = 
     {
@@ -38,38 +38,38 @@ Shader::Shader(GfxDevice* gfxDevice, const char *vs_path, const char *ps_path, u
         { "NOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
-    m_GfxDevice->GetDevice()->CreateInputLayout(inputElementDesc, ARRAYSIZE(inputElementDesc), vertexShaderData.data(), vertexShaderData.size(), &inputLayout);
+    m_GfxDevice->GetDevice()->CreateInputLayout(inputElementDesc, ARRAYSIZE(inputElementDesc), vertexShaderData.data(), vertexShaderData.size(), &m_D3DInputLayout);
 
     D3D11_BUFFER_DESC constantBufferDesc = {};
-    constantBufferDesc.ByteWidth = m_constantsSize + 0xf & 0xfffffff0; // round constant buffer size to 16 byte boundary
+    constantBufferDesc.ByteWidth = m_ConstantsSize + 0xf & 0xfffffff0; // round constant buffer size to 16 byte boundary
     constantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     constantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-    m_GfxDevice->GetDevice()->CreateBuffer(&constantBufferDesc, nullptr, &constantBuffer);
+    m_GfxDevice->GetDevice()->CreateBuffer(&constantBufferDesc, nullptr, &m_D3DConstantBuffer);
 
     ////////// Blend State //////////
 
-    BlendStateDesc.AlphaToCoverageEnable = FALSE;
-    BlendStateDesc.IndependentBlendEnable = FALSE;
-    BlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
-    BlendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-    BlendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-    BlendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-    BlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-    BlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-    BlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-    BlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    m_D3DBlendStateDesc.AlphaToCoverageEnable = FALSE;
+    m_D3DBlendStateDesc.IndependentBlendEnable = FALSE;
+    m_D3DBlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
+    m_D3DBlendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    m_D3DBlendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    m_D3DBlendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    m_D3DBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    m_D3DBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+    m_D3DBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    m_D3DBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-    m_GfxDevice->GetDevice()->CreateBlendState(&BlendStateDesc, &blendState);
+    m_GfxDevice->GetDevice()->CreateBlendState(&m_D3DBlendStateDesc, &m_D3DBlendState);
 
     ////////// Depth Stencil State //////////
 
-    depthStencilDesc.DepthEnable = TRUE;
-    depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-    depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    m_D3DDepthStencilDesc.DepthEnable = TRUE;
+    m_D3DDepthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    m_D3DDepthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
-    m_GfxDevice->GetDevice()->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
+    m_GfxDevice->GetDevice()->CreateDepthStencilState(&m_D3DDepthStencilDesc, &m_D3DDepthStencilState);
 }
 
 //=============================================================================
@@ -116,14 +116,14 @@ std::vector<char> Shader::ReadData(const char* filename) {
 // 
 //=============================================================================
 void Shader::Use() {
-    m_GfxDevice->GetDeviceContext()->IASetInputLayout(inputLayout);
-    m_GfxDevice->GetDeviceContext()->VSSetShader(vertexShader, nullptr, 0);
-    m_GfxDevice->GetDeviceContext()->VSSetConstantBuffers(0, 1, &constantBuffer);
+    m_GfxDevice->GetDeviceContext()->IASetInputLayout(m_D3DInputLayout);
+    m_GfxDevice->GetDeviceContext()->VSSetShader(m_D3DVertexShader, nullptr, 0);
+    m_GfxDevice->GetDeviceContext()->VSSetConstantBuffers(0, 1, &m_D3DConstantBuffer);
 
-    m_GfxDevice->GetDeviceContext()->PSSetShader(pixelShader, nullptr, 0);
+    m_GfxDevice->GetDeviceContext()->PSSetShader(m_D3DPixelShader, nullptr, 0);
 
-    m_GfxDevice->GetDeviceContext()->OMSetBlendState(blendState, nullptr, 0xffffffff);
-    m_GfxDevice->GetDeviceContext()->OMSetDepthStencilState(depthStencilState, 0);
+    m_GfxDevice->GetDeviceContext()->OMSetBlendState(m_D3DBlendState, nullptr, 0xffffffff);
+    m_GfxDevice->GetDeviceContext()->OMSetDepthStencilState(m_D3DDepthStencilState, 0);
 }
 
 //=============================================================================
@@ -140,11 +140,11 @@ void Shader::Use() {
 void Shader::SetConstants(void *pConstantsData) {
     D3D11_MAPPED_SUBRESOURCE mappedSubresource;
 
-    m_GfxDevice->GetDeviceContext()->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
+    m_GfxDevice->GetDeviceContext()->Map(m_D3DConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 
-    memcpy(mappedSubresource.pData, pConstantsData, m_constantsSize);
+    memcpy(mappedSubresource.pData, pConstantsData, m_ConstantsSize);
 
-    m_GfxDevice->GetDeviceContext()->Unmap(constantBuffer, 0);
+    m_GfxDevice->GetDeviceContext()->Unmap(m_D3DConstantBuffer, 0);
 }
 
 //=============================================================================
@@ -159,13 +159,13 @@ void Shader::SetConstants(void *pConstantsData) {
 // 
 //=============================================================================
 void Shader::BlendEnable(bool enable) {
-    BlendStateDesc.AlphaToCoverageEnable = enable;
-    BlendStateDesc.IndependentBlendEnable = enable;
-    BlendStateDesc.RenderTarget[0].BlendEnable = enable;
+    m_D3DBlendStateDesc.AlphaToCoverageEnable = enable;
+    m_D3DBlendStateDesc.IndependentBlendEnable = enable;
+    m_D3DBlendStateDesc.RenderTarget[0].BlendEnable = enable;
 
     // Update blend state resource
-    blendState->Release();
-    m_GfxDevice->GetDevice()->CreateBlendState(&BlendStateDesc, &blendState);
+    m_D3DBlendState->Release();
+    m_GfxDevice->GetDevice()->CreateBlendState(&m_D3DBlendStateDesc, &m_D3DBlendState);
 }
 
 //=============================================================================
@@ -180,11 +180,11 @@ void Shader::BlendEnable(bool enable) {
 // 
 //=============================================================================
 void Shader::ZWriteEnable(bool enable) {
-    depthStencilDesc.DepthEnable = enable;
+    m_D3DDepthStencilDesc.DepthEnable = enable;
 
     // Update depth-stencil state resource
-    depthStencilState->Release();
-    m_GfxDevice->GetDevice()->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
+    m_D3DDepthStencilState->Release();
+    m_GfxDevice->GetDevice()->CreateDepthStencilState(&m_D3DDepthStencilDesc, &m_D3DDepthStencilState);
 }
 
 //=============================================================================
@@ -199,13 +199,13 @@ void Shader::ZWriteEnable(bool enable) {
 // 
 //=============================================================================
 Shader::~Shader() {
-    vertexShader->Release();
-    pixelShader->Release();
-    inputLayout->Release();
+    m_D3DVertexShader->Release();
+    m_D3DPixelShader->Release();
+    m_D3DInputLayout->Release();
 
-    constantBuffer->Release();
+    m_D3DConstantBuffer->Release();
 
-    blendState->Release();
+    m_D3DBlendState->Release();
 
-    depthStencilState->Release();
+    m_D3DDepthStencilState->Release();
 }

@@ -75,6 +75,8 @@ private:
 
     Camera *m_Camera;
 
+    XMFLOAT3 m_CamOffset;
+
     XMINT2 m_MouseCoords;
     XMFLOAT3 m_MirrorStart, m_MirrorTarget;
 

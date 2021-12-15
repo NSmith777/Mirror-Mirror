@@ -27,14 +27,14 @@ public:
 private:
     GfxDevice* m_GfxDevice;
 
-    ID3D11Texture2D* texture;
-    ID3D11ShaderResourceView* textureView;
+    ID3D11Texture2D* m_D3DTexture;
+    ID3D11ShaderResourceView* m_D3DTextureView;
 
-    int width, height;
-    short bytes_per_pixel;
-    int pitch;
+    ID3D11SamplerState* m_D3DSamplerState;
 
-    char* pixel_data;
+    int m_Width, m_Height;
+    short m_BytesPerPixel;
+    int m_Pitch;
 
-    ID3D11SamplerState* samplerState;
+    char* m_PixelData;
 };

@@ -65,7 +65,7 @@ Font::Font(GfxDevice* gfxDevice, FT_Library* pFt, const char *filepath, int size
             face->glyph->advance.x
         };
 
-        Characters.insert(std::pair<char, Character>(c, character));
+        m_Characters.insert(std::pair<char, Character>(c, character));
     }
 
     FT_Done_Face(face);
@@ -79,7 +79,7 @@ Font::Font(GfxDevice* gfxDevice, FT_Library* pFt, const char *filepath, int size
     samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 
-    m_GfxDevice->GetDevice()->CreateSamplerState(&samplerDesc, &samplerState);
+    m_GfxDevice->GetDevice()->CreateSamplerState(&samplerDesc, &m_D3DSamplerState);
 }
 
 //=============================================================================
@@ -94,7 +94,7 @@ Font::Font(GfxDevice* gfxDevice, FT_Library* pFt, const char *filepath, int size
 // 
 //=============================================================================
 Font::~Font() {
-    for (auto it = Characters.begin(); it != Characters.end(); it++) {
+    for (auto it = m_Characters.begin(); it != m_Characters.end(); it++) {
         if(it->second.texture != NULL)
             it->second.texture->Release();
 
@@ -102,5 +102,5 @@ Font::~Font() {
             it->second.textureView->Release();
     }
 
-    samplerState->Release();
+    m_D3DSamplerState->Release();
 }

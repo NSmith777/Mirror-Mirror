@@ -25,10 +25,10 @@ GameObject::GameObject(Model* mdl, Texture* tex, Shader* shdr) {
     SetTexture(tex);
     SetShader(shdr);
 
-    boxCollision = nullptr;
-    transform = new Transform();
+    m_BoxCollision = nullptr;
+    m_Transform = new Transform();
 
-    ZeroMemory(&constants, sizeof(constants));
+    ZeroMemory(&m_Constants, sizeof(m_Constants));
 }
 
 //=============================================================================
@@ -43,7 +43,7 @@ GameObject::GameObject(Model* mdl, Texture* tex, Shader* shdr) {
 // 
 //=============================================================================
 void GameObject::AddBoxCollider(XMFLOAT3 size) {
-    boxCollision = new BoxCollision(transform, size);
+    m_BoxCollision = new BoxCollision(m_Transform, size);
 }
 
 //=============================================================================
@@ -58,17 +58,17 @@ void GameObject::AddBoxCollider(XMFLOAT3 size) {
 // 
 //=============================================================================
 void GameObject::Render(Camera* cam) {
-    constants.MVP = transform->GetModelMatrix() * cam->GetViewMatrix() * cam->GetProjMatrix();
-    constants.MV = transform->GetModelMatrix() * cam->GetViewMatrix();
-    constants.M = transform->GetModelMatrix();
-    constants._World2Object = XMMatrixInverse(NULL, constants.M);
-    constants._WorldSpaceCameraPos = cam->GetTransform()->GetPosition();
+    m_Constants.MVP = m_Transform->GetModelMatrix() * cam->GetViewMatrix() * cam->GetProjMatrix();
+    m_Constants.MV = m_Transform->GetModelMatrix() * cam->GetViewMatrix();
+    m_Constants.M = m_Transform->GetModelMatrix();
+    m_Constants._World2Object = XMMatrixInverse(NULL, m_Constants.M);
+    m_Constants._WorldSpaceCameraPos = cam->GetTransform()->GetPosition();
 
-    shader->SetConstants(&constants);
+    m_Shader->SetConstants(&m_Constants);
 
-    shader->Use();
-    texture->Use();
-    model->Draw();
+    m_Shader->Use();
+    m_Texture->Use();
+    m_Model->Draw();
 }
 
 //=============================================================================
@@ -83,8 +83,8 @@ void GameObject::Render(Camera* cam) {
 // 
 //=============================================================================
 GameObject::~GameObject() {
-    if (boxCollision != nullptr)
-        delete boxCollision;
+    if (m_BoxCollision != nullptr)
+        delete m_BoxCollision;
 
-    delete transform;
+    delete m_Transform;
 }
