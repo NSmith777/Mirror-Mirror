@@ -41,6 +41,7 @@ GfxDevice::GfxDevice() {
     WNDCLASSEXA wndClassEx = { sizeof(wndClassEx) };
     wndClassEx.lpfnWndProc = WndProc;
     wndClassEx.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wndClassEx.hIcon = (HICON)LoadImage(GetModuleHandle(NULL), L"MAINICON", IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
     wndClassEx.lpszClassName = TITLE;
 
     RegisterClassExA(&wndClassEx);
