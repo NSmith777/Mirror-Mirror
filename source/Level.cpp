@@ -23,10 +23,10 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
     m_GfxDevice = myGfxDevice;
     m_IsRunning = true;
 
-    m_ScreenShader  = new Shader(m_GfxDevice, "../media/shaders/screen_vs.cso", "../media/shaders/screen_ps.cso", sizeof(Constants));
-    m_TextShader    = new Shader(m_GfxDevice, "../media/shaders/text_vs.cso", "../media/shaders/text_ps.cso", sizeof(Constants));
-    m_UnlitShader   = new Shader(m_GfxDevice, "../media/shaders/unlit_vs.cso", "../media/shaders/unlit_ps.cso", sizeof(Constants));
-    m_DefaultShader = new Shader(m_GfxDevice, "../media/shaders/default_vs.cso", "../media/shaders/default_ps.cso", sizeof(Constants));
+    m_ScreenShader  = new Shader(m_GfxDevice, "media/shaders/screen_vs.cso", "media/shaders/screen_ps.cso", sizeof(Constants));
+    m_TextShader    = new Shader(m_GfxDevice, "media/shaders/text_vs.cso", "media/shaders/text_ps.cso", sizeof(Constants));
+    m_UnlitShader   = new Shader(m_GfxDevice, "media/shaders/unlit_vs.cso", "media/shaders/unlit_ps.cso", sizeof(Constants));
+    m_DefaultShader = new Shader(m_GfxDevice, "media/shaders/default_vs.cso", "media/shaders/default_ps.cso", sizeof(Constants));
 
     m_TextShader->ZWriteEnable(false);
     m_TextShader->BlendEnable(true);
@@ -36,28 +36,28 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
 
     m_DefaultShader->BlendEnable(true);
 
-    m_Font = new Font(m_GfxDevice, pFt, "../media/fonts/Roboto-Medium.ttf", 54);
+    m_Font = new Font(m_GfxDevice, pFt, "media/fonts/Roboto-Medium.ttf", 54);
 
     m_MovesCntText = new Text(m_GfxDevice, m_Font, m_TextShader, { -610, -290 }, 1.2f);
     m_MovesCntText->SetText("Moves: 0");
 
     m_MovesCount = 0;
 
-    m_PlayerTex           = new Texture(m_GfxDevice, "../media/objects/Player/TestTexture.bmp");
-    m_DrawLineGuideTex    = new Texture(m_GfxDevice, "../media/objects/DrawLine/DrawLine_Guide_Dif.bmp");
-    m_DrawLineTargetTex   = new Texture(m_GfxDevice, "../media/objects/DrawLine/DrawLine_Target_Dif.bmp");
-    m_DrawLineTargetNGTex = new Texture(m_GfxDevice, "../media/objects/DrawLine/DrawLine_Target_NG_Dif.bmp");
-    m_GoalTex             = new Texture(m_GfxDevice, "../media/objects/Goal/Goal_Dif.bmp");
-    m_GroundTex           = new Texture(m_GfxDevice, "../media/objects/CobbleGroundNormal/CobbleGroundNormal_Dif.bmp");
-    m_WallTex             = new Texture(m_GfxDevice, "../media/objects/StoneWall/StoneWall_Dif.bmp");
+    m_PlayerTex           = new Texture(m_GfxDevice, "media/objects/Player/TestTexture.bmp");
+    m_DrawLineGuideTex    = new Texture(m_GfxDevice, "media/objects/DrawLine/DrawLine_Guide_Dif.bmp");
+    m_DrawLineTargetTex   = new Texture(m_GfxDevice, "media/objects/DrawLine/DrawLine_Target_Dif.bmp");
+    m_DrawLineTargetNGTex = new Texture(m_GfxDevice, "media/objects/DrawLine/DrawLine_Target_NG_Dif.bmp");
+    m_GoalTex             = new Texture(m_GfxDevice, "media/objects/Goal/Goal_Dif.bmp");
+    m_GroundTex           = new Texture(m_GfxDevice, "media/objects/CobbleGroundNormal/CobbleGroundNormal_Dif.bmp");
+    m_WallTex             = new Texture(m_GfxDevice, "media/objects/StoneWall/StoneWall_Dif.bmp");
 
-    m_PlayerMdl           = new Model(m_GfxDevice, "../media/objects/Player/TestPlayer.mdl");
-    m_DrawLineGuideMdl    = new Model(m_GfxDevice, "../media/objects/DrawLine/TestDrawLine_Guide.mdl");
-    m_DrawLineTargetMdl   = new Model(m_GfxDevice, "../media/objects/DrawLine/TestDrawLine_Target.mdl");
-    m_GoalUnpressedMdl    = new Model(m_GfxDevice, "../media/objects/Goal/GoalUnpressed.mdl");
-    m_GoalPressedMdl      = new Model(m_GfxDevice, "../media/objects/Goal/GoalPressed.mdl");
-    m_GroundMdl           = new Model(m_GfxDevice, "../media/objects/CobbleGroundNormal/CobbleGroundNormal.mdl");
-    m_WallMdl             = new Model(m_GfxDevice, "../media/objects/StoneWall/StoneWall.mdl");
+    m_PlayerMdl           = new Model(m_GfxDevice, "media/objects/Player/TestPlayer.mdl");
+    m_DrawLineGuideMdl    = new Model(m_GfxDevice, "media/objects/DrawLine/TestDrawLine_Guide.mdl");
+    m_DrawLineTargetMdl   = new Model(m_GfxDevice, "media/objects/DrawLine/TestDrawLine_Target.mdl");
+    m_GoalUnpressedMdl    = new Model(m_GfxDevice, "media/objects/Goal/GoalUnpressed.mdl");
+    m_GoalPressedMdl      = new Model(m_GfxDevice, "media/objects/Goal/GoalPressed.mdl");
+    m_GroundMdl           = new Model(m_GfxDevice, "media/objects/CobbleGroundNormal/CobbleGroundNormal.mdl");
+    m_WallMdl             = new Model(m_GfxDevice, "media/objects/StoneWall/StoneWall.mdl");
 
     m_Player          = new GameObject(m_PlayerMdl, m_PlayerTex, m_DefaultShader);
     m_MirrorLine      = new GameObject(m_DrawLineGuideMdl, m_DrawLineGuideTex, m_DefaultShader);
@@ -81,8 +81,8 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
     m_RightOptionText->SetPosition({ 150, -122 });
     m_RightOptionText->SetJustify(Text::TextAlign::ALIGN_CENTER);
 
-    m_ButtonTex = new Texture(m_GfxDevice, "../media/ui/button.bmp");
-    m_PanelTex  = new Texture(m_GfxDevice, "../media/ui/panel.bmp");
+    m_ButtonTex = new Texture(m_GfxDevice, "media/ui/button.bmp");
+    m_PanelTex  = new Texture(m_GfxDevice, "media/ui/panel.bmp");
 
     m_MenuPanel     = new Image(m_GfxDevice, m_PanelTex, m_UnlitShader, { -300, -160 }, { 600, 400 });
     m_LeftOption    = new Image(m_GfxDevice, m_ButtonTex, m_UnlitShader, { -280, -140 }, { 256, 64 });
@@ -110,7 +110,7 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
     ////////// LOAD LAYOUT //////////
 
     char lvlfile_path[512];
-    sprintf(lvlfile_path, "../media/levels/lvl%i.txt", level_num);
+    sprintf(lvlfile_path, "media/levels/lvl%i.txt", level_num);
 
     FILE* lvlfile = fopen(lvlfile_path, "r");
 
