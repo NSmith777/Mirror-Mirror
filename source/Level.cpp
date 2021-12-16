@@ -38,6 +38,12 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
 
     m_Font = new Font(m_GfxDevice, pFt, "media/fonts/Roboto-Medium.ttf", 54);
 
+    m_TimeText = new Text(m_GfxDevice, m_Font, m_TextShader, { -610, -215 }, 1.0f);
+    m_TimeText->SetText("Time: 00:00:00");
+
+    m_StartTime = m_GfxDevice->GetTime();
+    m_ElapsedTime = 0.0f;
+
     m_MovesCntText = new Text(m_GfxDevice, m_Font, m_TextShader, { -610, -290 }, 1.2f);
     m_MovesCntText->SetText("Moves: 0");
 
@@ -397,6 +403,21 @@ void Level::RunGame() {
         m_DefaultShader->ZWriteEnable(true);
     }
 
+    if (m_LevelState == LevelState::STATE_MAIN) {
+        m_ElapsedTime = m_GfxDevice->GetTime() - m_StartTime;
+
+        char time_str[32];
+        sprintf(time_str, "Time: %02i:%02i:%02i",
+            (int)m_ElapsedTime / 60,
+            (int)m_ElapsedTime % 60,
+            (int)(m_ElapsedTime * 100) % 100
+            );
+
+        m_TimeText->SetText(time_str);
+    }
+
+    m_TimeText->Render(m_Camera);
+
     m_MovesCntText->Render(m_Camera);
 }
 
@@ -477,6 +498,7 @@ Level::~Level() {
 
     delete m_Font;
 
+    delete m_TimeText;
     delete m_MovesCntText;
 
     delete m_PlayerTex;

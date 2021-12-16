@@ -49,7 +49,7 @@ private:
 
     Font *m_Font;
 
-    Text *m_MovesCntText;
+    Text *m_TimeText, *m_MovesCntText;
 
     Texture *m_PlayerTex;
     Texture *m_DrawLineGuideTex, *m_DrawLineTargetTex, *m_DrawLineTargetNGTex;
@@ -96,6 +96,9 @@ private:
 
     LevelState m_LevelState;
     int m_ReturnChoice;
+
+    float m_StartTime;
+    float m_ElapsedTime;
 
     int m_MovesCount;
 

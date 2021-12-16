@@ -29,6 +29,9 @@ public:
     ID3D11Device* GetDevice() { return m_D3DDevice; }
     ID3D11DeviceContext* GetDeviceContext() { return m_D3DDeviceContext; }
 
+    // Retrieve elapsed system time in seconds
+    float GetTime() { return timeGetTime() / 1000.0f; }
+
     void Present(Camera *pCameras, unsigned int numCameras);
 
 private:
