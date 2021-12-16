@@ -1,10 +1,3 @@
-//==============================================================================
-// File: Shader.cpp
-// 
-// Description: Implements the Shader component.
-// 
-//==============================================================================
-
 #include "Shader.h"
 
 //=============================================================================
@@ -76,7 +69,7 @@ Shader::Shader(GfxDevice* gfxDevice, const char *vs_path, const char *ps_path, u
 // Shader::ReadData
 //=============================================================================
 // 
-// Description: Reads the entirety of a specified file into an output buffer.
+// Description: Reads the shader object file to a buffer.
 // 
 // Parameters:	[const char *]      Path to the file to read
 // 

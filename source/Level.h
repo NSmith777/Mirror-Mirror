@@ -1,10 +1,3 @@
-//==============================================================================
-// File: Main.cpp
-// 
-// Description: Declares the Level class.
-// 
-//==============================================================================
-
 #pragma once
 
 #include <windows.h>
@@ -23,11 +16,6 @@ using namespace Math;
 
 #include "GameObject.h"
 
-//=============================================================================
-// 
-// Synopsis:    
-// 
-//=============================================================================
 class Level {
 public:
     Level(GfxDevice* myGfxDevice, FT_Library *pFt, int level_num);

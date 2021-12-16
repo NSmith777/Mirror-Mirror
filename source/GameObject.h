@@ -1,10 +1,3 @@
-//==============================================================================
-// File: GameObject.h
-// 
-// Description: Declares the GameObject class.
-// 
-//==============================================================================
-
 #pragma once
 
 #include <windows.h>
@@ -16,11 +9,6 @@
 #include "Framework/Model.h"
 #include "Framework/Collision.h"
 
-//=============================================================================
-// 
-// Synopsis:    
-// 
-//=============================================================================
 class GameObject {
 public:
     GameObject(Model *mdl, Texture* tex, Shader *shdr);
@@ -35,6 +23,7 @@ public:
     BoxCollision* GetBoxCollision() { return m_BoxCollision; }
     Transform* GetTransform() { return m_Transform; }
 
+    // Draw this object relative to a Camera's view and projection
     void Render(Camera *cam);
 
     // Supress heap alignment warnings

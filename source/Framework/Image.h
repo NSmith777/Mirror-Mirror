@@ -1,10 +1,3 @@
-//==============================================================================
-// File: Image.h
-// 
-// Description: Declares the UI image object.
-// 
-//==============================================================================
-
 #pragma once
 
 #include <windows.h>
@@ -16,11 +9,6 @@
 #include "Texture.h"
 #include "Camera.h"
 
-//=============================================================================
-// 
-// Synopsis:    
-// 
-//=============================================================================
 class Image {
 public:
     Image(GfxDevice* gfxDevice, Texture* pTexture, Shader* pShader, XMFLOAT2 position, XMFLOAT2 size);

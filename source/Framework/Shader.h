@@ -1,10 +1,3 @@
-//==============================================================================
-// File: Shader.h
-// 
-// Description: Declares the Shader component.
-// 
-//==============================================================================
-
 #pragma once
 
 #include <windows.h>
@@ -24,13 +17,12 @@ typedef struct {
     XMFLOAT3 _WorldSpaceCameraPos;
 } Constants;
 
+/*
+GfxDevice relies on Camera, which relies on Shader,
+so we need to declare it here to make it visible to the compiler!
+*/
 class GfxDevice;
 
-//=============================================================================
-// 
-// Synopsis:    
-// 
-//=============================================================================
 class Shader {
 public:
     Shader(GfxDevice* gfxDevice, const char* vs_path, const char* ps_path, unsigned int constantsSize);
@@ -43,6 +35,8 @@ public:
     void ZWriteEnable(bool enable);
 
 private:
+    std::vector<char> ReadData(const char* filename);
+
     GfxDevice* m_GfxDevice;
 
     ID3D11VertexShader* m_D3DVertexShader;
@@ -57,6 +51,4 @@ private:
 
     D3D11_DEPTH_STENCIL_DESC m_D3DDepthStencilDesc;
     ID3D11DepthStencilState* m_D3DDepthStencilState;
-
-    std::vector<char> ReadData(const char* filename);
 };

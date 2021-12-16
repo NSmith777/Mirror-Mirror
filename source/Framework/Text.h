@@ -1,10 +1,3 @@
-//==============================================================================
-// File: Text.h
-// 
-// Description: Declares the Text UI object.
-// 
-//==============================================================================
-
 #pragma once
 
 #include "GfxDevice.h"
@@ -14,11 +7,6 @@
 
 #include <string>
 
-//=============================================================================
-// 
-// Synopsis:    
-// 
-//=============================================================================
 class Text {
 public:
     Text(GfxDevice* gfxDevice, Font* pFont, Shader* pShader, XMFLOAT2 position, float scale);

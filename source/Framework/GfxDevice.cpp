@@ -1,14 +1,5 @@
-//==============================================================================
-// File: GfxDevice.cpp
-// 
-// Description: Implements the graphics device object.
-// 
-//==============================================================================
-
 #include "GfxDevice.h"
 #include "Model.h"
-
-#define TITLE "Mirror, Mirror"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
@@ -38,15 +29,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 GfxDevice::GfxDevice() {
     ////////// Init Window //////////
 
+    const char* window_title = "Mirror, Mirror";
+
     WNDCLASSEXA wndClassEx = { sizeof(wndClassEx) };
     wndClassEx.lpfnWndProc = WndProc;
     wndClassEx.hCursor = LoadCursor(NULL, IDC_ARROW);
     wndClassEx.hIcon = (HICON)LoadImage(GetModuleHandle(NULL), L"MAINICON", IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
-    wndClassEx.lpszClassName = TITLE;
+    wndClassEx.lpszClassName = window_title;
 
     RegisterClassExA(&wndClassEx);
 
-    m_Window = CreateWindowExA(NULL, TITLE, TITLE, WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+    m_Window = CreateWindowExA(NULL, window_title, window_title, WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
         CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, NULL, NULL, GetModuleHandle(NULL), NULL);
 
     ShowWindow(m_Window, SW_SHOWDEFAULT);

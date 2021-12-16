@@ -1,10 +1,3 @@
-//==============================================================================
-// File: Collision.cpp
-// 
-// Description: Implements the BoxCollision component.
-// 
-//==============================================================================
-
 #include "Collision.h"
 #include "Math.h"
 

@@ -1,10 +1,3 @@
-//==============================================================================
-// File: GfxDevice.h
-// 
-// Description: Declares the graphics device object.
-// 
-//==============================================================================
-
 #pragma once
 
 #include <windows.h>
@@ -12,15 +5,29 @@
 
 #include "Camera.h"
 
+/*
+We need to use Camera in our GfxDevice class, but Camera itself
+relies on GfxDevice! Therefore, we also declare Camera here, so
+it becomes visible to the compiler.
+*/
 class Camera;
 
-//=============================================================================
-// 
-// Synopsis:    Provides abstraction for the graphics backend
-//              and window instance, and is also responsible for drawing the
-//              Camera framebuffers to the screen.
-// 
-//=============================================================================
+/*
+Provides abstraction for the graphics backend and window instance,
+and is also responsible for drawing the Camera framebuffers to the screen.
+
+You only need to instantiate ONE GfxDevice object at the start of the program,
+as it will be passed by pointer to the rest of the framework components for them to use.
+In the case of Windows, GfxDevice creates and exposes a D3D device + device context.
+
+To update the window with new frames, set up a scene with a Camera(s), draw GameObjects
+to that Camera(s), then call GfxDevice's Present() function to draw the Camera's textures
+to the screen.
+
+GfxDevice draws these textures onto a 1x1 quad, however a screen shader provided to the camera
+can be used to manipulate both the quad and the texture.
+Refer to Camera.h for more information on the Camera class.
+*/
 class GfxDevice {
 public:
     GfxDevice();

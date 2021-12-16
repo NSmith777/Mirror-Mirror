@@ -1,10 +1,3 @@
-//==============================================================================
-// File: Math.cpp
-// 
-// Description: Additional maths utility functions and type operator overloads.
-// 
-//==============================================================================
-
 #include "Math.h"
 
 namespace Math {
