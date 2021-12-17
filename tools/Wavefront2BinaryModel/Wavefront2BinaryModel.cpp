@@ -19,6 +19,12 @@ int main(int argc, char **argv)
     vector<XMFLOAT2> temp_uvs;
     vector<XMFLOAT3> temp_normals;
 
+    // Check the user provided enough arguments
+    if (argc < 3) {
+        printf("Usage: Wavefront2BinaryModel <input.obj> <output.mdl>\n");
+        return -1;
+    }
+
     // Open Wavefront OBJ file for reading
     FILE* file = fopen(argv[1], "r");
     if (!file) {
