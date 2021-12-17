@@ -45,13 +45,13 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         myLevel.Update();
 
         switch (myLevel.GetReturnChoice()) {
-        case 0:
+        case Level::LevelReturnChoice::LVLRET_MAINMENU:
             run_menu = true;
             break;
-        case 1:
+        case Level::LevelReturnChoice::LVLRET_RETRY:
             run_menu = false;
             break;
-        case 2:
+        case Level::LevelReturnChoice::LVLRET_NEXTLVL:
             level_num++;
             run_menu = level_num > 30 ? true : false;
             break;

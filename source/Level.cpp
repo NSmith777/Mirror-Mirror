@@ -16,6 +16,7 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
     m_GfxDevice = myGfxDevice;
     m_IsRunning = true;
 
+    // Instantiate shaders
     m_ScreenShader  = new Shader(m_GfxDevice, "media/shaders/screen_vs.cso", "media/shaders/screen_ps.cso", sizeof(Constants));
     m_TextShader    = new Shader(m_GfxDevice, "media/shaders/text_vs.cso", "media/shaders/text_ps.cso", sizeof(Constants));
     m_UnlitShader   = new Shader(m_GfxDevice, "media/shaders/unlit_vs.cso", "media/shaders/unlit_ps.cso", sizeof(Constants));
@@ -29,64 +30,7 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
 
     m_DefaultShader->BlendEnable(true);
 
-    m_Font = new Font(m_GfxDevice, pFt, "media/fonts/Roboto-Medium.ttf", 54);
-
-    m_TimeText = new Text(m_GfxDevice, m_Font, m_TextShader, { -610, -215 }, 1.0f);
-    m_TimeText->SetText("Time: 00:00:00");
-
-    m_StartTime = m_GfxDevice->GetTime();
-    m_ElapsedTime = 0.0f;
-
-    m_MovesCntText = new Text(m_GfxDevice, m_Font, m_TextShader, { -610, -290 }, 1.2f);
-    m_MovesCntText->SetText("Moves: 0");
-
-    m_MovesCount = 0;
-
-    m_PlayerTex           = new Texture(m_GfxDevice, "media/objects/Player/TestTexture.bmp");
-    m_DrawLineGuideTex    = new Texture(m_GfxDevice, "media/objects/DrawLine/DrawLine_Guide_Dif.bmp");
-    m_DrawLineTargetTex   = new Texture(m_GfxDevice, "media/objects/DrawLine/DrawLine_Target_Dif.bmp");
-    m_DrawLineTargetNGTex = new Texture(m_GfxDevice, "media/objects/DrawLine/DrawLine_Target_NG_Dif.bmp");
-    m_GoalTex             = new Texture(m_GfxDevice, "media/objects/Goal/Goal_Dif.bmp");
-    m_GroundTex           = new Texture(m_GfxDevice, "media/objects/CobbleGroundNormal/CobbleGroundNormal_Dif.bmp");
-    m_WallTex             = new Texture(m_GfxDevice, "media/objects/StoneWall/StoneWall_Dif.bmp");
-
-    m_PlayerMdl           = new Model(m_GfxDevice, "media/objects/Player/TestPlayer.mdl");
-    m_DrawLineGuideMdl    = new Model(m_GfxDevice, "media/objects/DrawLine/TestDrawLine_Guide.mdl");
-    m_DrawLineTargetMdl   = new Model(m_GfxDevice, "media/objects/DrawLine/TestDrawLine_Target.mdl");
-    m_GoalUnpressedMdl    = new Model(m_GfxDevice, "media/objects/Goal/GoalUnpressed.mdl");
-    m_GoalPressedMdl      = new Model(m_GfxDevice, "media/objects/Goal/GoalPressed.mdl");
-    m_GroundMdl           = new Model(m_GfxDevice, "media/objects/CobbleGroundNormal/CobbleGroundNormal.mdl");
-    m_WallMdl             = new Model(m_GfxDevice, "media/objects/StoneWall/StoneWall.mdl");
-
-    m_Player          = new GameObject(m_PlayerMdl, m_PlayerTex, m_DefaultShader);
-    m_MirrorLine      = new GameObject(m_DrawLineGuideMdl, m_DrawLineGuideTex, m_DefaultShader);
-    m_ReflectLine     = new GameObject(m_DrawLineGuideMdl, m_DrawLineGuideTex, m_DefaultShader);
-    m_DrawLineTarget  = new GameObject(m_DrawLineTargetMdl, m_DrawLineTargetTex, m_DefaultShader);
-    m_Goal            = new GameObject(m_GoalUnpressedMdl, m_GoalTex, m_DefaultShader);
-
-    m_Goal->AddBoxCollider({ 2, 2, 2 });
-
-    m_DrawLineTarget->GetTransform()->SetScale({ 1.75f, 1.75f, 1.75f });
-
-    m_MenuText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 0 }, 1.25f);
-    m_MenuText->SetPosition({ 0, 80 });
-    m_MenuText->SetJustify(Text::TextAlign::ALIGN_CENTER);
-
-    m_LeftOptionText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 0 }, 0.8f);
-    m_LeftOptionText->SetPosition({ -150, -122 });
-    m_LeftOptionText->SetJustify(Text::TextAlign::ALIGN_CENTER);
-
-    m_RightOptionText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 0 }, 0.8f);
-    m_RightOptionText->SetPosition({ 150, -122 });
-    m_RightOptionText->SetJustify(Text::TextAlign::ALIGN_CENTER);
-
-    m_ButtonTex = new Texture(m_GfxDevice, "media/ui/button.bmp");
-    m_PanelTex  = new Texture(m_GfxDevice, "media/ui/panel.bmp");
-
-    m_MenuPanel     = new Image(m_GfxDevice, m_PanelTex, m_UnlitShader, { -300, -160 }, { 600, 400 });
-    m_LeftOption    = new Image(m_GfxDevice, m_ButtonTex, m_UnlitShader, { -280, -140 }, { 256, 64 });
-    m_RightOption   = new Image(m_GfxDevice, m_ButtonTex, m_UnlitShader, { 20, -140 }, { 256, 64 });
-
+    // Create main camera
     m_Camera = new Camera(m_GfxDevice, m_ScreenShader);
     m_Camera->SetClearColor(0.25f, 0.25f, 0.25f);
 
@@ -95,8 +39,87 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
 
     m_CamOffset = { 0.0f, 30.0f, -18.0f };
 
+    // Instantiate font
+    m_Font = new Font(m_GfxDevice, pFt, "media/fonts/Roboto-Medium.ttf", 54);
+
+    // Create timer text object
+    m_TimeText = new Text(m_GfxDevice, m_Font, m_TextShader, { -610, -215 }, 1.0f);
+    m_TimeText->SetText("Time: 00:00:00");
+
+    m_StartTime = m_GfxDevice->GetTime();
+    m_ElapsedTime = 0.0f;
+
+    // Create moves count text object
+    m_MovesCntText = new Text(m_GfxDevice, m_Font, m_TextShader, { -610, -290 }, 1.2f);
+    m_MovesCntText->SetText("Moves: 0");
+
+    m_MovesCount = 0;
+
+    // Create the player
+    m_PlayerTex = new Texture(m_GfxDevice, "media/objects/Player/TestTexture.bmp");
+    m_PlayerMdl = new Model(m_GfxDevice, "media/objects/Player/TestPlayer.mdl");
+    m_Player    = new GameObject(m_PlayerMdl, m_PlayerTex, m_DefaultShader);
+
+    // Create the mirror guidelines
+    m_DrawLineGuideTex = new Texture(m_GfxDevice, "media/objects/DrawLine/DrawLine_Guide_Dif.bmp");
+    m_DrawLineGuideMdl = new Model(m_GfxDevice, "media/objects/DrawLine/TestDrawLine_Guide.mdl");
+    m_MirrorLine       = new GameObject(m_DrawLineGuideMdl, m_DrawLineGuideTex, m_DefaultShader);
+    m_ReflectLine      = new GameObject(m_DrawLineGuideMdl, m_DrawLineGuideTex, m_DefaultShader);
+
+    // Create mirror target crosshair object
+    m_DrawLineTargetTex   = new Texture(m_GfxDevice, "media/objects/DrawLine/DrawLine_Target_Dif.bmp");
+    m_DrawLineTargetNGTex = new Texture(m_GfxDevice, "media/objects/DrawLine/DrawLine_Target_NG_Dif.bmp");
+    m_DrawLineTargetMdl   = new Model(m_GfxDevice, "media/objects/DrawLine/TestDrawLine_Target.mdl");
+    m_DrawLineTarget      = new GameObject(m_DrawLineTargetMdl, m_DrawLineTargetTex, m_DefaultShader);
+
+    m_DrawLineTarget->GetTransform()->SetScale({ 1.75f, 1.75f, 1.75f });
+
+    // Create goal switch object
+    m_GoalTex          = new Texture(m_GfxDevice, "media/objects/Goal/Goal_Dif.bmp");
+    m_GoalUnpressedMdl = new Model(m_GfxDevice, "media/objects/Goal/GoalUnpressed.mdl");
+    m_GoalPressedMdl   = new Model(m_GfxDevice, "media/objects/Goal/GoalPressed.mdl");
+    m_Goal             = new GameObject(m_GoalUnpressedMdl, m_GoalTex, m_DefaultShader);
+
+    m_Goal->AddBoxCollider({ 2, 2, 2 });
+
+    // Setup ground object components
+    m_GroundTex = new Texture(m_GfxDevice, "media/objects/CobbleGroundNormal/CobbleGroundNormal_Dif.bmp");
+    m_GroundMdl = new Model(m_GfxDevice, "media/objects/CobbleGroundNormal/CobbleGroundNormal.mdl");
+
+    // Setup wall object components
+    m_WallTex = new Texture(m_GfxDevice, "media/objects/StoneWall/StoneWall_Dif.bmp");
+    m_WallMdl = new Model(m_GfxDevice, "media/objects/StoneWall/StoneWall.mdl");
+
+    // Create menu heading text object
+    m_MenuText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 0 }, 1.25f);
+
+    m_MenuText->SetPosition({ 0, 80 });
+    m_MenuText->SetJustify(Text::TextAlign::ALIGN_CENTER);
+
+    // Create menu left option text object
+    m_LeftOptionText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 0 }, 0.8f);
+
+    m_LeftOptionText->SetPosition({ -150, -122 });
+    m_LeftOptionText->SetJustify(Text::TextAlign::ALIGN_CENTER);
+
+    // Create menu right option text object
+    m_RightOptionText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 0 }, 0.8f);
+
+    m_RightOptionText->SetPosition({ 150, -122 });
+    m_RightOptionText->SetJustify(Text::TextAlign::ALIGN_CENTER);
+
+    // Create menu panel object
+    m_PanelTex  = new Texture(m_GfxDevice, "media/ui/panel.bmp");
+    m_MenuPanel = new Image(m_GfxDevice, m_PanelTex, m_UnlitShader, { -300, -160 }, { 600, 400 });
+
+    // Create menu button objects
+    m_ButtonTex   = new Texture(m_GfxDevice, "media/ui/button.bmp");
+    m_LeftOption  = new Image(m_GfxDevice, m_ButtonTex, m_UnlitShader, { -280, -140 }, { 256, 64 });
+    m_RightOption = new Image(m_GfxDevice, m_ButtonTex, m_UnlitShader, { 20, -140 }, { 256, 64 });
+
+    // Initialize our level properties
     m_LevelState = LevelState::STATE_MAIN;
-    m_ReturnChoice = 0;
+    m_ReturnChoice = LevelReturnChoice::LVLRET_MAINMENU;
 
     m_MouseCoords = { 0, 0 };
     m_MirrorStart = { 0, 0, 0 };
@@ -106,8 +129,22 @@ Level::Level(GfxDevice *myGfxDevice, FT_Library* pFt, int level_num) {
     m_IsReflectLineDrawn = false;
     m_CanMove = false;
 
-    ////////// LOAD LAYOUT //////////
+    // After we've set our member variables, we can finally setup the level layout
+    LoadLayoutFromFile(level_num);
+}
 
+//=============================================================================
+// Level::LoadLayoutFromFile
+//=============================================================================
+// 
+// Description: Builds the level layout from an interpreted text file.
+// 
+// Parameters:	[int]   Level number
+// 
+// Return:      N/A
+// 
+//=============================================================================
+void Level::LoadLayoutFromFile(int level_num) {
     char lvlfile_path[512];
     sprintf(lvlfile_path, "media/levels/lvl%i.txt", level_num);
 
@@ -185,15 +222,15 @@ static inline bool is_xz_line_intersect(XMFLOAT3 A, XMFLOAT3 B, XMFLOAT3 C, XMFL
 // 
 //=============================================================================
 void Level::RunGame() {
-    XMFLOAT3 PlayerPos = m_Player->GetTransform()->GetPosition();
-    Transform* MirrorLineTransform = m_MirrorLine->GetTransform();
-    Transform* ReflectLineTransform = m_ReflectLine->GetTransform();
+    XMFLOAT3 player_pos = m_Player->GetTransform()->GetPosition();
+    Transform* mirror_line_transform = m_MirrorLine->GetTransform();
+    Transform* reflect_line_transform = m_ReflectLine->GetTransform();
 
     ////////// Camera //////////
 
     m_Camera->Use();
 
-    XMFLOAT3 cam_lerp = XMFLOAT3_Lerp(m_Camera->GetTransform()->GetPosition(), PlayerPos + m_CamOffset, 0.1f);
+    XMFLOAT3 cam_lerp = XMFLOAT3_Lerp(m_Camera->GetTransform()->GetPosition(), player_pos + m_CamOffset, 0.1f);
 
     m_Camera->GetTransform()->SetPosition(cam_lerp);
 
@@ -215,8 +252,8 @@ void Level::RunGame() {
         case WM_LBUTTONDOWN:
             switch(m_LevelState) {
             case LevelState::STATE_MAIN:
-                MirrorLineTransform->SetPosition(cam_ray_hit);
-                ReflectLineTransform->SetPosition(PlayerPos);
+                mirror_line_transform->SetPosition(cam_ray_hit);
+                reflect_line_transform->SetPosition(player_pos);
 
                 m_MirrorStart = cam_ray_hit;
 
@@ -225,31 +262,36 @@ void Level::RunGame() {
             case LevelState::STATE_GAME_OVER:
                 if (m_LeftOption->IsHovering(m_Camera, m_MouseCoords)) {
                     m_IsRunning = false;
-                    m_ReturnChoice = 0;
+                    m_ReturnChoice = LevelReturnChoice::LVLRET_MAINMENU;
                 }
                 else if (m_RightOption->IsHovering(m_Camera, m_MouseCoords)) {
                     m_IsRunning = false;
-                    m_ReturnChoice = 1;
+                    m_ReturnChoice = LevelReturnChoice::LVLRET_RETRY;
                 }
                 break;
             case LevelState::STATE_COMPLETED:
                 if (m_LeftOption->IsHovering(m_Camera, m_MouseCoords)) {
                     m_IsRunning = false;
-                    m_ReturnChoice = 1;
+                    m_ReturnChoice = LevelReturnChoice::LVLRET_RETRY;
                 }
                 else if (m_RightOption->IsHovering(m_Camera, m_MouseCoords)) {
                     m_IsRunning = false;
-                    m_ReturnChoice = 2;
+                    m_ReturnChoice = LevelReturnChoice::LVLRET_NEXTLVL;
                 }
                 break;
             }
             break;
         case WM_LBUTTONUP:
+            // Check that we're actually allowed to move,
+            // as well as the mirror guide not hitting any walls!
             if (m_LevelState == LevelState::STATE_MAIN && m_IsReflectLineDrawn && m_CanMove) {
+                // Move the player to the new mirror target!
                 m_Player->GetTransform()->SetPosition(m_MirrorTarget);
 
                 XMFLOAT3 hit;
 
+                // Collision step for the goal switch,
+                // set the level as complete if the player hits it.
                 bool is_goal_hit = m_Goal->GetBoxCollision()->Ray_Intersect(
                     m_Player->GetTransform()->GetPosition(),
                     m_Player->GetTransform()->GetPosition() + XMFLOAT3(0, 4, 0),
@@ -259,6 +301,7 @@ void Level::RunGame() {
                 if (is_goal_hit)
                     m_LevelState = LevelState::STATE_COMPLETED;
 
+                // Do collision step for all ground platforms against the player.
                 bool is_landed = false;
                 for (unsigned int i = 0; i < m_Grounds.size(); i++) {
                     bool is_hit = m_Grounds[i]->GetBoxCollision()->Ray_Intersect(
@@ -271,9 +314,11 @@ void Level::RunGame() {
                         is_landed = true;
                 }
 
+                // If the player didn't land onto any ground, then they probably fell off...
                 if(!is_landed)
                     m_LevelState = LevelState::STATE_GAME_OVER;
 
+                // Update our number of moves made.
                 m_MovesCount++;
 
                 char moves_count_str[16];
@@ -287,46 +332,58 @@ void Level::RunGame() {
         DispatchMessageA(&msg);
     }
 
-    ////////// CALCULATE DRAW LINES //////////
+    // Update our timer
+    if (m_LevelState == LevelState::STATE_MAIN) {
+        m_ElapsedTime = m_GfxDevice->GetTime() - m_StartTime;
 
+        char time_str[32];
+        sprintf(time_str, "Time: %02i:%02i:%02i",
+            (int)m_ElapsedTime / 60,
+            (int)m_ElapsedTime % 60,
+            (int)(m_ElapsedTime * 100) % 100
+        );
+
+        m_TimeText->SetText(time_str);
+    }
+
+    // Calculate the mirror draw lines
     if (m_IsMouseHeld) {
         float m = (cam_ray_hit.z - m_MirrorStart.z) / (cam_ray_hit.x - m_MirrorStart.x);
         float c = (cam_ray_hit.x * m_MirrorStart.z - m_MirrorStart.x * cam_ray_hit.z) / (cam_ray_hit.x - m_MirrorStart.x);
-        float d = (PlayerPos.x + (PlayerPos.z - c) * m) / (1 + (m * m));
+        float d = (player_pos.x + (player_pos.z - c) * m) / (1 + (m * m));
 
-        m_MirrorTarget.x = 2 * d - PlayerPos.x;
-        m_MirrorTarget.z = 2 * d * m - PlayerPos.z + 2 * c;
+        m_MirrorTarget.x = 2 * d - player_pos.x;
+        m_MirrorTarget.z = 2 * d * m - player_pos.z + 2 * c;
 
         m_IsReflectLineDrawn = is_xz_line_intersect(
-            MirrorLineTransform->GetPosition(),
+            mirror_line_transform->GetPosition(),
             cam_ray_hit,
-            ReflectLineTransform->GetPosition(),
+            reflect_line_transform->GetPosition(),
             m_MirrorTarget
         );
 
-        // --------------------
+        // Align the mirror line to stretch between the two points drawn by the mouse.
+        XMFLOAT3 mirror_line_delta = cam_ray_hit - mirror_line_transform->GetPosition();
 
-        XMFLOAT3 mirror_line_delta = cam_ray_hit - MirrorLineTransform->GetPosition();
+        mirror_line_transform->SetRotation({ 0, atan2f(mirror_line_delta.x, mirror_line_delta.z), 0 });
+        mirror_line_transform->SetScale({ 0.4f, 0.4f, XMFLOAT3_Distance(mirror_line_transform->GetPosition(), cam_ray_hit) });
 
-        MirrorLineTransform->SetRotation({ 0, atan2f(mirror_line_delta.x, mirror_line_delta.z), 0 });
-        MirrorLineTransform->SetScale({ 0.4f, 0.4f, XMFLOAT3_Distance(MirrorLineTransform->GetPosition(), cam_ray_hit) });
+        // Align the reflection guide to stretch between the player and target point.
+        XMFLOAT3 reflect_line_delta = m_MirrorTarget - reflect_line_transform->GetPosition();
 
-        // --------------------
+        reflect_line_transform->SetRotation({ 0, atan2f(reflect_line_delta.x, reflect_line_delta.z), 0 });
+        reflect_line_transform->SetScale({ 0.4f, 0.4f, XMFLOAT3_Distance(reflect_line_transform->GetPosition(), m_MirrorTarget) });
 
-        XMFLOAT3 reflect_line_delta = m_MirrorTarget - ReflectLineTransform->GetPosition();
-
-        ReflectLineTransform->SetRotation({ 0, atan2f(reflect_line_delta.x, reflect_line_delta.z), 0 });
-        ReflectLineTransform->SetScale({ 0.4f, 0.4f, XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), m_MirrorTarget) });
-
-        // --------------------
-
+        // Perform collision step for all walls in the scene.
+        // We build an array of every wall the mirror guide hits,
+        // So we can sort and grab the closest wall hit later on.
         std::vector<XMFLOAT3> hits;
 
         for (unsigned int i = 0; i < m_Walls.size(); i++) {
             XMFLOAT3 cur_hit;
 
             bool is_hit = m_Walls[i]->GetBoxCollision()->Ray_Intersect(
-                ReflectLineTransform->GetPosition(),
+                reflect_line_transform->GetPosition(),
                 m_MirrorTarget,
                 cur_hit
             );
@@ -335,14 +392,16 @@ void Level::RunGame() {
                 hits.push_back(cur_hit);
         }
 
+        // If the mirror guide goes through multiple walls,
+        // perform a sort (by distance) for the closest wall hit, then use its hit point.
         XMFLOAT3 out_hit;
 
         if (hits.size() > 0) {
-            float distance = XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), hits[0]);
+            float distance = XMFLOAT3_Distance(reflect_line_transform->GetPosition(), hits[0]);
             int closest_hit = 0;
 
             for (unsigned int i = 0; i < hits.size(); i++) {
-                if (XMFLOAT3_Distance(ReflectLineTransform->GetPosition(), hits[i]) < distance)
+                if (XMFLOAT3_Distance(reflect_line_transform->GetPosition(), hits[i]) < distance)
                     closest_hit = i;
             }
 
@@ -396,24 +455,22 @@ void Level::RunGame() {
         m_DefaultShader->ZWriteEnable(true);
     }
 
-    if (m_LevelState == LevelState::STATE_MAIN) {
-        m_ElapsedTime = m_GfxDevice->GetTime() - m_StartTime;
-
-        char time_str[32];
-        sprintf(time_str, "Time: %02i:%02i:%02i",
-            (int)m_ElapsedTime / 60,
-            (int)m_ElapsedTime % 60,
-            (int)(m_ElapsedTime * 100) % 100
-            );
-
-        m_TimeText->SetText(time_str);
-    }
-
     m_TimeText->Render(m_Camera);
 
     m_MovesCntText->Render(m_Camera);
 }
 
+//=============================================================================
+// Level::RunGameOver
+//=============================================================================
+// 
+// Description: Displays the game over menu screen.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Level::RunGameOver() {
     m_MenuText->SetText("Game Over!");
     m_LeftOptionText->SetText("QUIT");
@@ -428,6 +485,17 @@ void Level::RunGameOver() {
     m_RightOptionText->Render(m_Camera);
 }
 
+//=============================================================================
+// Level::RunComplete
+//=============================================================================
+// 
+// Description: Displays the level complete menu screen.
+// 
+// Parameters:	N/A
+// 
+// Return:      N/A
+// 
+//=============================================================================
 void Level::RunComplete() {
     m_MenuText->SetText("Level Completed!");
     m_LeftOptionText->SetText("RETRY");

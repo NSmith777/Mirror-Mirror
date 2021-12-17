@@ -16,6 +16,7 @@ Menu::Menu(GfxDevice* gfxDevice, FT_Library* pFt) {
     m_GfxDevice = gfxDevice;
     m_IsRunning = true;
 
+    // Instantiate shaders
     m_UnlitShader = new Shader(m_GfxDevice, "media/shaders/unlit_vs.cso", "media/shaders/unlit_ps.cso", sizeof(Constants));
     m_EnvMapShader = new Shader(m_GfxDevice, "media/shaders/envmap_vs.cso", "media/shaders/envmap_ps.cso", sizeof(Constants));
     m_TextShader = new Shader(m_GfxDevice, "media/shaders/text_vs.cso", "media/shaders/text_ps.cso", sizeof(Constants));
@@ -27,39 +28,46 @@ Menu::Menu(GfxDevice* gfxDevice, FT_Library* pFt) {
     m_UnlitShader->BlendEnable(true);
     m_UnlitShader->ZWriteEnable(false);
 
-    m_LogoTex   = new Texture(m_GfxDevice, "media/objects/3DLogo/3DLogoTex.bmp");
-    m_LogoMdl   = new Model(m_GfxDevice, "media/objects/3DLogo/3DLogo.mdl");
-    m_Logo      = new GameObject(m_LogoMdl, m_LogoTex, m_EnvMapShader);
-
+    // Create main camera
     m_Camera = new Camera(m_GfxDevice, m_ScreenShader);
     m_Camera->SetClearColor(0.1406f, 0.1836f, 0.2695f);
 
     m_Camera->GetTransform()->SetPosition({ 0.0f, 0.0f, -10.0f });
 
+    // Create logo mesh object
+    m_LogoTex   = new Texture(m_GfxDevice, "media/objects/3DLogo/3DLogoTex.bmp");
+    m_LogoMdl   = new Model(m_GfxDevice, "media/objects/3DLogo/3DLogo.mdl");
+    m_Logo      = new GameObject(m_LogoMdl, m_LogoTex, m_EnvMapShader);
+
+    // Create the menu UI textures
     m_ButtonTex     = new Texture(m_GfxDevice, "media/ui/button.bmp");
     m_PanelTex      = new Texture(m_GfxDevice, "media/ui/panel.bmp");
     m_LvlButtonTex  = new Texture(m_GfxDevice, "media/ui/lvlsel_button.bmp");
 
+    // Create the menu UI button graphics
     m_StartBtn  = new Image(m_GfxDevice, m_ButtonTex, m_UnlitShader, { -150, -280 }, { 300, 75 });
     m_BackBtn   = new Image(m_GfxDevice, m_ButtonTex, m_UnlitShader, { -150, -250 }, { 300, 75 });
     m_Panel     = new Image(m_GfxDevice, m_PanelTex, m_UnlitShader, { -300, -160 }, { 600, 400 });
 
+    // Instantiate a font object
     m_Font = new Font(m_GfxDevice, pFt, "media/fonts/Roboto-Medium.ttf", 54);
 
+    // Create start button text for title screen
     m_StartText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, -256 }, 0.65f);
     m_StartText->SetText("CLICK TO START");
     m_StartText->SetJustify(Text::TextAlign::ALIGN_CENTER);
 
+    // Create back button text for level select screen
     m_BackText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, -228 }, 0.8f);
     m_BackText->SetText("BACK");
     m_BackText->SetJustify(Text::TextAlign::ALIGN_CENTER);
 
+    // Create level select heading text
     m_LvlSelText = new Text(m_GfxDevice, m_Font, m_TextShader, { 0, 256 }, 1.0f);
     m_LvlSelText->SetText("Level Select");
     m_LvlSelText->SetJustify(Text::TextAlign::ALIGN_CENTER);
 
-    char lvlnum_str[4];
-    int lvlnum = 1;
+    // Setup the level buttons for the level select screen
     for (int y = 0; y < 5; y++) {
         for (int x = 0; x < 6; x++) {
             XMFLOAT2 lvlbutton_pos(
@@ -67,23 +75,25 @@ Menu::Menu(GfxDevice* gfxDevice, FT_Library* pFt) {
                 (float)(150 - (y * 70))
             );
 
-            m_LvlButtons[(y * 6) + x] = new Image(m_GfxDevice, m_LvlButtonTex, m_UnlitShader, lvlbutton_pos, { 64, 64 });
-
             XMFLOAT2 lvlnum_pos(
                 lvlbutton_pos.x + 32,
                 lvlbutton_pos.y + 18
             );
 
-            sprintf(lvlnum_str, "%i", lvlnum);
+            int level_num = (y * 6) + x;
 
-            m_LvlBtnTexts[(y * 6) + x] = new Text(m_GfxDevice, m_Font, m_TextShader, lvlnum_pos, 0.75f);
-            m_LvlBtnTexts[(y * 6) + x]->SetText(lvlnum_str);
-            m_LvlBtnTexts[(y * 6) + x]->SetJustify(Text::TextAlign::ALIGN_CENTER);
+            m_LvlButtons[level_num] = new Image(m_GfxDevice, m_LvlButtonTex, m_UnlitShader, lvlbutton_pos, { 64, 64 });
 
-            lvlnum++;
+            char lvlnum_str[4];
+            sprintf(lvlnum_str, "%i", level_num + 1);
+
+            m_LvlBtnTexts[level_num] = new Text(m_GfxDevice, m_Font, m_TextShader, lvlnum_pos, 0.75f);
+            m_LvlBtnTexts[level_num]->SetText(lvlnum_str);
+            m_LvlBtnTexts[level_num]->SetJustify(Text::TextAlign::ALIGN_CENTER);
         }
     }
 
+    // Initialize menu properties
     m_MenuState = MenuState::STATE_TITLE;
     m_ReturnChoice = 0;
 
@@ -121,6 +131,7 @@ void Menu::RunTitle() {
         DispatchMessageA(&msg);
     }
 
+    // Make our logo mesh spin around side-to-side a little bit
     m_Logo->GetTransform()->SetRotation({ cosf(m_OscillateAmount)/2, sinf(m_OscillateAmount), 0.0f });
     m_Logo->Render(m_Camera);
 

@@ -23,9 +23,17 @@ public:
 
     void Update();
 
-    int GetReturnChoice() { return m_ReturnChoice; }
+    enum class LevelReturnChoice {
+        LVLRET_MAINMENU,
+        LVLRET_RETRY,
+        LVLRET_NEXTLVL,
+    };
+
+    LevelReturnChoice GetReturnChoice() { return m_ReturnChoice; }
 
 private:
+    void LoadLayoutFromFile(int level_num);
+
     void RunGame();
     void RunGameOver();
     void RunComplete();
@@ -35,38 +43,44 @@ private:
 
     Shader *m_ScreenShader, *m_TextShader, *m_UnlitShader, *m_DefaultShader;
 
+    Camera* m_Camera;
+
     Font *m_Font;
 
     Text *m_TimeText, *m_MovesCntText;
 
     Texture *m_PlayerTex;
-    Texture *m_DrawLineGuideTex, *m_DrawLineTargetTex, *m_DrawLineTargetNGTex;
-    Texture *m_GoalTex;
-    Texture *m_GroundTex, *m_WallTex;
-
-    Model *m_PlayerMdl;
-    Model *m_DrawLineGuideMdl, *m_DrawLineTargetMdl;
-    Model *m_GoalUnpressedMdl, *m_GoalPressedMdl;
-    Model *m_GroundMdl;
-    Model *m_WallMdl;
-
+    Model* m_PlayerMdl;
     GameObject* m_Player;
-    GameObject* m_MirrorLine, *m_ReflectLine, *m_DrawLineTarget;
+
+    Texture* m_DrawLineGuideTex;
+    Model* m_DrawLineGuideMdl;
+    GameObject* m_MirrorLine, *m_ReflectLine;
+    
+    Texture *m_DrawLineTargetTex, *m_DrawLineTargetNGTex;
+    Model* m_DrawLineTargetMdl;
+    GameObject* m_DrawLineTarget;
+
+    Texture *m_GoalTex;
+    Model* m_GoalUnpressedMdl, *m_GoalPressedMdl;
     GameObject* m_Goal;
 
+    Texture *m_GroundTex;
+    Model *m_GroundMdl;
     std::vector<GameObject*> m_Grounds;
+
+    Texture* m_WallTex;
+    Model* m_WallMdl;
     std::vector<GameObject*> m_Walls;
 
-    Text* m_MenuText, *m_LeftOptionText, *m_RightOptionText;
-    Texture* m_ButtonTex, * m_PanelTex;
-    Image* m_MenuPanel, *m_LeftOption, *m_RightOption;
+    Text* m_MenuText;
+    Text* m_LeftOptionText, * m_RightOptionText;
 
-    Camera *m_Camera;
+    Texture* m_PanelTex;
+    Image* m_MenuPanel;
 
-    XMFLOAT3 m_CamOffset;
-
-    XMINT2 m_MouseCoords;
-    XMFLOAT3 m_MirrorStart, m_MirrorTarget;
+    Texture* m_ButtonTex;
+    Image* m_LeftOption, *m_RightOption;
 
     enum class LevelObjectId {
         ID_PLAYER = 1,
@@ -83,7 +97,12 @@ private:
     };
 
     LevelState m_LevelState;
-    int m_ReturnChoice;
+    LevelReturnChoice m_ReturnChoice;
+
+    XMFLOAT3 m_CamOffset;
+
+    XMINT2 m_MouseCoords;
+    XMFLOAT3 m_MirrorStart, m_MirrorTarget;
 
     float m_StartTime;
     float m_ElapsedTime;
